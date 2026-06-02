@@ -829,6 +829,9 @@ def create_playlist(sp, df):
         sp.playlist_add_items(pid, chunk); time.sleep(0.3)
         print(f"\r  Lote {i+1}/{len(chunks)}", end="", flush=True)
     print(f"\n✓ Playlist criada com {len(uris)} faixas")
+    pl_url = f"https://open.spotify.com/playlist/{pid}"
+    (WORK_DIR / "backup_playlist.txt").write_text(pl_url, encoding="utf-8")
+    print(f"  {pl_url}")
 
 
 # ==============================================================================
@@ -849,17 +852,26 @@ CSS = """
 body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 
-/* HEADER */
-.site-header{background:var(--bg);border-bottom:1px solid var(--bdr);padding:2.2rem 3rem 1.8rem;text-align:center}
-.header-eyebrow{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin-bottom:.55rem}
-.header-title{font-family:Georgia,serif;font-size:2.4rem;font-weight:normal;color:var(--acc);letter-spacing:.03em}
-.header-divider{display:flex;align-items:center;gap:.7rem;margin:1rem auto;max-width:280px}
-.header-divider::before,.header-divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
-.divider-mark{color:var(--acc2);font-size:.7rem}
-.stats-row{display:flex;gap:2.5rem;flex-wrap:wrap;justify-content:center;margin-top:.4rem}
-.stat{text-align:center}
-.stat-val{font-family:Georgia,serif;font-size:1.6rem;color:var(--acc);line-height:1}
-.stat-lbl{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-top:.2rem}
+/* HEADER — dashboard single-line */
+.site-header{background:var(--bg);border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;gap:1.4rem;padding:0 2.5rem;
+  height:54px;position:sticky;top:0;z-index:100;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:.45rem;text-decoration:none;flex-shrink:0}
+.logo-mark{color:var(--acc);font-size:.65rem}
+.logo-name{font-family:Georgia,serif;font-weight:normal;color:var(--acc);
+  font-size:1.15rem;letter-spacing:.04em;white-space:nowrap}
+.header-sep{width:1px;height:22px;background:var(--bdr);flex-shrink:0}
+.site-stats{display:flex;gap:.55rem;align-items:center;flex:1;min-width:0}
+.stat-item{font-size:.65rem;color:var(--text3);white-space:nowrap}
+.stat-item strong{color:var(--text2);font-weight:600}
+.stat-dot{color:var(--bdr2);font-size:.55rem}
+.header-tabs{display:flex;margin-left:auto;flex-shrink:0}
+.tab-btn{padding:0 1.1rem;height:54px;font-size:.68rem;letter-spacing:.12em;
+  text-transform:uppercase;cursor:pointer;background:none;border:none;
+  border-bottom:2px solid transparent;color:var(--text3);
+  transition:color .18s,border-color .18s;white-space:nowrap}
+.tab-btn.active{color:var(--acc);border-bottom-color:var(--acc)}
+.tab-btn:hover:not(.active){color:var(--text2)}
 
 /* COPY BADGE */
 .copy-badge{display:inline-block;padding:.1rem .42rem;border-radius:4px;font-size:.6rem;
@@ -881,9 +893,8 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   margin-top:.3rem;padding:.28rem .5rem;background:var(--bg2);
   border-left:2px solid var(--bdr);border-radius:0 4px 4px 0}
 
-/* TABS */
-.tab-nav{background:var(--bg);border-bottom:1px solid var(--bdr);display:flex;padding:0 3rem;
-  position:sticky;top:0;z-index:100}
+/* tabs already inside .site-header — keep rule for compat */
+.tab-nav{display:none}
 .tab-btn{padding:.85rem 1.5rem;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
   cursor:pointer;background:none;border:none;border-bottom:2px solid transparent;
   color:var(--text3);transition:color .2s,border-color .2s}
@@ -895,8 +906,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 
 /* CONTROLS */
 .controls{z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--bdr);padding:.6rem 2.5rem;
-  display:flex;gap:.45rem;flex-wrap:wrap;align-items:center}
+  border-bottom:1px solid var(--bdr);padding:.5rem 2.5rem;
+  display:flex;flex-direction:column;gap:.38rem}
+.ctrl-row{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap}
 .ctrl-input{background:var(--bg2);border:1px solid var(--bdr);color:var(--text);
   padding:.4rem .9rem;border-radius:20px;font-size:.84rem;outline:none;
   flex:1;min-width:160px;transition:border-color .15s}
@@ -914,9 +926,17 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   cursor:pointer;border:1px solid var(--bdr);background:transparent;color:var(--text3);
   transition:all .15s;white-space:nowrap}
 .chip.active{background:var(--acc);border-color:var(--acc);color:#fff}
-.chip:hover:not(.active){border-color:var(--acc2);color:var(--acc)}
+.chip.multi-active{background:var(--acc2);border-color:var(--acc2);color:#fff}
+.chip:hover:not(.active):not(.multi-active){border-color:var(--acc2);color:var(--acc)}
 .chips-label{font-size:.62rem;color:var(--text3);white-space:nowrap;letter-spacing:.05em;
   text-transform:uppercase}
+
+/* PLAYLIST BUTTON */
+.playlist-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .8rem;
+  border-radius:20px;font-size:.7rem;font-weight:600;letter-spacing:.04em;
+  background:#1DB954;color:#fff;border:none;cursor:pointer;text-decoration:none;
+  transition:opacity .15s;white-space:nowrap}
+.playlist-btn:hover{opacity:.85}
 
 /* MAIN */
 .main{max-width:1200px;margin:0 auto;padding:1.4rem 2.5rem}
@@ -1000,6 +1020,11 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .tr-artist{font-size:.72rem;color:var(--text3);margin-top:.07rem}
 .tr-album{font-size:.67rem;color:var(--text3);margin-top:.04rem;
   font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.tr-meta{font-size:.63rem;color:var(--text3);margin-top:.12rem}
+.tr-discogs-link{font-size:.6rem;color:var(--text3);text-decoration:none;
+  border:1px solid var(--bdr);border-radius:4px;padding:.04rem .3rem;
+  margin-top:.1rem;display:inline-block;transition:color .15s,border-color .15s}
+.tr-discogs-link:hover{color:var(--acc);border-color:var(--acc2)}
 .tr-bpm-area{flex-shrink:0;text-align:center;min-width:60px;position:relative;z-index:1}
 .tr-bpm-num{font-family:Georgia,serif;font-size:2rem;font-weight:bold;
   color:var(--bpm-col);line-height:1}
@@ -1016,11 +1041,12 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 
 /* RESPONSIVE */
 @media(max-width:640px){
-  .site-header{padding:1.4rem 1.1rem}.tab-nav{padding:0 1.1rem}
-  .controls{padding:.55rem .9rem}.main{padding:.9rem .9rem}
+  .site-header{padding:0 1rem;gap:.8rem}
+  .site-stats{display:none}
+  .header-sep{display:none}
+  .controls{padding:.45rem .9rem}.main{padding:.9rem .9rem}
   .album-header{gap:.7rem;padding:.8rem .9rem}
   .cover-img,.cover-ph{width:68px;height:68px}
-  .stats-row{gap:1.5rem}
   .tr-bpm-num{font-size:1.5rem}
 }
 """
@@ -1050,10 +1076,41 @@ function collapseAll(){
   });
 }
 var origemFilter='all';
+var nacionalFilter='all'; // 'all' | 'nacional' | 'internacional'
+var decadeFilter=new Set(); // vazio = todos
+
 function setOrigemFilter(val,el){
   origemFilter=val;
   document.querySelectorAll('.origem-chip').forEach(function(c){c.classList.remove('active')});
   el.classList.add('active');
+  filterLP();
+}
+function setNacionalFilter(val,el){
+  nacionalFilter=val;
+  document.querySelectorAll('.nac-chip').forEach(function(c){c.classList.remove('active')});
+  el.classList.add('active');
+  filterLP();
+}
+function setDecadeFilter(val,el){
+  if(val==='all'){
+    decadeFilter.clear();
+    document.querySelectorAll('.decade-chip').forEach(function(c){
+      c.classList.remove('active');c.classList.remove('multi-active');
+    });
+    el.classList.add('active');
+  } else {
+    document.querySelector('.decade-chip[data-val="all"]').classList.remove('active');
+    if(decadeFilter.has(val)){
+      decadeFilter.delete(val);
+      el.classList.remove('multi-active');
+    } else {
+      decadeFilter.add(val);
+      el.classList.add('multi-active');
+    }
+    if(decadeFilter.size===0){
+      document.querySelector('.decade-chip[data-val="all"]').classList.add('active');
+    }
+  }
   filterLP();
 }
 function filterLP(){
@@ -1065,7 +1122,10 @@ function filterLP(){
   cards.forEach(function(c){
     var qOk=!q||c.dataset.search.includes(q);
     var origOk=origemFilter==='all'||(origemFilter===''?!c.dataset.origem:c.dataset.origem===origemFilter);
-    var ok=qOk&&origOk;
+    var isBrazil=c.dataset.country==='brazil';
+    var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
+    var decOk=decadeFilter.size===0||decadeFilter.has(c.dataset.decade);
+    var ok=qOk&&origOk&&nacOk&&decOk;
     c.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-lp').textContent=vis;
@@ -1196,7 +1256,7 @@ def render_track_lp(row):
 </div>'''
 
 
-def render_album_lp(group, copy_count=1, fields=None):
+def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel=""):
     """Renderiza um card de álbum (LP view)."""
     fields    = fields or {}
     first     = group.iloc[0]
@@ -1209,63 +1269,81 @@ def render_album_lp(group, copy_count=1, fields=None):
     styles_s  = esc(first.get("styles") or "")
     genres_s  = esc(first.get("genres") or "")
     release_id = first.get("release_id", "")
+    country_s  = esc(country or "")
+
+    # Genre + Style unificados
+    genre_parts = [p.strip() for p in (genres_s + ", " + styles_s).split(",") if p.strip() and p.strip() != "nan"]
+    seen = set(); genre_parts_dedup = [p for p in genre_parts if not (p in seen or seen.add(p))]
+    genre_style_s = " · ".join(genre_parts_dedup[:5])
+
+    # Decade key para filtro JS
+    year_int = int(first["year"]) if safe_float(first.get("year")) else 0
+    if year_int < 1970:    decade_key = "pre70"
+    elif year_int < 1980:  decade_key = "70s"
+    elif year_int < 1990:  decade_key = "80s"
+    elif year_int < 2000:  decade_key = "90s"
+    elif year_int < 2010:  decade_key = "2000s"
+    elif year_int < 2020:  decade_key = "2010s"
+    elif year_int > 0:     decade_key = "2020s"
+    else:                  decade_key = ""
+
+    # Cor do card
+    card_style = ""
+    if color_pastel and len(color_pastel) == 7:
+        card_style = f' style="background:linear-gradient(135deg,{color_pastel}55 0%,var(--card) 55%)"'
 
     img_tag = (f'<img class="cover-img" src="{cover}" alt="" loading="lazy" '
                f'onerror="this.style.display=\'none\'">'
                if cover else '<div class="cover-ph">&#9836;</div>')
 
     tags = ""
-    if year_s:   tags += f'<span class="tag">{year_s}</span>'
-    if styles_s: tags += f'<span class="tag tag-acc">{styles_s[:40]}</span>'
-    elif genres_s: tags += f'<span class="tag tag-acc">{genres_s[:40]}</span>'
-    if bpm_range: tags += f'<span class="tag">{bpm_range}</span>'
+    if year_s:       tags += f'<span class="tag">{year_s}</span>'
+    if country_s:    tags += f'<span class="tag">{country_s}</span>'
+    if genre_style_s: tags += f'<span class="tag tag-acc">{genre_style_s[:50]}</span>'
+    if bpm_range:    tags += f'<span class="tag">{bpm_range}</span>'
 
-    # Badge de cópias
     copy_badge = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
 
-    # Link para o Discogs
-    discogs_url = f"https://www.discogs.com/release/{release_id}"
+    discogs_url  = f"https://www.discogs.com/release/{release_id}"
     discogs_link = (f'<a class="discogs-link" href="{discogs_url}" target="_blank" '
                     f'onclick="event.stopPropagation()" title="Ver no Discogs">'
                     f'&#9675; Discogs</a>')
 
-    # Campos personalizados
     custom_html = ""
     field_items = []
-    if fields.get("Origem"):  field_items.append(f'<span class="field-item"><strong>Origem:</strong> {esc(fields["Origem"])}</span>')
-    if fields.get("DJ"):      field_items.append(f'<span class="field-item"><strong>DJ:</strong> {esc(fields["DJ"])}</span>')
-    if fields.get("PA"):      field_items.append(f'<span class="field-item"><strong>PA:</strong> {esc(fields["PA"])}</span>')
-    if fields.get("$"):       field_items.append(f'<span class="field-item"><strong>$:</strong> {esc(fields["$"])}</span>')
-    if fields.get("Recebido?"):field_items.append(f'<span class="field-item"><strong>Recebido:</strong> {esc(fields["Recebido?"])}</span>')
-    mc = fields.get("Media Condition","")
-    sc = fields.get("Sleeve Condition","")
+    if fields.get("Origem"):   field_items.append(f'<span class="field-item"><strong>Origem:</strong> {esc(fields["Origem"])}</span>')
+    if fields.get("DJ"):       field_items.append(f'<span class="field-item"><strong>DJ:</strong> {esc(fields["DJ"])}</span>')
+    if fields.get("PA"):       field_items.append(f'<span class="field-item"><strong>PA:</strong> {esc(fields["PA"])}</span>')
+    if fields.get("$"):        field_items.append(f'<span class="field-item"><strong>$:</strong> {esc(fields["$"])}</span>')
+    if fields.get("Recebido?"): field_items.append(f'<span class="field-item"><strong>Recebido:</strong> {esc(fields["Recebido?"])}</span>')
+    mc = fields.get("Media Condition",""); sc = fields.get("Sleeve Condition","")
     if mc or sc:
-        cond = " / ".join(filter(None, [mc, sc]))
-        field_items.append(f'<span class="field-item"><strong>Cond:</strong> {esc(cond)}</span>')
+        field_items.append(f'<span class="field-item"><strong>Cond:</strong> {esc(" / ".join(filter(None,[mc,sc])))}</span>')
     if field_items:
         custom_html += f'<div class="fields-row">{"".join(field_items)}</div>'
     if fields.get("Notas"):
         custom_html += f'<div class="field-notes">{esc(fields["Notas"])}</div>'
 
-    # Dados de busca incluem nomes das faixas
     track_titles = " ".join(str(r.get("track_title","")) for _, r in group.iterrows())
     search_str = html_module.escape(
         f'{first.get("album_artist","")} {first.get("album_title","")} '
-        f'{styles_s} {genres_s} {year_s} {track_titles} '
+        f'{styles_s} {genres_s} {year_s} {country} {track_titles} '
         f'{fields.get("Origem","")} {fields.get("Notas","")}'.lower()
     )
 
-    # Deduplica faixas (para álbuns com múltiplas cópias no backup)
     group_dedup = group.drop_duplicates(subset=["position"])
     tracks_html = "\n".join(render_track_lp(r) for _, r in group_dedup.iterrows())
     origem_val = (fields.get("Origem") or "").strip().lower()
+    country_key = country.strip().lower()
 
-    return f'''<article class="album-card"
+    return f'''<article class="album-card"{card_style}
   data-search="{search_str}"
   data-artist="{esc(first.get('album_artist',''))}"
   data-year="{year_s}"
   data-min-bpm="{min_bpm}"
-  data-origem="{esc(origem_val)}">
+  data-origem="{esc(origem_val)}"
+  data-country="{esc(country_key)}"
+  data-decade="{decade_key}">
   {f'<div class="cover-blur" style="background-image:url(\'{cover}\')"></div>' if cover else ''}
   <header class="album-header" onclick="toggleAlbum(this)">
     <div class="cover-wrap">{img_tag}</div>
@@ -1282,7 +1360,7 @@ def render_album_lp(group, copy_count=1, fields=None):
 </article>'''
 
 
-def render_track_row(row):
+def render_track_row(row, country="", color_pastel=""):
     """Renderiza uma linha de faixa (Track view)."""
     bpm_f     = safe_float(row.get("bpm"))
     uri       = str(row.get("spotify_uri") or "")
@@ -1290,6 +1368,15 @@ def render_track_row(row):
     thumb     = esc(row.get("thumb_url") or row.get("cover_url") or "")
     deezer_id = str(row.get("deezer_id") or "")
     deezer_id = "" if deezer_id in ("nan", "None", "none", "") else deezer_id
+    release_id = row.get("release_id", "")
+    year_s     = str(int(row["year"])) if safe_float(row.get("year")) else ""
+    styles_s   = str(row.get("styles") or "")
+    genres_s   = str(row.get("genres") or "")
+
+    # Genre + Style unificados
+    genre_parts = [p.strip() for p in (genres_s + ", " + styles_s).split(",") if p.strip() and p.strip() != "nan"]
+    seen = set(); genre_parts_dedup = [p for p in genre_parts if not (p in seen or seen.add(p))]
+    genre_style_s = " · ".join(genre_parts_dedup[:4])
 
     bpm_txt = f"{bpm_f:.0f}" if bpm_f else "—"
     bpm_int = int(bpm_f) if bpm_f else 0
@@ -1311,13 +1398,24 @@ def render_track_row(row):
     blur_div = (f'<div class="cover-blur" style="background-image:url(\'{thumb}\')"></div>'
                 if thumb else '')
 
+    discogs_url = f"https://www.discogs.com/release/{release_id}"
+    discogs_link = (f'<a class="tr-discogs-link" href="{discogs_url}" target="_blank" '
+                    f'title="Ver no Discogs">&#9675; Discogs</a>' if release_id else "")
+
+    meta_parts = [p for p in [year_s, esc(country), esc(genre_style_s)] if p]
+    meta_html = f'<div class="tr-meta">{" · ".join(meta_parts)}</div>' if meta_parts else ""
+
+    row_style = ""
+    if color_pastel and len(color_pastel) == 7:
+        row_style = f' style="background:linear-gradient(135deg,{color_pastel}44 0%,var(--card) 50%)"'
+
     search_str = html_module.escape(
         f'{row.get("track_title","")} {row.get("artist_clean","")} '
-        f'{row.get("album_title","")}'.lower()
+        f'{row.get("album_title","")} {country} {genres_s} {styles_s} {year_s}'.lower()
     )
     artist_str = html_module.escape(str(row.get("artist_clean") or ""))
 
-    return f'''<div class="track-row"
+    return f'''<div class="track-row"{row_style}
   data-bpm="{bpm_int}"
   data-hasbpm="{has_bpm}"
   data-search="{search_str}"
@@ -1328,6 +1426,8 @@ def render_track_row(row):
     <div class="tr-name">{esc(row.get("track_title"))}</div>
     <div class="tr-artist">{esc(row.get("artist_clean"))}</div>
     <div class="tr-album">{esc(row.get("album_title"))}</div>
+    {meta_html}
+    {discogs_link}
   </div>
   <div class="tr-bpm-area">
     <div class="tr-bpm-num">{bpm_txt}</div>
@@ -1365,12 +1465,43 @@ def load_collection_fields():
     return fields_map, copy_counts
 
 
+def load_country_map():
+    """Retorna {release_id: country} de backup_country.csv."""
+    path = WORK_DIR / "backup_country.csv"
+    if not path.exists():
+        return {}
+    import pandas as pd
+    df = pd.read_csv(path, dtype=str).fillna("")
+    return {str(r["release_id"]): r.get("country", "") for _, r in df.iterrows()}
+
+
+def load_cover_colors():
+    """Retorna {release_id: color_pastel_hex} de backup_colors.csv."""
+    path = WORK_DIR / "backup_colors.csv"
+    if not path.exists():
+        return {}
+    import pandas as pd
+    df = pd.read_csv(path, dtype=str).fillna("")
+    return {str(r["release_id"]): r.get("color_pastel", "") for _, r in df.iterrows()}
+
+
+def load_playlist_url():
+    """Retorna URL da playlist Spotify salva, ou string vazia."""
+    path = WORK_DIR / "backup_playlist.txt"
+    if path.exists():
+        return path.read_text(encoding="utf-8").strip()
+    return ""
+
+
 def generate_html(df):
     print("\nGerando HTML...")
     path = WORK_DIR / "MinhaColecao_DJ.html"
 
-    # Carrega campos e contagem de cópias
+    # Carrega campos, country, cores e playlist
     fields_map, copy_counts = load_collection_fields()
+    country_map  = load_country_map()
+    colors_map   = load_cover_colors()
+    playlist_url = load_playlist_url()
 
     n_unique  = df["release_id"].nunique()
     n_items   = sum(copy_counts.get(str(rid), 1) for rid in df["release_id"].unique()) if copy_counts else n_unique
@@ -1384,8 +1515,10 @@ def generate_html(df):
     albums_html = "\n".join(
         render_album_lp(
             g,
-            copy_count = copy_counts.get(str(rid), 1),
-            fields     = fields_map.get(str(rid), {}),
+            copy_count   = copy_counts.get(str(rid), 1),
+            fields       = fields_map.get(str(rid), {}),
+            country      = country_map.get(str(rid), ""),
+            color_pastel = colors_map.get(str(rid), ""),
         )
         for rid, g in df.sort_values(["album_artist","album_title"]).groupby("release_id", sort=False)
     )
@@ -1396,7 +1529,14 @@ def generate_html(df):
         lambda v: safe_float(v) if safe_float(v) else 9999
     )
     df_tracks = df_tracks.sort_values("_bpm_sort")
-    tracks_html = "\n".join(render_track_row(r) for _, r in df_tracks.iterrows())
+    tracks_html = "\n".join(
+        render_track_row(
+            r,
+            country      = country_map.get(str(r.get("release_id","")), ""),
+            color_pastel = colors_map.get(str(r.get("release_id","")), ""),
+        )
+        for _, r in df_tracks.iterrows()
+    )
 
     bpm_notice = ""
     if not has_bpm:
@@ -1434,15 +1574,14 @@ def generate_html(df):
         for m, lbl in [("all","Todos"),("with","Com BPM"),("without","Sem BPM")]
     ))
 
-    # Origem filter chips — distinct non-empty values, sorted
+    # Origem filter chips
     origem_vals = sorted(set(
         (v.get("Origem") or "").strip()
         for v in fields_map.values()
         if (v.get("Origem") or "").strip()
     ))
-    has_any_origem = bool(origem_vals)
     origem_chips_html = ""
-    if has_any_origem:
+    if origem_vals:
         chips = (
             '<button class="chip origem-chip active" data-val="all" onclick="setOrigemFilter(this.dataset.val,this)">Todos</button>'
             + ''.join(
@@ -1453,6 +1592,37 @@ def generate_html(df):
             + '<button class="chip origem-chip" data-val="" onclick="setOrigemFilter(this.dataset.val,this)">Sem origem</button>'
         )
         origem_chips_html = f'<div class="chips-row"><span class="chips-label">Origem:</span>{chips}</div>'
+
+    # Nacional/Internacional chips
+    nac_chips_html = (
+        '<div class="chips-row">'
+        '<button class="chip nac-chip active" onclick="setNacionalFilter(\'all\',this)">Tudo</button>'
+        '<button class="chip nac-chip" onclick="setNacionalFilter(\'nacional\',this)">&#127463;&#127479; Nacional</button>'
+        '<button class="chip nac-chip" onclick="setNacionalFilter(\'internacional\',this)">Internacional</button>'
+        '</div>'
+    )
+
+    # Decade chips (multi-select)
+    decade_chips_html = (
+        '<div class="chips-row"><span class="chips-label">D&#233;cada:</span>'
+        '<button class="chip decade-chip active" data-val="all" onclick="setDecadeFilter(this.dataset.val,this)">Todas</button>'
+        + ''.join(
+            f'<button class="chip decade-chip" data-val="{dk}" onclick="setDecadeFilter(this.dataset.val,this)">{lbl}</button>'
+            for dk, lbl in [
+                ("pre70","–1970"),("70s","1970–80"),("80s","1980–90"),
+                ("90s","1990–00"),("2000s","2000–10"),("2010s","2010–20"),("2020s","2020–"),
+            ]
+        )
+        + '</div>'
+    )
+
+    # Playlist Spotify button
+    playlist_btn_html = ""
+    if playlist_url:
+        playlist_btn_html = (
+            f'<a class="playlist-btn" href="{playlist_url}" target="_blank">'
+            f'&#9654; Playlist no Spotify</a>'
+        )
 
     html = f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -1465,30 +1635,40 @@ def generate_html(df):
 <body>
 
 <header class="site-header">
-  <div class="header-eyebrow">Cole&#231;&#227;o de Vinis</div>
-  <h1 class="header-title">DJ Amsa</h1>
-  <div class="header-divider"><span class="divider-mark">&#9670;</span></div>
-  {stats}
+  <span class="logo-mark">&#9670;</span>
+  <span class="logo-name">DJ Amsa</span>
+  <div class="header-sep"></div>
+  <div class="site-stats">
+    <span class="stat-item"><strong>{n_items}</strong> LPs</span>
+    <span class="stat-dot">&#8226;</span>
+    <span class="stat-item"><strong>{n_tracks}</strong> faixas</span>
+    <span class="stat-dot">&#8226;</span>
+    <span class="stat-item"><strong>{n_matched}</strong> no Spotify</span>
+    <span class="stat-dot">&#8226;</span>
+    <span class="stat-item"><strong>{int(df["bpm"].apply(safe_float).notna().sum())}</strong> com BPM</span>
+  </div>
+  <div class="header-tabs">
+    <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">LP</button>
+    <button class="tab-btn" data-v="faixas" onclick="switchView('faixas')">Faixas</button>
+  </div>
+  {playlist_btn_html}
 </header>
-
-<nav class="tab-nav">
-  <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">LP</button>
-  <button class="tab-btn" data-v="faixas" onclick="switchView('faixas')">Faixas</button>
-</nav>
 
 <!-- ═══════════════ LP VIEW ═══════════════ -->
 <div id="view-lp" class="view active">
   <div class="controls">
-    <input class="ctrl-input" id="q-lp" type="search" placeholder="Buscar artista, álbum...">
-    <select class="ctrl-sel" id="sort-lp" onchange="filterLP()">
-      <option value="">Artista A&#8594;Z</option>
-      <option value="year-desc">Ano (recente)</option>
-      <option value="year-asc">Ano (antigo)</option>
-      <option value="bpm-asc">BPM crescente</option>
-      <option value="bpm-desc">BPM decrescente</option>
-    </select>
-    <button class="ctrl-btn" onclick="expandAll()">Expandir tudo</button>
-    <button class="ctrl-btn" onclick="collapseAll()">Recolher tudo</button>
+    <div class="ctrl-row">
+      <input class="ctrl-input" id="q-lp" type="search" placeholder="Buscar artista, &#225;lbum ou faixa...">
+      <select class="ctrl-sel" id="sort-lp" onchange="filterLP()">
+        <option value="">Artista A&#8594;Z</option>
+        <option value="year-desc">Ano (recente)</option>
+        <option value="year-asc">Ano (antigo)</option>
+        <option value="bpm-asc">BPM crescente</option>
+        <option value="bpm-desc">BPM decrescente</option>
+      </select>
+    </div>
+    {nac_chips_html}
+    {decade_chips_html}
     {origem_chips_html}
   </div>
   <main class="main">
@@ -1501,12 +1681,14 @@ def generate_html(df):
 <!-- ═══════════════ TRACK VIEW ═══════════════ -->
 <div id="view-faixas" class="view">
   <div class="controls">
-    <input class="ctrl-input" id="q-faixas" type="search" placeholder="Buscar faixa, artista...">
-    <select class="ctrl-sel" id="sort-faixas" onchange="filterTracks()">
-      <option value="bpm-asc">BPM crescente</option>
-      <option value="bpm-desc">BPM decrescente</option>
-      <option value="az">Artista A&#8594;Z</option>
-    </select>
+    <div class="ctrl-row">
+      <input class="ctrl-input" id="q-faixas" type="search" placeholder="Buscar artista, &#225;lbum ou faixa...">
+      <select class="ctrl-sel" id="sort-faixas" onchange="filterTracks()">
+        <option value="bpm-asc">BPM crescente</option>
+        <option value="bpm-desc">BPM decrescente</option>
+        <option value="az">Artista A&#8594;Z</option>
+      </select>
+    </div>
     <div class="chips-row">{bpm_pres_chips}</div>
     <div class="chips-row">{bpm_chips}</div>
   </div>
