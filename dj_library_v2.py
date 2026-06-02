@@ -207,6 +207,32 @@ def hex_pastel(hex_color, fator=0.25):
         return ""
 
 
+def card_colors(raw_hex, fator=0.28):
+    """Retorna (bg_hex, css_vars) para fundo sólido do card com texto legível.
+    Mistura a cor com branco (fator) e escolhe texto preto ou branco por luminância."""
+    if not raw_hex or len(raw_hex) != 7:
+        return "", ""
+    try:
+        r, g, b = int(raw_hex[1:3], 16), int(raw_hex[3:5], 16), int(raw_hex[5:7], 16)
+        rp = int(r + (255 - r) * fator)
+        gp = int(g + (255 - g) * fator)
+        bp = int(b + (255 - b) * fator)
+        bg = f"#{rp:02X}{gp:02X}{bp:02X}"
+        lum = (0.299 * rp + 0.587 * gp + 0.114 * bp) / 255
+        if lum < 0.50:  # fundo escuro → texto branco
+            cvars = ("--text:#F2F2F2;--text2:#D8D8D8;--text3:#A8A8A8;"
+                     "--bdr:rgba(255,255,255,.18);--bdr2:rgba(255,255,255,.12);"
+                     "--bpm-col:#F8D080;--tracks-bg:rgba(0,0,0,.28);"
+                     "--acc2:rgba(255,200,120,.5)")
+        else:  # fundo claro → texto preto
+            cvars = ("--text:#111;--text2:#444;--text3:#777;"
+                     "--bdr:rgba(0,0,0,.13);--bdr2:rgba(0,0,0,.08);"
+                     "--tracks-bg:rgba(255,255,255,.65)")
+        return bg, cvars
+    except Exception:
+        return "", ""
+
+
 def safe_float(v):
     try:
         f = float(v)
@@ -1093,6 +1119,10 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   transition:color .15s;white-space:nowrap;flex-shrink:0}
 .header-social-btn:hover{color:var(--acc)}
 
+/* LOGO LINK */
+.logo-link{text-decoration:none;color:inherit;transition:opacity .15s}
+.logo-link:hover{opacity:.7}
+
 /* FILTER PANEL */
 .filter-toggle-btn{display:inline-flex;align-items:center;gap:.3rem;
   border:1px solid var(--bdr);background:transparent;color:var(--text3);
@@ -1143,7 +1173,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   padding:.3rem .6rem;font-size:.85rem;flex-shrink:0;transition:transform .25s,color .2s;
   position:relative;z-index:1}
 .album-card.open .toggle-btn{transform:rotate(180deg);color:var(--acc)}
-.tracks-list{border-top:1px solid var(--bdr2);background:rgba(255,255,255,.75)}
+.tracks-list{border-top:1px solid var(--bdr2);background:var(--tracks-bg,rgba(255,255,255,.75))}
 .tracks-list.collapsed{display:none}
 
 /* TRACK ITEM (LP view) */
@@ -1216,7 +1246,8 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .album-header{gap:.7rem;padding:.8rem .9rem}
   .cover-img,.cover-ph{width:68px;height:68px}
   .tr-bpm-num{font-size:1.5rem}
-  .filter-group-label{display:none}
+  .filter-group{flex-direction:column;align-items:flex-start;gap:.28rem}
+  .filter-group-label{display:block;width:100%;margin-bottom:.05rem;font-size:.58rem}
 }
 """
 
@@ -1506,7 +1537,9 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     # Cor do card
     card_style = ""
     if color_pastel and len(color_pastel) == 7:
-        card_style = f' style="background:linear-gradient(135deg,{color_pastel}DD 0%,var(--card) 58%)"'
+        bg, cvars = card_colors(color_pastel)
+        if bg:
+            card_style = f' style="background:{bg};{cvars}"'
 
     img_tag = (f'<img class="cover-img" src="{cover}" alt="" loading="lazy" '
                f'onerror="this.style.display=\'none\'">'
@@ -1644,7 +1677,9 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
 
     row_style = ""
     if color_pastel and len(color_pastel) == 7:
-        row_style = f' style="background:linear-gradient(135deg,{color_pastel}CC 0%,var(--card) 52%)"'
+        bg, cvars = card_colors(color_pastel)
+        if bg:
+            row_style = f' style="background:{bg};{cvars}"'
 
     search_str = html_module.escape(
         f'{row.get("track_title","")} {row.get("artist_clean","")} '
@@ -1771,7 +1806,7 @@ def generate_html(df):
             copy_count   = copy_counts.get(str(rid), 1),
             fields       = fields_map.get(str(rid), {}),
             country      = country_map.get(str(rid), ""),
-            color_pastel = hex_pastel(colors_map.get(str(rid), ""), 0.10),
+            color_pastel = colors_map.get(str(rid), ""),
             format_data  = format_map.get(str(rid), {}),
         )
         for rid, g in df.sort_values(["album_artist","album_title"]).groupby("release_id", sort=False)
@@ -1787,7 +1822,7 @@ def generate_html(df):
         render_track_row(
             r,
             country      = country_map.get(str(r.get("release_id","")), ""),
-            color_pastel = hex_pastel(colors_map.get(str(r.get("release_id","")), ""), 0.10),
+            color_pastel = colors_map.get(str(r.get("release_id","")), ""),
             format_data  = format_map.get(str(r.get("release_id","")), {}),
             origem       = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Origem", ""),
         )
@@ -1813,7 +1848,7 @@ def generate_html(df):
              f'<div class="stat-lbl">Cobertura</div></div>'
              f'</div>')
 
-    bpm_count = int(df["bpm"].apply(safe_float).notna().sum())
+    bpm_count = int(((df["status"] == "ACEITO") & df["bpm"].apply(safe_float).notna()).sum())
 
     # ── Chip inner HTML (sem wrapper div, para uso nos filter-groups) ─────────
     nac_inner = (
@@ -1832,8 +1867,8 @@ def generate_html(df):
             f'<button class="chip decade-chip" data-val="{dk}"'
             f' onclick="setDecadeFilter(this.dataset.val,this)">{lbl}</button>'
             for dk, lbl in [
-                ("pre70","–1970"),("70s","1970–80"),("80s","1980–90"),
-                ("90s","1990–00"),("2000s","2000–10"),("2010s","2010–20"),("2020s","2020–"),
+                ("pre70","1970-"),("70s","1970-80"),("80s","1980-90"),
+                ("90s","1990-00"),("2000s","2000-10"),("2010s","2010-20"),("2020s","2020+"),
             ]
         )
     )
@@ -1872,16 +1907,16 @@ def generate_html(df):
         f'data-val="{v}" onclick="setBpmFilter(\'{v}\',this)">{lbl}</button>'
         for v, lbl in [
             ("all","Tudo"),("with","Com BPM"),
-            ("sub70","70–"),("70-80","70–80"),("80-90","80–90"),
-            ("90-100","90–100"),("100-110","100–110"),("110-120","110–120"),
-            ("120-130","120–130"),("130-140","130–140"),("140plus","140+"),
+            ("sub70","70-"),("70-80","70-80"),("80-90","80-90"),
+            ("90-100","90-100"),("100-110","100-110"),("110-120","110-120"),
+            ("120-130","120-130"),("130-140","130-140"),("140plus","140+"),
             ("nobpm","Sem BPM"),
         ]
     )
 
     # ── Filter panels (collapsible) ───────────────────────────────────────────
     origem_group = (
-        f'<div class="filter-group"><span class="filter-group-label">Cole&#231;&#227;o</span>{origem_inner}</div>'
+        f'<div class="filter-group"><span class="filter-group-label">Loja</span>{origem_inner}</div>'
         if origem_inner else ''
     )
 
@@ -1947,13 +1982,12 @@ def generate_html(df):
         '</svg>'
     )
 
-    # Botão Spotify (liga à playlist se disponível)
-    spotify_social_btn = ""
-    if playlist_url:
-        spotify_social_btn = (
-            f'<a class="header-social-btn" href="{playlist_url}" target="_blank">'
-            f'{SVG_SPOTIFY} Spotify</a>'
-        )
+    # Botão Spotify (liga à playlist se disponível, senão ao Spotify genérico)
+    spotify_href = playlist_url or "https://open.spotify.com"
+    spotify_social_btn = (
+        f'<a class="header-social-btn" href="{spotify_href}" target="_blank">'
+        f'{SVG_SPOTIFY} Spotify</a>'
+    )
 
     html = f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -1967,7 +2001,7 @@ def generate_html(df):
 
 <header class="site-header">
   <span class="logo-mark">&#9670;</span>
-  <span class="logo-name">DJ Amsa</span>
+  <a class="logo-name logo-link" href="https://www.instagram.com/amsa2diop" target="_blank">DJ Amsa</a>
   <div class="header-sep"></div>
   <div class="site-stats">
     <span class="stat-item"><strong>{n_items}</strong> discos</span>
@@ -1977,9 +2011,9 @@ def generate_html(df):
     <span class="stat-item"><strong>{bpm_count}</strong> com BPM</span>
   </div>
   <div class="header-sep"></div>
-  <a class="header-social-btn" href="https://www.instagram.com/amsa2diop" target="_blank">{SVG_INSTAGRAM} Instagram</a>
   {spotify_social_btn}
   <a class="header-social-btn" href="https://www.discogs.com/pt_BR/user/amsa2diop/collection" target="_blank">{SVG_DISCOGS} Discogs</a>
+  <div class="header-sep"></div>
   <div class="header-tabs">
     <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">Discos</button>
     <button class="tab-btn" data-v="faixas" onclick="switchView('faixas')">Faixas</button>
