@@ -1011,9 +1011,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   font-size:1.4rem;letter-spacing:.04em;white-space:nowrap}
 .header-sep{width:1px;height:22px;background:var(--bdr);flex-shrink:0}
 .site-stats{display:flex;gap:.55rem;align-items:center;flex:1;min-width:0}
-.stat-item{font-size:.65rem;color:var(--text3);white-space:nowrap}
-.stat-item strong{color:var(--text2);font-weight:600}
-.stat-dot{color:var(--bdr2);font-size:.55rem}
+.stat-item{font-size:.74rem;color:var(--text2);white-space:nowrap;font-weight:500}
+.stat-item strong{color:var(--text);font-weight:700}
+.stat-dot{color:var(--bdr2);font-size:.62rem}
 .header-tabs{display:flex;margin-left:auto;flex-shrink:0}
 .tab-btn{padding:0 1.1rem;height:54px;font-size:.68rem;letter-spacing:.12em;
   text-transform:uppercase;cursor:pointer;background:none;border:none;
@@ -1087,11 +1087,11 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   transition:opacity .15s;white-space:nowrap}
 .playlist-btn:hover{opacity:.85}
 
-/* SOCIAL BUTTONS (header) */
-.header-social-btn{display:inline-flex;align-items:center;gap:.3rem;font-size:.66rem;
-  color:var(--text3);text-decoration:none;border:1px solid var(--bdr);padding:.2rem .6rem;
-  border-radius:20px;transition:color .15s,border-color .15s;white-space:nowrap;flex-shrink:0}
-.header-social-btn:hover{color:var(--acc);border-color:var(--acc2)}
+/* SOCIAL BUTTONS (header) — links sem contorno */
+.header-social-btn{display:inline-flex;align-items:center;gap:.32rem;font-size:.74rem;
+  color:var(--text2);text-decoration:none;padding:.1rem .2rem;font-weight:500;
+  transition:color .15s;white-space:nowrap;flex-shrink:0}
+.header-social-btn:hover{color:var(--acc)}
 
 /* FILTER PANEL */
 .filter-toggle-btn{display:inline-flex;align-items:center;gap:.3rem;
@@ -1235,7 +1235,6 @@ var origemFilter='all';
 var nacionalFilter='all';
 var decadeFilter=new Set();
 var compilFilter='all';
-var formatFilter=new Set();
 
 function syncAllChips(){
   document.querySelectorAll('.nac-chip').forEach(function(c){
@@ -1248,9 +1247,8 @@ function syncAllChips(){
   document.querySelectorAll('.compil-chip').forEach(function(c){
     c.classList.toggle('active',c.dataset.val===compilFilter);
   });
-  document.querySelectorAll('.fmt-chip').forEach(function(c){
-    if(c.dataset.val==='all'){c.classList.toggle('active',formatFilter.size===0);c.classList.remove('multi-active');}
-    else{c.classList.toggle('multi-active',formatFilter.has(c.dataset.val));c.classList.remove('active');}
+  document.querySelectorAll('.bpm-chip').forEach(function(c){
+    c.classList.toggle('active',c.dataset.val===activeBpmFilter);
   });
   document.querySelectorAll('.origem-chip').forEach(function(c){
     c.classList.toggle('active',c.dataset.val===origemFilter);
@@ -1321,27 +1319,6 @@ function setCompilFilter(val,el){
   document.querySelectorAll('.compil-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('active')});
   filterLP();filterTracks();
 }
-function setFormatFilter(val,el){
-  if(val==='all'){
-    formatFilter.clear();
-    document.querySelectorAll('.fmt-chip').forEach(function(c){c.classList.remove('multi-active');c.classList.remove('active')});
-    document.querySelectorAll('.fmt-chip[data-val="all"]').forEach(function(c){c.classList.add('active')});
-  } else {
-    document.querySelectorAll('.fmt-chip[data-val="all"]').forEach(function(c){c.classList.remove('active')});
-    var esc=val.replace(/"/g,'&quot;');
-    if(formatFilter.has(val)){
-      formatFilter.delete(val);
-      document.querySelectorAll('.fmt-chip[data-val="'+esc+'"]').forEach(function(c){c.classList.remove('multi-active')});
-    } else {
-      formatFilter.add(val);
-      document.querySelectorAll('.fmt-chip[data-val="'+esc+'"]').forEach(function(c){c.classList.add('multi-active')});
-    }
-    if(formatFilter.size===0){
-      document.querySelectorAll('.fmt-chip[data-val="all"]').forEach(function(c){c.classList.add('active')});
-    }
-  }
-  filterLP();filterTracks();
-}
 
 // ── LP FILTER ─────────────────────────────────────────────────────────────────
 function filterLP(){
@@ -1357,8 +1334,7 @@ function filterLP(){
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(c.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&c.dataset.compilation==='1')||(compilFilter==='nocomp'&&c.dataset.compilation!=='1');
-    var fmtOk=formatFilter.size===0||formatFilter.has(c.dataset.format);
-    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&fmtOk;
+    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk;
     c.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-lp').textContent=vis;
@@ -1377,28 +1353,22 @@ function filterLP(){
 }
 
 // ── TRACK VIEW ────────────────────────────────────────────────────────────────
-var activeBpmRange='all';
-var bpmPresenceFilter='all';
+var activeBpmFilter='all';
 
-function setBpmPresence(mode,el){
-  bpmPresenceFilter=mode;
-  document.querySelectorAll('.bpm-pres-chip').forEach(function(c){c.classList.remove('active')});
+function setBpmFilter(val,el){
+  activeBpmFilter=val;
+  document.querySelectorAll('.bpm-chip').forEach(function(c){c.classList.remove('active')});
   el.classList.add('active');
   filterTracks();
 }
-function setBpmRange(range,el){
-  activeBpmRange=range;
-  document.querySelectorAll('.bpm-range-chip').forEach(function(c){c.classList.remove('active')});
-  el.classList.add('active');
-  filterTracks();
-}
-function bpmInRange(bpm,range){
-  if(range==='all')return true;
-  if(range==='nobpm')return!bpm||bpm===0;
-  if(!bpm||bpm===0)return false;
-  if(range==='sub70')return bpm<70;
-  if(range==='140plus')return bpm>=140;
-  var parts=range.split('-');
+function bpmFilterOk(bpm,hasBpm,filter){
+  if(filter==='all')return true;
+  if(filter==='with')return hasBpm;
+  if(filter==='nobpm')return !hasBpm;
+  if(!hasBpm)return false;
+  if(filter==='sub70')return bpm<70;
+  if(filter==='140plus')return bpm>=140;
+  var parts=filter.split('-');
   return bpm>=+parts[0]&&bpm<+parts[1];
 }
 function filterTracks(){
@@ -1410,16 +1380,14 @@ function filterTracks(){
   rows.forEach(function(r){
     var bpm=+r.dataset.bpm||0;
     var hasBpm=r.dataset.hasbpm==='1';
-    var presOk=(bpmPresenceFilter==='all')||(bpmPresenceFilter==='with'&&hasBpm)||(bpmPresenceFilter==='without'&&!hasBpm);
-    var rangeOk=bpmInRange(bpm,activeBpmRange);
+    var bpmOk=bpmFilterOk(bpm,hasBpm,activeBpmFilter);
     var qOk=!q||r.dataset.search.includes(q);
     var isBrazil=r.dataset.country==='brazil';
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(r.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&r.dataset.compilation==='1')||(compilFilter==='nocomp'&&r.dataset.compilation!=='1');
-    var fmtOk=formatFilter.size===0||formatFilter.has(r.dataset.format);
     var origOk=origemFilter==='all'||(origemFilter===''?!r.dataset.origem:r.dataset.origem===origemFilter);
-    var ok=qOk&&presOk&&rangeOk&&nacOk&&decOk&&compilOk&&fmtOk&&origOk;
+    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk;
     r.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-faixas').textContent=vis;
@@ -1514,7 +1482,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     country_s  = esc(country or "")
     fmt_label   = format_info.get("label", "") or ""
     fmt_size    = format_info.get("format_size", "") or ""
-    is_compil_flag = format_info.get("is_compilation", "0")
+    is_compil_flag = "0"
     artist_lower   = (first.get("album_artist") or "").lower()
     if any(kw in artist_lower for kw in ["various", "v.a.", "variados", "aa.vv."]):
         is_compil_flag = "1"
@@ -1538,7 +1506,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     # Cor do card
     card_style = ""
     if color_pastel and len(color_pastel) == 7:
-        card_style = f' style="background:linear-gradient(135deg,{color_pastel}55 0%,var(--card) 55%)"'
+        card_style = f' style="background:linear-gradient(135deg,{color_pastel}DD 0%,var(--card) 58%)"'
 
     img_tag = (f'<img class="cover-img" src="{cover}" alt="" loading="lazy" '
                f'onerror="this.style.display=\'none\'">'
@@ -1626,7 +1594,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     styles_s   = str(row.get("styles") or "")
     genres_s   = str(row.get("genres") or "")
     fmt_size         = format_info.get("format_size", "") or ""
-    fmt_is_compil    = format_info.get("is_compilation", "0")
+    fmt_is_compil    = "0"
     artist_lower     = (row.get("album_artist") or row.get("artist_clean") or "").lower()
     if any(kw in artist_lower for kw in ["various", "v.a.", "variados", "aa.vv."]):
         fmt_is_compil = "1"
@@ -1676,7 +1644,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
 
     row_style = ""
     if color_pastel and len(color_pastel) == 7:
-        row_style = f' style="background:linear-gradient(135deg,{color_pastel}44 0%,var(--card) 50%)"'
+        row_style = f' style="background:linear-gradient(135deg,{color_pastel}CC 0%,var(--card) 52%)"'
 
     search_str = html_module.escape(
         f'{row.get("track_title","")} {row.get("artist_clean","")} '
@@ -1803,7 +1771,7 @@ def generate_html(df):
             copy_count   = copy_counts.get(str(rid), 1),
             fields       = fields_map.get(str(rid), {}),
             country      = country_map.get(str(rid), ""),
-            color_pastel = hex_pastel(colors_map.get(str(rid), ""), 0.25),
+            color_pastel = hex_pastel(colors_map.get(str(rid), ""), 0.10),
             format_data  = format_map.get(str(rid), {}),
         )
         for rid, g in df.sort_values(["album_artist","album_title"]).groupby("release_id", sort=False)
@@ -1819,7 +1787,7 @@ def generate_html(df):
         render_track_row(
             r,
             country      = country_map.get(str(r.get("release_id","")), ""),
-            color_pastel = hex_pastel(colors_map.get(str(r.get("release_id","")), ""), 0.25),
+            color_pastel = hex_pastel(colors_map.get(str(r.get("release_id","")), ""), 0.10),
             format_data  = format_map.get(str(r.get("release_id","")), {}),
             origem       = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Origem", ""),
         )
@@ -1859,7 +1827,7 @@ def generate_html(df):
 
     decade_inner = (
         '<button class="chip decade-chip active" data-val="all"'
-        ' onclick="setDecadeFilter(this.dataset.val,this)">Todas</button>'
+        ' onclick="setDecadeFilter(this.dataset.val,this)">Tudo</button>'
         + ''.join(
             f'<button class="chip decade-chip" data-val="{dk}"'
             f' onclick="setDecadeFilter(this.dataset.val,this)">{lbl}</button>'
@@ -1872,21 +1840,11 @@ def generate_html(df):
 
     compil_inner = (
         '<button class="chip compil-chip active" data-val="all"'
-        ' onclick="setCompilFilter(\'all\',this)">Todos</button>'
+        ' onclick="setCompilFilter(\'all\',this)">Tudo</button>'
         '<button class="chip compil-chip" data-val="comp"'
         ' onclick="setCompilFilter(\'comp\',this)">Colet&#226;neas</button>'
         '<button class="chip compil-chip" data-val="nocomp"'
         ' onclick="setCompilFilter(\'nocomp\',this)">Simples</button>'
-    )
-
-    format_inner = (
-        '<button class="chip fmt-chip active" data-val="all"'
-        ' onclick="setFormatFilter(\'all\',this)">Todos</button>'
-        + ''.join(
-            f'<button class="chip fmt-chip" data-val="{v}"'
-            f' onclick="setFormatFilter(\'{v}\',this)">{lbl}</button>'
-            for v, lbl in [('LP','LP'),('12"','12&quot;'),('10"','10&quot;'),('7"','7&quot;'),('EP','EP')]
-        )
     )
 
     # Origem values
@@ -1899,7 +1857,7 @@ def generate_html(df):
     if origem_vals:
         origem_inner = (
             '<button class="chip origem-chip active" data-val="all"'
-            ' onclick="setOrigemFilter(this.dataset.val,this)">Todos</button>'
+            ' onclick="setOrigemFilter(this.dataset.val,this)">Tudo</button>'
             + ''.join(
                 f'<button class="chip origem-chip" data-val="{esc(v.lower())}"'
                 f' onclick="setOrigemFilter(this.dataset.val,this)">{esc(v)}</button>'
@@ -1909,17 +1867,12 @@ def generate_html(df):
             '  onclick="setOrigemFilter(this.dataset.val,this)">Sem origem</button>'
         )
 
-    bpm_pres_inner = ''.join(
-        f'<button class="chip bpm-pres-chip{" active" if m=="all" else ""}" '
-        f'data-mode="{m}" onclick="setBpmPresence(\'{m}\',this)">{lbl}</button>'
-        for m, lbl in [("all","Todos"),("with","Com BPM"),("without","Sem BPM")]
-    )
-
-    bpm_range_inner = ''.join(
-        f'<button class="chip bpm-range-chip{" active" if r[0]=="all" else ""}" '
-        f'data-range="{r[0]}" onclick="setBpmRange(\'{r[0]}\',this)">{r[1]}</button>'
-        for r in [
-            ("all","Todos"),("sub70","70–"),("70-80","70–80"),("80-90","80–90"),
+    bpm_chip_inner = ''.join(
+        f'<button class="chip bpm-chip{" active" if v=="all" else ""}" '
+        f'data-val="{v}" onclick="setBpmFilter(\'{v}\',this)">{lbl}</button>'
+        for v, lbl in [
+            ("all","Tudo"),("with","Com BPM"),
+            ("sub70","70–"),("70-80","70–80"),("80-90","80–90"),
             ("90-100","90–100"),("100-110","100–110"),("110-120","110–120"),
             ("120-130","120–130"),("130-140","130–140"),("140plus","140+"),
             ("nobpm","Sem BPM"),
@@ -1936,7 +1889,6 @@ def generate_html(df):
         f'<div class="filter-panel" id="fp-lp">'
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
-        f'<div class="filter-group"><span class="filter-group-label">Formato</span>{format_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
         f'{origem_group}'
         f'</div>'
@@ -1944,20 +1896,63 @@ def generate_html(df):
 
     fp_faixas = (
         f'<div class="filter-panel" id="fp-faixas">'
+        f'<div class="filter-group"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
-        f'<div class="filter-group"><span class="filter-group-label">Formato</span>{format_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
         f'{origem_group}'
         f'</div>'
     )
 
-    # Playlist Spotify button
-    playlist_btn_html = ""
+    # SVG logos para botões sociais do header
+    SVG_INSTAGRAM = (
+        '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="flex-shrink:0">'
+        '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919'
+        '.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664'
+        ' 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07'
+        '-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204'
+        '.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069'
+        ' 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052'
+        '.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98'
+        ' 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2'
+        ' 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667'
+        '-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0z'
+        'M12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0'
+        ' 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>'
+        '</svg>'
+    )
+    SVG_SPOTIFY = (
+        '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="flex-shrink:0">'
+        '<path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0z'
+        'M17.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141'
+        '-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6'
+        ' 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3'
+        '-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48'
+        '.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2z'
+        'M19.08 10.62C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721'
+        '-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719'
+        ' 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>'
+        '</svg>'
+    )
+    SVG_DISCOGS = (
+        '<svg viewBox="0 0 100 100" width="15" height="15" fill="currentColor" style="flex-shrink:0">'
+        '<circle cx="50" cy="50" r="50"/>'
+        '<circle cx="50" cy="50" r="43" fill="none" stroke="white" stroke-width="2.5"/>'
+        '<circle cx="50" cy="50" r="36" fill="none" stroke="white" stroke-width="2.5"/>'
+        '<circle cx="50" cy="50" r="29" fill="none" stroke="white" stroke-width="2.5"/>'
+        '<circle cx="50" cy="50" r="22" fill="none" stroke="white" stroke-width="2.5"/>'
+        '<circle cx="50" cy="50" r="14" fill="white"/>'
+        '<circle cx="50" cy="50" r="4" fill="currentColor"/>'
+        '<polygon points="72,3 85,17 28,97 15,83" fill="white"/>'
+        '</svg>'
+    )
+
+    # Botão Spotify (liga à playlist se disponível)
+    spotify_social_btn = ""
     if playlist_url:
-        playlist_btn_html = (
-            f'<a class="playlist-btn" href="{playlist_url}" target="_blank">'
-            f'&#9654; Playlist no Spotify</a>'
+        spotify_social_btn = (
+            f'<a class="header-social-btn" href="{playlist_url}" target="_blank">'
+            f'{SVG_SPOTIFY} Spotify</a>'
         )
 
     html = f"""<!DOCTYPE html>
@@ -1982,9 +1977,9 @@ def generate_html(df):
     <span class="stat-item"><strong>{bpm_count}</strong> com BPM</span>
   </div>
   <div class="header-sep"></div>
-  <a class="header-social-btn" href="https://www.instagram.com/amsa2diop" target="_blank">&#128247; @amsa2diop</a>
-  <a class="header-social-btn" href="https://www.discogs.com/pt_BR/user/amsa2diop/collection" target="_blank">&#9675; Discogs</a>
-  {playlist_btn_html}
+  <a class="header-social-btn" href="https://www.instagram.com/amsa2diop" target="_blank">{SVG_INSTAGRAM} Instagram</a>
+  {spotify_social_btn}
+  <a class="header-social-btn" href="https://www.discogs.com/pt_BR/user/amsa2diop/collection" target="_blank">{SVG_DISCOGS} Discogs</a>
   <div class="header-tabs">
     <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">Discos</button>
     <button class="tab-btn" data-v="faixas" onclick="switchView('faixas')">Faixas</button>
@@ -2026,8 +2021,6 @@ def generate_html(df):
       </select>
       <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">&#9881; Filtros &#9662;</button>
     </div>
-    <div class="chips-row">{bpm_pres_inner}</div>
-    <div class="chips-row">{bpm_range_inner}</div>
     {fp_faixas}
   </div>
   <main class="main">
