@@ -1,0 +1,22 @@
+# Auth token — nunca commitar
+.spotify_cache
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Claude session
+.claude/
+
+# Logs temporários
+py_err.txt
+py_log.txt
+run_err.txt
+run_log.txt
+
+# R legacy (dados brutos, grandes)
+backup_01_albums.rds
+backup_02_tracks.rds
+backup_03_matched.rds
+backup_04_final.rds
