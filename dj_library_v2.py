@@ -194,6 +194,19 @@ def bpm_color(bpm):
     return "#882020"
 
 
+def hex_pastel(hex_color, fator=0.25):
+    """Mistura cor hex com branco pelo fator (0=original, 1=branco)."""
+    if not hex_color or len(hex_color) != 7:
+        return ""
+    try:
+        r = int(hex_color[1:3], 16)
+        g = int(hex_color[3:5], 16)
+        b = int(hex_color[5:7], 16)
+        return f"#{int(r+(255-r)*fator):02X}{int(g+(255-g)*fator):02X}{int(b+(255-b)*fator):02X}"
+    except Exception:
+        return ""
+
+
 def safe_float(v):
     try:
         f = float(v)
@@ -859,7 +872,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .logo{display:flex;align-items:center;gap:.45rem;text-decoration:none;flex-shrink:0}
 .logo-mark{color:var(--acc);font-size:.65rem}
 .logo-name{font-family:Georgia,serif;font-weight:normal;color:var(--acc);
-  font-size:1.15rem;letter-spacing:.04em;white-space:nowrap}
+  font-size:1.4rem;letter-spacing:.04em;white-space:nowrap}
 .header-sep{width:1px;height:22px;background:var(--bdr);flex-shrink:0}
 .site-stats{display:flex;gap:.55rem;align-items:center;flex:1;min-width:0}
 .stat-item{font-size:.65rem;color:var(--text3);white-space:nowrap}
@@ -937,6 +950,24 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   background:#1DB954;color:#fff;border:none;cursor:pointer;text-decoration:none;
   transition:opacity .15s;white-space:nowrap}
 .playlist-btn:hover{opacity:.85}
+
+/* SOCIAL BUTTONS (header) */
+.header-social-btn{display:inline-flex;align-items:center;gap:.3rem;font-size:.66rem;
+  color:var(--text3);text-decoration:none;border:1px solid var(--bdr);padding:.2rem .6rem;
+  border-radius:20px;transition:color .15s,border-color .15s;white-space:nowrap;flex-shrink:0}
+.header-social-btn:hover{color:var(--acc);border-color:var(--acc2)}
+
+/* FILTER PANEL */
+.filter-toggle-btn{display:inline-flex;align-items:center;gap:.3rem;
+  border:1px solid var(--bdr);background:transparent;color:var(--text3);
+  padding:.32rem .8rem;border-radius:8px;font-size:.72rem;letter-spacing:.04em;
+  text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all .18s;flex-shrink:0}
+.filter-toggle-btn.open{border-color:var(--acc2);color:var(--acc)}
+.filter-panel{display:none;flex-direction:column;gap:.32rem;padding:.18rem 0}
+.filter-panel.open{display:flex}
+.filter-group{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap}
+.filter-group-label{font-size:.6rem;color:var(--text3);text-transform:uppercase;
+  letter-spacing:.07em;white-space:nowrap;min-width:52px;flex-shrink:0}
 
 /* MAIN */
 .main{max-width:1200px;margin:0 auto;padding:1.4rem 2.5rem}
@@ -1044,10 +1075,12 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .site-header{padding:0 1rem;gap:.8rem}
   .site-stats{display:none}
   .header-sep{display:none}
+  .header-social-btn{display:none}
   .controls{padding:.45rem .9rem}.main{padding:.9rem .9rem}
   .album-header{gap:.7rem;padding:.8rem .9rem}
   .cover-img,.cover-ph{width:68px;height:68px}
   .tr-bpm-num{font-size:1.5rem}
+  .filter-group-label{display:none}
 }
 """
 
@@ -1058,9 +1091,46 @@ function switchView(v){
   document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active')});
   document.getElementById('view-'+v).classList.add('active');
   document.querySelector('[data-v="'+v+'"]').classList.add('active');
+  syncAllChips();
 }
 
-// ── LP VIEW ───────────────────────────────────────────────────────────────────
+// ── SHARED FILTER STATE ───────────────────────────────────────────────────────
+var origemFilter='all';
+var nacionalFilter='all';
+var decadeFilter=new Set();
+var compilFilter='all';
+var formatFilter=new Set();
+
+function syncAllChips(){
+  document.querySelectorAll('.nac-chip').forEach(function(c){
+    c.classList.toggle('active',c.dataset.val===nacionalFilter);
+  });
+  document.querySelectorAll('.decade-chip').forEach(function(c){
+    if(c.dataset.val==='all'){c.classList.toggle('active',decadeFilter.size===0);c.classList.remove('multi-active');}
+    else{c.classList.toggle('multi-active',decadeFilter.has(c.dataset.val));c.classList.remove('active');}
+  });
+  document.querySelectorAll('.compil-chip').forEach(function(c){
+    c.classList.toggle('active',c.dataset.val===compilFilter);
+  });
+  document.querySelectorAll('.fmt-chip').forEach(function(c){
+    if(c.dataset.val==='all'){c.classList.toggle('active',formatFilter.size===0);c.classList.remove('multi-active');}
+    else{c.classList.toggle('multi-active',formatFilter.has(c.dataset.val));c.classList.remove('active');}
+  });
+  document.querySelectorAll('.origem-chip').forEach(function(c){
+    c.classList.toggle('active',c.dataset.val===origemFilter);
+  });
+}
+
+// ── FILTER PANEL ──────────────────────────────────────────────────────────────
+function toggleFilterPanel(vid){
+  var fp=document.getElementById('fp-'+vid);
+  var btn=document.getElementById('fp-btn-'+vid);
+  var isOpen=fp.classList.toggle('open');
+  if(btn){btn.classList.toggle('open',isOpen);btn.textContent=isOpen?'⚙ Filtros ▴':'⚙ Filtros ▾';}
+  if(isOpen)syncAllChips();
+}
+
+// ── ALBUM ACCORDION ───────────────────────────────────────────────────────────
 function toggleAlbum(hdr){
   var c=hdr.closest('.album-card'),l=c.querySelector('.tracks-list');
   c.classList.toggle('open');l.classList.toggle('collapsed');
@@ -1075,44 +1145,69 @@ function collapseAll(){
     c.classList.remove('open');c.querySelector('.tracks-list').classList.add('collapsed');
   });
 }
-var origemFilter='all';
-var nacionalFilter='all'; // 'all' | 'nacional' | 'internacional'
-var decadeFilter=new Set(); // vazio = todos
 
+// ── FILTER FUNCTIONS ──────────────────────────────────────────────────────────
 function setOrigemFilter(val,el){
   origemFilter=val;
   document.querySelectorAll('.origem-chip').forEach(function(c){c.classList.remove('active')});
-  el.classList.add('active');
-  filterLP();
+  document.querySelectorAll('.origem-chip[data-val="'+CSS.escape(val)+'"]').forEach(function(c){c.classList.add('active')});
+  filterLP();filterTracks();
 }
 function setNacionalFilter(val,el){
   nacionalFilter=val;
   document.querySelectorAll('.nac-chip').forEach(function(c){c.classList.remove('active')});
-  el.classList.add('active');
-  filterLP();
+  document.querySelectorAll('.nac-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('active')});
+  filterLP();filterTracks();
 }
 function setDecadeFilter(val,el){
   if(val==='all'){
     decadeFilter.clear();
-    document.querySelectorAll('.decade-chip').forEach(function(c){
-      c.classList.remove('active');c.classList.remove('multi-active');
-    });
-    el.classList.add('active');
+    document.querySelectorAll('.decade-chip').forEach(function(c){c.classList.remove('active');c.classList.remove('multi-active')});
+    document.querySelectorAll('.decade-chip[data-val="all"]').forEach(function(c){c.classList.add('active')});
   } else {
-    document.querySelector('.decade-chip[data-val="all"]').classList.remove('active');
+    document.querySelectorAll('.decade-chip[data-val="all"]').forEach(function(c){c.classList.remove('active')});
     if(decadeFilter.has(val)){
       decadeFilter.delete(val);
-      el.classList.remove('multi-active');
+      document.querySelectorAll('.decade-chip[data-val="'+val+'"]').forEach(function(c){c.classList.remove('multi-active')});
     } else {
       decadeFilter.add(val);
-      el.classList.add('multi-active');
+      document.querySelectorAll('.decade-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('multi-active')});
     }
     if(decadeFilter.size===0){
-      document.querySelector('.decade-chip[data-val="all"]').classList.add('active');
+      document.querySelectorAll('.decade-chip[data-val="all"]').forEach(function(c){c.classList.add('active')});
     }
   }
-  filterLP();
+  filterLP();filterTracks();
 }
+function setCompilFilter(val,el){
+  compilFilter=val;
+  document.querySelectorAll('.compil-chip').forEach(function(c){c.classList.remove('active')});
+  document.querySelectorAll('.compil-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('active')});
+  filterLP();filterTracks();
+}
+function setFormatFilter(val,el){
+  if(val==='all'){
+    formatFilter.clear();
+    document.querySelectorAll('.fmt-chip').forEach(function(c){c.classList.remove('multi-active');c.classList.remove('active')});
+    document.querySelectorAll('.fmt-chip[data-val="all"]').forEach(function(c){c.classList.add('active')});
+  } else {
+    document.querySelectorAll('.fmt-chip[data-val="all"]').forEach(function(c){c.classList.remove('active')});
+    var esc=val.replace(/"/g,'&quot;');
+    if(formatFilter.has(val)){
+      formatFilter.delete(val);
+      document.querySelectorAll('.fmt-chip[data-val="'+esc+'"]').forEach(function(c){c.classList.remove('multi-active')});
+    } else {
+      formatFilter.add(val);
+      document.querySelectorAll('.fmt-chip[data-val="'+esc+'"]').forEach(function(c){c.classList.add('multi-active')});
+    }
+    if(formatFilter.size===0){
+      document.querySelectorAll('.fmt-chip[data-val="all"]').forEach(function(c){c.classList.add('active')});
+    }
+  }
+  filterLP();filterTracks();
+}
+
+// ── LP FILTER ─────────────────────────────────────────────────────────────────
 function filterLP(){
   var q=document.getElementById('q-lp').value.toLowerCase().trim();
   var s=document.getElementById('sort-lp').value;
@@ -1125,7 +1220,9 @@ function filterLP(){
     var isBrazil=c.dataset.country==='brazil';
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(c.dataset.decade);
-    var ok=qOk&&origOk&&nacOk&&decOk;
+    var compilOk=compilFilter==='all'||(compilFilter==='comp'&&c.dataset.compilation==='1')||(compilFilter==='nocomp'&&c.dataset.compilation!=='1');
+    var fmtOk=formatFilter.size===0||formatFilter.has(c.dataset.format);
+    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&fmtOk;
     c.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-lp').textContent=vis;
@@ -1145,7 +1242,7 @@ function filterLP(){
 
 // ── TRACK VIEW ────────────────────────────────────────────────────────────────
 var activeBpmRange='all';
-var bpmPresenceFilter='all'; // 'all' | 'with' | 'without'
+var bpmPresenceFilter='all';
 
 function setBpmPresence(mode,el){
   bpmPresenceFilter=mode;
@@ -1178,14 +1275,22 @@ function filterTracks(){
     var bpm=+r.dataset.bpm||0;
     var hasBpm=r.dataset.hasbpm==='1';
     var presOk=(bpmPresenceFilter==='all')||(bpmPresenceFilter==='with'&&hasBpm)||(bpmPresenceFilter==='without'&&!hasBpm);
-    var ok=((!q)||r.dataset.search.includes(q))&&bpmInRange(bpm,activeBpmRange)&&presOk;
+    var rangeOk=bpmInRange(bpm,activeBpmRange);
+    var qOk=!q||r.dataset.search.includes(q);
+    var isBrazil=r.dataset.country==='brazil';
+    var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
+    var decOk=decadeFilter.size===0||decadeFilter.has(r.dataset.decade);
+    var compilOk=compilFilter==='all'||(compilFilter==='comp'&&r.dataset.compilation==='1')||(compilFilter==='nocomp'&&r.dataset.compilation!=='1');
+    var fmtOk=formatFilter.size===0||formatFilter.has(r.dataset.format);
+    var origOk=origemFilter==='all'||(origemFilter===''?!r.dataset.origem:r.dataset.origem===origemFilter);
+    var ok=qOk&&presOk&&rangeOk&&nacOk&&decOk&&compilOk&&fmtOk&&origOk;
     r.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-faixas').textContent=vis;
   if(s){
     var vr=rows.filter(function(r){return!r.classList.contains('hidden')});
     vr.sort(function(a,b){
-      if(s==='bpm-asc'){var ba=+a.dataset.bpm||999,bb=+b.dataset.bpm||999;return ba-bb;}
+      if(s==='bpm-asc'){var ba=+a.dataset.bpm||9999,bb=+b.dataset.bpm||9999;return ba-bb;}
       if(s==='bpm-desc'){var ba=+a.dataset.bpm||0,bb=+b.dataset.bpm||0;return bb-ba;}
       if(s==='az')return(a.dataset.artist||'').localeCompare(b.dataset.artist||'');
       return 0;
@@ -1256,9 +1361,10 @@ def render_track_lp(row):
 </div>'''
 
 
-def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel=""):
+def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="", format_data=None):
     """Renderiza um card de álbum (LP view)."""
     fields    = fields or {}
+    format_info = format_data or {}
     first     = group.iloc[0]
     cover     = esc(first.get("cover_url") or "")
     bpm_vals  = group["bpm"].apply(safe_float).dropna()
@@ -1270,6 +1376,12 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     genres_s  = esc(first.get("genres") or "")
     release_id = first.get("release_id", "")
     country_s  = esc(country or "")
+    fmt_label   = format_info.get("label", "") or ""
+    fmt_size    = format_info.get("format_size", "") or ""
+    is_compil_flag = format_info.get("is_compilation", "0")
+    artist_lower   = (first.get("album_artist") or "").lower()
+    if any(kw in artist_lower for kw in ["various", "v.a.", "variados", "aa.vv."]):
+        is_compil_flag = "1"
 
     # Genre + Style unificados
     genre_parts = [p.strip() for p in (genres_s + ", " + styles_s).split(",") if p.strip() and p.strip() != "nan"]
@@ -1299,8 +1411,10 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     tags = ""
     if year_s:       tags += f'<span class="tag">{year_s}</span>'
     if country_s:    tags += f'<span class="tag">{country_s}</span>'
+    if fmt_size and fmt_size not in ("LP","Other"): tags += f'<span class="tag">{esc(fmt_size)}</span>'
     if genre_style_s: tags += f'<span class="tag tag-acc">{genre_style_s[:50]}</span>'
     if bpm_range:    tags += f'<span class="tag">{bpm_range}</span>'
+    if fmt_label:    tags += f'<span class="tag">Selo: {esc(fmt_label[:28])}</span>'
 
     copy_badge = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
 
@@ -1343,7 +1457,9 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
   data-min-bpm="{min_bpm}"
   data-origem="{esc(origem_val)}"
   data-country="{esc(country_key)}"
-  data-decade="{decade_key}">
+  data-decade="{decade_key}"
+  data-compilation="{is_compil_flag}"
+  data-format="{esc(fmt_size)}">
   {f'<div class="cover-blur" style="background-image:url(\'{cover}\')"></div>' if cover else ''}
   <header class="album-header" onclick="toggleAlbum(this)">
     <div class="cover-wrap">{img_tag}</div>
@@ -1360,8 +1476,9 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
 </article>'''
 
 
-def render_track_row(row, country="", color_pastel=""):
+def render_track_row(row, country="", color_pastel="", format_data=None, origem=""):
     """Renderiza uma linha de faixa (Track view)."""
+    format_info = format_data or {}
     bpm_f     = safe_float(row.get("bpm"))
     uri       = str(row.get("spotify_uri") or "")
     status    = str(row.get("status") or "REJEITADO")
@@ -1372,6 +1489,22 @@ def render_track_row(row, country="", color_pastel=""):
     year_s     = str(int(row["year"])) if safe_float(row.get("year")) else ""
     styles_s   = str(row.get("styles") or "")
     genres_s   = str(row.get("genres") or "")
+    fmt_size         = format_info.get("format_size", "") or ""
+    fmt_is_compil    = format_info.get("is_compilation", "0")
+    artist_lower     = (row.get("album_artist") or row.get("artist_clean") or "").lower()
+    if any(kw in artist_lower for kw in ["various", "v.a.", "variados", "aa.vv."]):
+        fmt_is_compil = "1"
+    country_key = (country or "").strip().lower()
+    origem_val  = (origem or "").strip().lower()
+    year_int = int(row["year"]) if safe_float(row.get("year")) else 0
+    if year_int < 1970:    decade_key = "pre70"
+    elif year_int < 1980:  decade_key = "70s"
+    elif year_int < 1990:  decade_key = "80s"
+    elif year_int < 2000:  decade_key = "90s"
+    elif year_int < 2010:  decade_key = "2000s"
+    elif year_int < 2020:  decade_key = "2010s"
+    elif year_int > 0:     decade_key = "2020s"
+    else:                  decade_key = ""
 
     # Genre + Style unificados
     genre_parts = [p.strip() for p in (genres_s + ", " + styles_s).split(",") if p.strip() and p.strip() != "nan"]
@@ -1419,7 +1552,12 @@ def render_track_row(row, country="", color_pastel=""):
   data-bpm="{bpm_int}"
   data-hasbpm="{has_bpm}"
   data-search="{search_str}"
-  data-artist="{artist_str}">
+  data-artist="{artist_str}"
+  data-country="{esc(country_key)}"
+  data-decade="{decade_key}"
+  data-compilation="{fmt_is_compil}"
+  data-format="{esc(fmt_size)}"
+  data-origem="{esc(origem_val)}">
   {blur_div}
   {img_tag}
   <div class="tr-info">
@@ -1476,13 +1614,23 @@ def load_country_map():
 
 
 def load_cover_colors():
-    """Retorna {release_id: color_pastel_hex} de backup_colors.csv."""
+    """Retorna {release_id: color_hex_original} de backup_colors.csv."""
     path = WORK_DIR / "backup_colors.csv"
     if not path.exists():
         return {}
     import pandas as pd
     df = pd.read_csv(path, dtype=str).fillna("")
-    return {str(r["release_id"]): r.get("color_pastel", "") for _, r in df.iterrows()}
+    return {str(r["release_id"]): r.get("color_hex", "") for _, r in df.iterrows()}
+
+
+def load_format_map():
+    """Retorna {release_id: {label, is_compilation, format_size, format_raw}} de backup_format.csv."""
+    path = WORK_DIR / "backup_format.csv"
+    if not path.exists():
+        return {}
+    import pandas as pd
+    df = pd.read_csv(path, dtype=str).fillna("")
+    return {str(r["release_id"]): dict(r) for _, r in df.iterrows()}
 
 
 def load_playlist_url():
@@ -1497,10 +1645,11 @@ def generate_html(df):
     print("\nGerando HTML...")
     path = WORK_DIR / "MinhaColecao_DJ.html"
 
-    # Carrega campos, country, cores e playlist
+    # Carrega campos, country, cores, formato e playlist
     fields_map, copy_counts = load_collection_fields()
     country_map  = load_country_map()
     colors_map   = load_cover_colors()
+    format_map   = load_format_map()
     playlist_url = load_playlist_url()
 
     n_unique  = df["release_id"].nunique()
@@ -1518,7 +1667,8 @@ def generate_html(df):
             copy_count   = copy_counts.get(str(rid), 1),
             fields       = fields_map.get(str(rid), {}),
             country      = country_map.get(str(rid), ""),
-            color_pastel = colors_map.get(str(rid), ""),
+            color_pastel = hex_pastel(colors_map.get(str(rid), ""), 0.25),
+            format_data  = format_map.get(str(rid), {}),
         )
         for rid, g in df.sort_values(["album_artist","album_title"]).groupby("release_id", sort=False)
     )
@@ -1533,7 +1683,9 @@ def generate_html(df):
         render_track_row(
             r,
             country      = country_map.get(str(r.get("release_id","")), ""),
-            color_pastel = colors_map.get(str(r.get("release_id","")), ""),
+            color_pastel = hex_pastel(colors_map.get(str(r.get("release_id","")), ""), 0.25),
+            format_data  = format_map.get(str(r.get("release_id","")), {}),
+            origem       = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Origem", ""),
         )
         for _, r in df_tracks.iterrows()
     )
@@ -1557,7 +1709,77 @@ def generate_html(df):
              f'<div class="stat-lbl">Cobertura</div></div>'
              f'</div>')
 
-    bpm_chips = (''.join(
+    bpm_count = int(df["bpm"].apply(safe_float).notna().sum())
+
+    # ── Chip inner HTML (sem wrapper div, para uso nos filter-groups) ─────────
+    nac_inner = (
+        '<button class="chip nac-chip active" data-val="all"'
+        ' onclick="setNacionalFilter(\'all\',this)">Tudo</button>'
+        '<button class="chip nac-chip" data-val="nacional"'
+        ' onclick="setNacionalFilter(\'nacional\',this)">&#127463;&#127479; Nacional</button>'
+        '<button class="chip nac-chip" data-val="internacional"'
+        ' onclick="setNacionalFilter(\'internacional\',this)">Internacional</button>'
+    )
+
+    decade_inner = (
+        '<button class="chip decade-chip active" data-val="all"'
+        ' onclick="setDecadeFilter(this.dataset.val,this)">Todas</button>'
+        + ''.join(
+            f'<button class="chip decade-chip" data-val="{dk}"'
+            f' onclick="setDecadeFilter(this.dataset.val,this)">{lbl}</button>'
+            for dk, lbl in [
+                ("pre70","–1970"),("70s","1970–80"),("80s","1980–90"),
+                ("90s","1990–00"),("2000s","2000–10"),("2010s","2010–20"),("2020s","2020–"),
+            ]
+        )
+    )
+
+    compil_inner = (
+        '<button class="chip compil-chip active" data-val="all"'
+        ' onclick="setCompilFilter(\'all\',this)">Todos</button>'
+        '<button class="chip compil-chip" data-val="comp"'
+        ' onclick="setCompilFilter(\'comp\',this)">Colet&#226;neas</button>'
+        '<button class="chip compil-chip" data-val="nocomp"'
+        ' onclick="setCompilFilter(\'nocomp\',this)">Simples</button>'
+    )
+
+    format_inner = (
+        '<button class="chip fmt-chip active" data-val="all"'
+        ' onclick="setFormatFilter(\'all\',this)">Todos</button>'
+        + ''.join(
+            f'<button class="chip fmt-chip" data-val="{v}"'
+            f' onclick="setFormatFilter(\'{v}\',this)">{lbl}</button>'
+            for v, lbl in [('LP','LP'),('12"','12&quot;'),('10"','10&quot;'),('7"','7&quot;'),('EP','EP')]
+        )
+    )
+
+    # Origem values
+    origem_vals = sorted(set(
+        (v.get("Origem") or "").strip()
+        for v in fields_map.values()
+        if (v.get("Origem") or "").strip()
+    ))
+    origem_inner = ""
+    if origem_vals:
+        origem_inner = (
+            '<button class="chip origem-chip active" data-val="all"'
+            ' onclick="setOrigemFilter(this.dataset.val,this)">Todos</button>'
+            + ''.join(
+                f'<button class="chip origem-chip" data-val="{esc(v.lower())}"'
+                f' onclick="setOrigemFilter(this.dataset.val,this)">{esc(v)}</button>'
+                for v in origem_vals
+            )
+            + '<button class="chip origem-chip" data-val=""'
+            '  onclick="setOrigemFilter(this.dataset.val,this)">Sem origem</button>'
+        )
+
+    bpm_pres_inner = ''.join(
+        f'<button class="chip bpm-pres-chip{" active" if m=="all" else ""}" '
+        f'data-mode="{m}" onclick="setBpmPresence(\'{m}\',this)">{lbl}</button>'
+        for m, lbl in [("all","Todos"),("with","Com BPM"),("without","Sem BPM")]
+    )
+
+    bpm_range_inner = ''.join(
         f'<button class="chip bpm-range-chip{" active" if r[0]=="all" else ""}" '
         f'data-range="{r[0]}" onclick="setBpmRange(\'{r[0]}\',this)">{r[1]}</button>'
         for r in [
@@ -1566,54 +1788,32 @@ def generate_html(df):
             ("120-130","120–130"),("130-140","130–140"),("140plus","140+"),
             ("nobpm","Sem BPM"),
         ]
-    ))
-
-    bpm_pres_chips = (''.join(
-        f'<button class="chip bpm-pres-chip{" active" if m=="all" else ""}" '
-        f'data-mode="{m}" onclick="setBpmPresence(\'{m}\',this)">{lbl}</button>'
-        for m, lbl in [("all","Todos"),("with","Com BPM"),("without","Sem BPM")]
-    ))
-
-    # Origem filter chips
-    origem_vals = sorted(set(
-        (v.get("Origem") or "").strip()
-        for v in fields_map.values()
-        if (v.get("Origem") or "").strip()
-    ))
-    origem_chips_html = ""
-    if origem_vals:
-        chips = (
-            '<button class="chip origem-chip active" data-val="all" onclick="setOrigemFilter(this.dataset.val,this)">Todos</button>'
-            + ''.join(
-                f'<button class="chip origem-chip" data-val="{esc(v.lower())}"'
-                f' onclick="setOrigemFilter(this.dataset.val,this)">{esc(v)}</button>'
-                for v in origem_vals
-            )
-            + '<button class="chip origem-chip" data-val="" onclick="setOrigemFilter(this.dataset.val,this)">Sem origem</button>'
-        )
-        origem_chips_html = f'<div class="chips-row"><span class="chips-label">Origem:</span>{chips}</div>'
-
-    # Nacional/Internacional chips
-    nac_chips_html = (
-        '<div class="chips-row">'
-        '<button class="chip nac-chip active" onclick="setNacionalFilter(\'all\',this)">Tudo</button>'
-        '<button class="chip nac-chip" onclick="setNacionalFilter(\'nacional\',this)">&#127463;&#127479; Nacional</button>'
-        '<button class="chip nac-chip" onclick="setNacionalFilter(\'internacional\',this)">Internacional</button>'
-        '</div>'
     )
 
-    # Decade chips (multi-select)
-    decade_chips_html = (
-        '<div class="chips-row"><span class="chips-label">D&#233;cada:</span>'
-        '<button class="chip decade-chip active" data-val="all" onclick="setDecadeFilter(this.dataset.val,this)">Todas</button>'
-        + ''.join(
-            f'<button class="chip decade-chip" data-val="{dk}" onclick="setDecadeFilter(this.dataset.val,this)">{lbl}</button>'
-            for dk, lbl in [
-                ("pre70","–1970"),("70s","1970–80"),("80s","1980–90"),
-                ("90s","1990–00"),("2000s","2000–10"),("2010s","2010–20"),("2020s","2020–"),
-            ]
-        )
-        + '</div>'
+    # ── Filter panels (collapsible) ───────────────────────────────────────────
+    origem_group = (
+        f'<div class="filter-group"><span class="filter-group-label">Cole&#231;&#227;o</span>{origem_inner}</div>'
+        if origem_inner else ''
+    )
+
+    fp_lp = (
+        f'<div class="filter-panel" id="fp-lp">'
+        f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
+        f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
+        f'<div class="filter-group"><span class="filter-group-label">Formato</span>{format_inner}</div>'
+        f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
+        f'{origem_group}'
+        f'</div>'
+    )
+
+    fp_faixas = (
+        f'<div class="filter-panel" id="fp-faixas">'
+        f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
+        f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
+        f'<div class="filter-group"><span class="filter-group-label">Formato</span>{format_inner}</div>'
+        f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
+        f'{origem_group}'
+        f'</div>'
     )
 
     # Playlist Spotify button
@@ -1639,19 +1839,20 @@ def generate_html(df):
   <span class="logo-name">DJ Amsa</span>
   <div class="header-sep"></div>
   <div class="site-stats">
-    <span class="stat-item"><strong>{n_items}</strong> LPs</span>
+    <span class="stat-item"><strong>{n_items}</strong> discos</span>
     <span class="stat-dot">&#8226;</span>
     <span class="stat-item"><strong>{n_tracks}</strong> faixas</span>
     <span class="stat-dot">&#8226;</span>
-    <span class="stat-item"><strong>{n_matched}</strong> no Spotify</span>
-    <span class="stat-dot">&#8226;</span>
-    <span class="stat-item"><strong>{int(df["bpm"].apply(safe_float).notna().sum())}</strong> com BPM</span>
+    <span class="stat-item"><strong>{bpm_count}</strong> com BPM</span>
   </div>
+  <div class="header-sep"></div>
+  <a class="header-social-btn" href="https://www.instagram.com/amsa2diop" target="_blank">&#128247; @amsa2diop</a>
+  <a class="header-social-btn" href="https://www.discogs.com/pt_BR/user/amsa2diop/collection" target="_blank">&#9675; Discogs</a>
+  {playlist_btn_html}
   <div class="header-tabs">
-    <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">LP</button>
+    <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">Discos</button>
     <button class="tab-btn" data-v="faixas" onclick="switchView('faixas')">Faixas</button>
   </div>
-  {playlist_btn_html}
 </header>
 
 <!-- ═══════════════ LP VIEW ═══════════════ -->
@@ -1666,10 +1867,9 @@ def generate_html(df):
         <option value="bpm-asc">BPM crescente</option>
         <option value="bpm-desc">BPM decrescente</option>
       </select>
+      <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">&#9881; Filtros &#9662;</button>
     </div>
-    {nac_chips_html}
-    {decade_chips_html}
-    {origem_chips_html}
+    {fp_lp}
   </div>
   <main class="main">
     {bpm_notice}
@@ -1688,9 +1888,11 @@ def generate_html(df):
         <option value="bpm-desc">BPM decrescente</option>
         <option value="az">Artista A&#8594;Z</option>
       </select>
+      <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">&#9881; Filtros &#9662;</button>
     </div>
-    <div class="chips-row">{bpm_pres_chips}</div>
-    <div class="chips-row">{bpm_chips}</div>
+    <div class="chips-row">{bpm_pres_inner}</div>
+    <div class="chips-row">{bpm_range_inner}</div>
+    {fp_faixas}
   </div>
   <main class="main">
     <div class="results-bar"><strong id="cnt-faixas">{n_tracks}</strong> faixas</div>
