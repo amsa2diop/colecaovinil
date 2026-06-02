@@ -287,6 +287,106 @@ def get_discogs_collection():
     return pd.DataFrame(albums), pd.DataFrame(tracks)
 
 
+def fetch_collection_ids_rest():
+    """
+    Retorna set de release_ids (int) da coleção via REST API.
+    Rápido: pagina o índice da coleção sem buscar detalhes de cada release.
+    """
+    session = requests.Session()
+    session.headers.update({
+        "Authorization": f"Discogs token={DISCOGS_TOKEN}",
+        "User-Agent":    "DJLibrary/2.0",
+    })
+    ids = set()
+    page = 1
+    while True:
+        try:
+            r = session.get(
+                f"https://api.discogs.com/users/{DISCOGS_USER}/collection/folders/0/releases",
+                params={"per_page": 100, "page": page, "sort": "added", "sort_order": "desc"},
+                timeout=15,
+            )
+            if r.status_code == 429:
+                print("  Rate limit — aguardando 60s..."); time.sleep(60); continue
+            if r.status_code != 200:
+                print(f"  Erro HTTP {r.status_code} ao listar coleção"); break
+            data = r.json()
+            for item in data.get("releases", []):
+                ids.add(item["basic_information"]["id"])
+            pages = data.get("pagination", {}).get("pages", 1)
+            if page >= pages:
+                break
+            page += 1
+            time.sleep(0.5)
+        except Exception as e:
+            print(f"  Erro ao buscar coleção: {e}"); break
+    return ids
+
+
+def fetch_releases_details(release_ids):
+    """
+    Busca detalhes de faixas para uma lista de release_ids via REST API.
+    Retorna (albums_df, tracks_df) no mesmo formato de get_discogs_collection().
+    """
+    session = requests.Session()
+    session.headers.update({
+        "Authorization": f"Discogs token={DISCOGS_TOKEN}",
+        "User-Agent":    "DJLibrary/2.0",
+    })
+    albums, tracks = [], []
+    total = len(release_ids)
+
+    for i, rid in enumerate(release_ids):
+        try:
+            r = session.get(f"https://api.discogs.com/releases/{rid}", timeout=15)
+            if r.status_code == 429:
+                print(f"\n  Rate limit — aguardando 60s..."); time.sleep(60)
+                r = session.get(f"https://api.discogs.com/releases/{rid}", timeout=15)
+            if r.status_code != 200:
+                print(f"\n  Aviso: release {rid} → HTTP {r.status_code}")
+                time.sleep(1); continue
+
+            data = r.json()
+            raw_artist   = (data.get("artists") or [{}])[0].get("name", "Unknown")
+            album_artist = re.sub(r"\s*\(\d+\)$", "", raw_artist)
+            album_title  = data.get("title", "")
+            year         = data.get("year") or None
+            genres       = ", ".join(data.get("genres") or [])
+            styles       = ", ".join(data.get("styles") or [])
+            images       = data.get("images") or []
+            cover_url    = images[0].get("uri", "") if images else ""
+            thumb_url    = images[0].get("uri150", cover_url) if images else ""
+
+            albums.append(dict(
+                release_id=rid, album_artist=album_artist, album_title=album_title,
+                year=year, genres=genres, styles=styles,
+                cover_url=cover_url, thumb_url=thumb_url,
+            ))
+
+            for trk in data.get("tracklist") or []:
+                if trk.get("type_", "track") not in ("track", "") or not trk.get("position"):
+                    continue
+                raw_trk_artist = (trk.get("artists") or [{}])[0].get("name", album_artist)
+                trk_artist = re.sub(r"\s*\(\d+\)$", "", raw_trk_artist)
+                tracks.append(dict(
+                    release_id=rid, album_artist=album_artist, album_title=album_title,
+                    year=year, genres=genres, styles=styles,
+                    cover_url=cover_url, thumb_url=thumb_url,
+                    position=trk["position"], track_title=trk.get("title", ""),
+                    artist_raw=raw_trk_artist, artist_clean=trk_artist,
+                ))
+
+        except Exception as e:
+            print(f"\n  Aviso release {rid}: {e}")
+
+        print(f"\r  {i+1}/{total} releases | {len(tracks)} faixas", end="", flush=True)
+        time.sleep(0.6)
+
+    print()
+    return pd.DataFrame(albums) if albums else pd.DataFrame(), \
+           pd.DataFrame(tracks) if tracks else pd.DataFrame()
+
+
 # ==============================================================================
 # 5. SPOTIFY: ALBUM-FIRST MATCHING
 # ==============================================================================
@@ -640,7 +740,7 @@ def get_bpm_spotify(sp, track_ids):
 
 def fetch_bpm(sp, df):
     """
-    Busca BPM para faixas aceitas.
+    Busca BPM apenas para faixas aceitas que ainda NÃO têm BPM.
     Estratégia: 1) Spotify audio_features  2) Deezer API (gratuita)
     """
     bpm_cols = ["bpm","energy","danceability","valence","key","mode","camelot","deezer_id"]
@@ -648,39 +748,42 @@ def fetch_bpm(sp, df):
         if col not in df.columns:
             df[col] = None
 
-    # Checa se já tem BPM preenchido
-    existing_bpm = df["bpm"].apply(safe_float).notna().sum()
-    if existing_bpm > 0:
-        print(f"✓ BPM já preenchido para {existing_bpm} faixas (carregado do backup).")
+    # Apenas faixas aceitas SEM BPM
+    missing_mask = (df["status"] == "ACEITO") & (df["bpm"].apply(safe_float).isna())
+    missing_ids  = df[missing_mask]["track_id"].dropna().unique().tolist()
+
+    if not missing_ids:
+        filled = df["bpm"].apply(safe_float).notna().sum()
+        print(f"✓ BPM completo — {filled} faixas, nenhuma nova para buscar.")
         return df
 
-    accepted_ids = df[df["status"]=="ACEITO"]["track_id"].dropna().unique().tolist()
-    if not accepted_ids:
-        print("Nenhuma faixa aceita para buscar BPM.")
-        return df
+    print(f"\nBuscando BPM para {len(missing_ids)} faixas sem BPM...")
 
-    # 1. Tenta Spotify
-    print(f"\nTentando Spotify audio_features para {len(accepted_ids)} faixas...")
-    bpm_map = get_bpm_spotify(sp, accepted_ids)
+    # 1. Tenta Spotify audio_features
+    print(f"  Tentando Spotify audio_features...")
+    bpm_map = get_bpm_spotify(sp, missing_ids)
 
-    # 2. Se Spotify falhou, usa Deezer
-    if len(bpm_map) < len(accepted_ids) * 0.1:
-        deezer_map = get_bpm_deezer(df)
+    # 2. Para o que o Spotify não cobriu, usa Deezer
+    missing_after_sp = [tid for tid in missing_ids if tid not in bpm_map]
+    if missing_after_sp:
+        # Passa apenas as linhas sem BPM para get_bpm_deezer
+        df_missing = df[df["track_id"].astype(str).isin(missing_after_sp)].copy()
+        deezer_map = get_bpm_deezer(df_missing)
         bpm_map.update(deezer_map)
 
-    # Aplica BPM ao dataframe
-    for i, row in df.iterrows():
+    # Aplica BPM ao dataframe (apenas linhas afetadas)
+    for i, row in df[missing_mask].iterrows():
         tid = str(row.get("track_id") or "")
         if tid and tid in bpm_map:
             entry = bpm_map[tid]
             df.at[i, "bpm"] = entry.get("bpm")
-            # Deezer: salva deezer_id para embed; Spotify: salva campos extras
             for k in ["energy","danceability","valence","key","mode","camelot","deezer_id"]:
                 if k in entry:
                     df.at[i, k] = entry.get(k)
 
-    found = df["bpm"].apply(safe_float).notna().sum()
-    print(f"✓ BPM obtido para {found}/{len(accepted_ids)} faixas aceitas")
+    newly_found = df.loc[missing_mask, "bpm"].apply(safe_float).notna().sum()
+    total_found = df["bpm"].apply(safe_float).notna().sum()
+    print(f"✓ BPM novo: {newly_found}/{len(missing_ids)} | total: {total_found}")
     return df
 
 
@@ -691,68 +794,101 @@ def main():
     sp = spotify_auth()
     print("✓ Spotify autenticado.\n")
 
-    # ── Discogs ──────────────────────────────────────────────────────────────
-    backup_tracks = WORK_DIR / "backup_tracks.csv"
-    if backup_tracks.exists():
-        print(f"Carregando backup Discogs: {backup_tracks.name}")
-        df = pd.read_csv(backup_tracks)
+    backup_tracks_path = WORK_DIR / "backup_tracks.csv"
+    backup_v2_path     = WORK_DIR / "backup_matched_v2.csv"
+    backup_bpm_path    = WORK_DIR / "backup_bpm.csv"
+    BPM_COLS = ["bpm","energy","danceability","valence","key","mode","camelot","deezer_id"]
+
+    # ── 1. Coleção Discogs (incremental) ─────────────────────────────────────
+    print("Verificando coleção no Discogs...")
+    current_ids = fetch_collection_ids_rest()      # set de release_id (int) — rápido
+    print(f"  {len(current_ids)} releases na coleção atual")
+
+    if backup_tracks_path.exists():
+        df_existing  = pd.read_csv(backup_tracks_path)
+        existing_ids = set(df_existing["release_id"].dropna().astype(int).unique())
+        new_ids      = current_ids - existing_ids
+        removed_ids  = existing_ids - current_ids
+
+        if not new_ids and not removed_ids:
+            print(f"  ✓ Sem alterações ({len(existing_ids)} releases, {len(df_existing)} faixas)")
+            df = df_existing
+        else:
+            if removed_ids:
+                print(f"  {len(removed_ids)} release(s) removido(s) da coleção")
+                df_existing = df_existing[~df_existing["release_id"].isin(removed_ids)]
+            if new_ids:
+                print(f"  {len(new_ids)} novo(s) release(s) — buscando faixas via REST...")
+                _, df_new = fetch_releases_details(list(new_ids))
+                df = pd.concat([df_existing, df_new], ignore_index=True) if not df_new.empty else df_existing
+            else:
+                df = df_existing
+            df.to_csv(backup_tracks_path, index=False)
+            print(f"  ✓ backup_tracks.csv atualizado")
     else:
+        print("  Primeira execução — buscando coleção completa...")
         _, df = get_discogs_collection()
-        df.to_csv(backup_tracks, index=False)
+        df.to_csv(backup_tracks_path, index=False)
 
     print(f"  {df['release_id'].nunique()} albums | {len(df)} faixas\n")
 
-    # ── Matching ─────────────────────────────────────────────────────────────
-    backup_v2  = WORK_DIR / "backup_matched_v2.csv"
-    backup_old = WORK_DIR / "backup_final.csv"
+    # ── 2. Spotify matching (incremental) ─────────────────────────────────────
+    if backup_v2_path.exists():
+        df_matched   = pd.read_csv(backup_v2_path)
+        matched_ids  = set(df_matched["release_id"].dropna().astype(int).unique())
+        all_ids      = set(df["release_id"].dropna().astype(int).unique())
+        new_to_match = all_ids - matched_ids
 
-    if backup_v2.exists():
-        print(f"Carregando backup v2: {backup_v2.name}")
-        df_matched = pd.read_csv(backup_v2)
-    elif backup_old.exists():
-        print(f"Carregando backup existente: {backup_old.name}")
-        df_matched = pd.read_csv(backup_old)
-        print("  (Para re-executar com album-first matching, delete backup_matched_v2.csv)")
+        if new_to_match:
+            print(f"Matching {len(new_to_match)} novo(s) release(s) no Spotify...")
+            df_new_tracks  = df[df["release_id"].isin(new_to_match)].copy()
+            df_new_matched = run_album_first_matching(sp, df_new_tracks)
+            df_matched = pd.concat([df_matched, df_new_matched], ignore_index=True)
+            df_matched.to_csv(backup_v2_path, index=False)
+            print(f"  ✓ backup_matched_v2.csv atualizado")
+        else:
+            print(f"✓ Spotify matching completo ({len(df_matched)} faixas, sem novos releases)")
+    elif (WORK_DIR / "backup_final.csv").exists():
+        # Compatibilidade com versão anterior
+        print("Carregando backup legado (backup_final.csv)...")
+        df_matched = pd.read_csv(WORK_DIR / "backup_final.csv")
+        df_matched.to_csv(backup_v2_path, index=False)   # migra para v2
     else:
-        print("Executando album-first matching...")
+        print("Executando Spotify matching completo...")
         df_matched = run_album_first_matching(sp, df.copy())
-        df_matched.to_csv(backup_v2, index=False)
-        print(f"  Salvo: {backup_v2.name}")
+        df_matched.to_csv(backup_v2_path, index=False)
+        print(f"  ✓ Salvo: {backup_v2_path.name}")
 
-    aceitos   = (df_matched["status"]=="ACEITO").sum()
-    revisao   = (df_matched["status"]=="REVISAR").sum()
-    rejeitado = (df_matched["status"]=="REJEITADO").sum()
-    print(f"\n  Aceitos: {aceitos} | Revisar: {revisao} | Rejeitados: {rejeitado}\n")
+    aceitos   = (df_matched["status"] == "ACEITO").sum()
+    revisao   = (df_matched["status"] == "REVISAR").sum()
+    rejeitado = (df_matched["status"] == "REJEITADO").sum()
+    print(f"  Aceitos: {aceitos} | Revisar: {revisao} | Rejeitados: {rejeitado}\n")
 
-    # ── BPM ──────────────────────────────────────────────────────────────────
-    BPM_COLS   = ["bpm","energy","danceability","valence","key","mode","camelot","deezer_id"]
-    backup_bpm = WORK_DIR / "backup_bpm.csv"
+    # ── 3. BPM (incremental) ──────────────────────────────────────────────────
+    for col in BPM_COLS:
+        if col not in df_matched.columns:
+            df_matched[col] = None
 
-    existing_bpm = df_matched["bpm"].apply(safe_float).notna().sum() if "bpm" in df_matched.columns else 0
-
-    if existing_bpm > 0:
-        print(f"✓ BPM já disponível para {existing_bpm} faixas.")
-    elif backup_bpm.exists():
-        print(f"Carregando BPM do backup: {backup_bpm.name}")
-        bpm_df  = pd.read_csv(backup_bpm).dropna(subset=["track_id"])
-        # Normaliza BPMs > 140 (divide por 2 até ficar em 70-140)
+    # Carrega backup BPM e preenche o DataFrame
+    if backup_bpm_path.exists():
+        bpm_df  = pd.read_csv(backup_bpm_path).dropna(subset=["track_id"])
         bpm_df["bpm"] = bpm_df["bpm"].apply(lambda v: normalize_bpm(safe_float(v)))
         bpm_map = {str(r["track_id"]): r for _, r in bpm_df.iterrows()}
-        for col in BPM_COLS:
-            df_matched[col] = None
         for i, row in df_matched.iterrows():
             tid = str(row.get("track_id") or "")
             if tid and tid in bpm_map:
                 for col in BPM_COLS:
                     df_matched.at[i, col] = bpm_map[tid].get(col)
         filled = df_matched["bpm"].apply(safe_float).notna().sum()
-        print(f"  BPM carregado para {filled} faixas")
-    else:
-        df_matched = fetch_bpm(sp, df_matched)
-        bpm_found  = df_matched[df_matched["bpm"].apply(safe_float).notna()]
-        if len(bpm_found) > 0:
-            bpm_found[["track_id"] + BPM_COLS].to_csv(backup_bpm, index=False)
-            print(f"  BPM salvo: {backup_bpm.name}")
+        print(f"✓ BPM carregado: {filled} faixas do backup")
+
+    # Busca BPM apenas para faixas aceitas sem BPM (novas ou nunca processadas)
+    df_matched = fetch_bpm(sp, df_matched)
+
+    # Salva backup BPM (combina existente + novo)
+    bpm_found = df_matched[df_matched["bpm"].apply(safe_float).notna()]
+    if len(bpm_found) > 0:
+        bpm_found[["track_id"] + BPM_COLS].to_csv(backup_bpm_path, index=False)
 
     return sp, df_matched
 
@@ -1716,7 +1852,7 @@ def generate_html(df):
         '<button class="chip nac-chip active" data-val="all"'
         ' onclick="setNacionalFilter(\'all\',this)">Tudo</button>'
         '<button class="chip nac-chip" data-val="nacional"'
-        ' onclick="setNacionalFilter(\'nacional\',this)">&#127463;&#127479; Nacional</button>'
+        ' onclick="setNacionalFilter(\'nacional\',this)">Nacional</button>'
         '<button class="chip nac-chip" data-val="internacional"'
         ' onclick="setNacionalFilter(\'internacional\',this)">Internacional</button>'
     )

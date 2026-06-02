@@ -9,8 +9,11 @@ import pandas as pd
 
 WORK = lib.WORK_DIR
 
-# Carrega dados já processados
-df = pd.read_csv(WORK / "backup_final.csv")
+# Carrega dados já processados (usa v2 se disponível, senão legado)
+_src = WORK / "backup_matched_v2.csv"
+if not _src.exists():
+    _src = WORK / "backup_final.csv"
+df = pd.read_csv(_src)
 
 # Carrega BPM do backup
 BPM_COLS = ["bpm","energy","danceability","valence","key","mode","camelot","deezer_id"]
