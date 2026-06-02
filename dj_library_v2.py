@@ -2042,6 +2042,12 @@ def generate_html(df):
 
     path.write_text(html, encoding="utf-8")
     print(f"✓ {path.name} salvo ({path.stat().st_size // 1024} KB)")
+
+    # Também escreve index.html (servido pelo GitHub Pages)
+    index_path = WORK_DIR / "index.html"
+    index_path.write_text(html, encoding="utf-8")
+    print(f"✓ index.html sincronizado ({index_path.stat().st_size // 1024} KB)")
+
     return path
 
 
