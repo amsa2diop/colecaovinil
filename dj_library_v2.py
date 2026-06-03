@@ -1203,9 +1203,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .embed-ph:hover{border-color:var(--acc2);color:var(--acc)}
 .sp-embed{margin-top:.38rem;border-radius:var(--r-sm);display:block}
 .no-spotify{margin-top:.3rem;font-size:.67rem;color:var(--text3);font-style:italic}
-.embed-below{background:var(--card);border:1px solid var(--bdr);
-  border-radius:0 0 var(--r) var(--r);padding:.45rem .9rem .6rem;
-  margin-top:-.5rem;margin-bottom:.4rem;position:relative;z-index:0}
+.embed-below{padding:.45rem .9rem .6rem;border-top:1px solid var(--bdr2)}
+.track-rows .embed-below{background:var(--card);border:1px solid var(--bdr);
+  border-radius:0 0 var(--r) var(--r);margin-top:-.5rem;margin-bottom:.4rem;border-top:none}
 
 /* ── TRACK VIEW ── */
 .track-rows{display:flex;flex-direction:column;gap:.38rem}
@@ -1272,13 +1272,12 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .album-header{gap:.7rem;padding:.8rem .9rem}
   .cover-img,.cover-ph{width:68px;height:68px}
   .tr-bpm-num{font-size:1.5rem}
-  /* Faixas card: grid — info ocupa linha 1 completa, BPM+botões na linha 2 */
-  .track-row{display:grid;grid-template-columns:52px 1fr auto auto;
-    grid-template-rows:auto auto;gap:.4rem .45rem;align-items:center}
-  .tr-thumb,.tr-thumb-ph{grid-column:1;grid-row:1/3;align-self:center;width:52px;height:52px}
-  .tr-info{grid-column:2/5;grid-row:1;min-width:0}
-  .tr-bpm-area{grid-column:3;grid-row:2;text-align:left;min-width:0}
-  .tr-links{grid-column:4;grid-row:2;align-self:center}
+  /* Faixas card: flex com quebra natural de texto */
+  .track-row{align-items:flex-start;gap:.5rem;padding:.65rem .75rem}
+  .tr-thumb,.tr-thumb-ph{width:52px;height:52px;flex-shrink:0}
+  .tr-info{min-width:0;flex:1}
+  .tr-bpm-area{flex-shrink:0;min-width:48px;text-align:center}
+  .tr-links{flex-shrink:0}
 }
 """
 
@@ -1467,16 +1466,16 @@ function filterTracks(){
 
 // ── EMBED ──────────────────────────────────────────────────────────────────────
 function _doEmbed(el,iframe){
-  var tr=el.closest('.track-row');
+  var tr=el.closest('.track-row')||el.closest('.track');
   if(tr){
-    // Faixas view: insert player below the card, keep all buttons visible
+    // Faixas view and LP accordion: insert player below the row
     var w=document.createElement('div');w.className='embed-below';
     w.appendChild(iframe);
     tr.parentNode.insertBefore(w,tr.nextSibling);
     el.innerHTML='&#9646;&#9646; Tocando';
     el.style.opacity='.55';el.style.pointerEvents='none';
   }else{
-    // LP accordion: replace button in-place
+    // fallback: replace button in-place
     el.parentNode.replaceChild(iframe,el);
   }
 }
@@ -1484,7 +1483,7 @@ function loadEmbed(el,tid){
   var iframe=document.createElement('iframe');
   iframe.src='https://open.spotify.com/embed/track/'+tid+'?utm_source=generator&autoplay=1';
   iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
-  iframe.allow='autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture';
+  iframe.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
   iframe.className='sp-embed';
   _doEmbed(el,iframe);
 }
@@ -1492,7 +1491,7 @@ function loadDeezerEmbed(el,did){
   var iframe=document.createElement('iframe');
   iframe.src='https://widget.deezer.com/widget/light/track/'+did+'?autoplay=true';
   iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
-  iframe.allow='autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture';
+  iframe.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
   iframe.className='sp-embed';
   _doEmbed(el,iframe);
 }
