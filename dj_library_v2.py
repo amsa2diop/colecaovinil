@@ -1561,6 +1561,7 @@ function renderIncompletas(){
     s.rows.forEach(function(orig){
       var clone=orig.cloneNode(true);
       clone.removeAttribute('onclick');
+      clone.classList.remove('hidden');
       clone.addEventListener('click',function(){toggleDetails(clone);});
       var info=clone.querySelector('.c-info');
       if(info){
@@ -1577,9 +1578,11 @@ function toggleIncompletas(){
   var sec=document.getElementById('incompletas-section');
   if(!sec)return;
   if(!sec.dataset.built){renderIncompletas();sec.dataset.built='1';}
+  var opening=!sec.classList.contains('open');
   sec.classList.toggle('open');
   var link=document.getElementById('incomplete-link');
   if(link)link.classList.toggle('active');
+  if(opening){setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},80);}
 }
 
 // ── DETAILS EXPAND ────────────────────────────────────────────────────────────
@@ -1606,8 +1609,6 @@ function _doEmbed(el,iframe){
   }else{
     el.parentNode.replaceChild(iframe,el);return;
   }
-  el.innerHTML='&#9646;&#9646; Tocando';
-  el.style.opacity='.55';el.style.pointerEvents='none';
 }
 function loadEmbed(el,tid){
   var iframe=document.createElement('iframe');
@@ -2238,7 +2239,7 @@ def generate_html(df):
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
-        f'{origem_group}{dj_group}{pa_group}{dup_group}'
+        f'{dj_group}{pa_group}{dup_group}{origem_group}'
         f'</div>'
     )
 
@@ -2247,7 +2248,7 @@ def generate_html(df):
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
-        f'{origem_group}{dj_group}'
+        f'{dj_group}{origem_group}'
         f'<div class="filter-group"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
         f'</div>'
     )
@@ -2300,9 +2301,7 @@ def generate_html(df):
   <a class="logo-name logo-link" href="https://www.instagram.com/amsa2diop" target="_blank">Cole&#231;&#227;o do Amsa</a>
   <div class="header-sep"></div>
   <div class="site-stats">
-    <span class="stat-item"><strong>{n_unique}</strong> discos &#250;nicos</span>
-    <span class="stat-dot">&#8226;</span>
-    <span class="stat-item"><strong>{n_dupes}</strong> duplicados</span>
+    <span class="stat-item"><strong>{n_items}</strong> discos</span>
     <span class="stat-dot">&#8226;</span>
     <span class="stat-item"><strong>{n_tracks}</strong> faixas</span>
   </div>
@@ -2320,7 +2319,7 @@ def generate_html(df):
 <div id="view-lp" class="view active">
   <div class="controls">
     <div class="ctrl-row">
-      <input class="ctrl-input" id="q-lp" type="search" placeholder="Buscar artista, &#225;lbum, faixa, selo ou g&#234;nero...">
+      <input class="ctrl-input" id="q-lp" type="search" placeholder="Buscar artista, &#225;lbum, ano, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-lp" onchange="filterLP()">
         <option value="">Artista A&#8594;Z</option>
         <option value="year-desc">Ano (recente)</option>
@@ -2335,7 +2334,7 @@ def generate_html(df):
   </div>
   <main class="main">
     {bpm_notice}
-    <div class="results-bar"><strong id="cnt-lp">{n_unique}</strong> discos</div>
+    <div class="results-bar"><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {n_dupes} duplicados</div>
     <div class="albums-grid" id="grid-lp">{albums_html}</div>
   </main>
 </div>
@@ -2344,7 +2343,7 @@ def generate_html(df):
 <div id="view-faixas" class="view">
   <div class="controls">
     <div class="ctrl-row">
-      <input class="ctrl-input" id="q-faixas" type="search" placeholder="Buscar artista, &#225;lbum, faixa, selo ou g&#234;nero...">
+      <input class="ctrl-input" id="q-faixas" type="search" placeholder="Buscar artista, &#225;lbum, ano, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-faixas" onchange="filterTracks()">
         <option value="bpm-asc">BPM crescente</option>
         <option value="bpm-desc">BPM decrescente</option>
