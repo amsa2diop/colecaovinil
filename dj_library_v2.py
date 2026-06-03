@@ -1208,56 +1208,64 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 
 /* EMBED */
 .sp-embed{border-radius:var(--r-sm);display:block}
-/* Faixas: embed dentro do card, herda gradiente */
-.track-row .embed-below{flex-basis:100%;padding:.4rem 0 0;margin-top:.15rem;
-  border-top:1px solid rgba(255,255,255,.15)}
 /* LP accordion: embed abaixo da linha de faixa */
 .tracks-list .embed-below{padding:.45rem 1.2rem .6rem;border-top:1px solid var(--bdr2)}
 
-/* ── TRACK VIEW ── */
-.track-rows{display:flex;flex-direction:column;gap:.38rem}
-.track-row{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);
-  padding:.8rem 1rem;display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;
-  transition:box-shadow .15s;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.track-row:hover{box-shadow:var(--shadow-h)}
+/* ── TRACK VIEW (compact) ── */
+.track-rows{display:flex;flex-direction:column;gap:0}
+.track-row{display:flex;align-items:center;gap:8px;padding:5px 10px;
+  border-bottom:1px solid rgba(0,0,0,.055);flex-wrap:wrap;
+  position:relative;cursor:pointer;transition:filter .1s}
+.track-row:last-child{border-bottom:none}
+.track-row:hover{filter:brightness(.96)}
 .track-row.hidden{display:none}
-.track-row .cover-blur{opacity:.06}
-.tr-thumb{width:56px;height:56px;object-fit:cover;border-radius:var(--r-sm);
-  flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.14);position:relative;z-index:1}
-.tr-thumb-ph{width:56px;height:56px;background:var(--bg2);border-radius:var(--r-sm);
-  display:flex;align-items:center;justify-content:center;color:var(--text3);
-  font-size:1.2rem;flex-shrink:0;position:relative;z-index:1}
-.tr-info{flex:1;min-width:140px;position:relative;z-index:1}
-.tr-name{font-weight:600;font-size:.9rem;color:var(--text)}
-.tr-artist{font-size:.72rem;color:var(--text3);margin-top:.07rem}
-.tr-album{font-size:.67rem;color:var(--text3);margin-top:.04rem;
-  font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
-.tr-meta{font-size:.63rem;color:var(--text3);margin-top:.12rem}
-.tr-bpm-area{flex-shrink:0;text-align:center;min-width:60px;position:relative;z-index:1}
-.tr-bpm-num{font-family:Georgia,serif;font-size:2rem;font-weight:bold;
-  color:#111;line-height:1}
-.tr-bpm-lbl{font-size:.53rem;color:#111;text-transform:uppercase;
-  letter-spacing:.1em;margin-top:.08rem}
-.tr-src{font-size:.52rem;color:var(--text3);letter-spacing:.04em;
-  border:1px solid var(--bdr);border-radius:3px;padding:.04rem .28rem;
-  margin-top:.15rem;display:inline-block}
+/* BPM — left of cover */
+.c-bpm{font-size:.88rem;font-weight:700;min-width:38px;text-align:right;
+  flex-shrink:0;letter-spacing:-.5px;color:var(--tc,#111);line-height:1}
+.c-bpm small{display:block;font-size:.55rem;font-weight:500;letter-spacing:.04em;
+  opacity:.55;text-transform:uppercase;margin-top:1px}
+.c-bpm-none{min-width:38px;text-align:right;flex-shrink:0;
+  color:var(--tc,#111);opacity:.2;font-size:.8rem}
+/* Cover */
+.c-ph{width:40px;height:40px;border-radius:5px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;color:rgba(255,255,255,.55)}
+.c-thumb{width:40px;height:40px;border-radius:5px;object-fit:cover;flex-shrink:0}
+/* Info */
+.c-info{flex:1;min-width:0}
+.c-title{font-size:.82rem;font-weight:600;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;line-height:1.35;color:var(--tc,#111)}
+.c-artist{font-size:.72rem;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;line-height:1.3;color:var(--tc,#111);opacity:.72}
+/* Icon-only buttons */
+.c-btns{display:flex;gap:3px;flex-shrink:0}
+.ic-btn{width:30px;height:30px;border-radius:8px;
+  border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.82);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;text-decoration:none;color:#444;flex-shrink:0;
+  transition:background .1s;padding:0}
+.ic-btn:hover{background:rgba(255,255,255,.97)}
+.ic-btn svg{width:15px;height:15px;display:block}
+.ic-btn[disabled]{opacity:.22;cursor:default;pointer-events:none}
+/* Expandable details panel */
+.c-details{flex-basis:100%;display:none;
+  padding:.4rem .25rem .2rem;border-top:1px solid rgba(0,0,0,.07);margin-top:.15rem}
+.c-details.open{display:block}
+.c-details .tr-album{font-size:.73rem;font-style:italic;
+  color:var(--tc,#555);opacity:.8;margin-bottom:.2rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-details .tr-meta{font-size:.68rem;color:var(--tc,#777);opacity:.7}
+/* Embed player inside details inherits row gradient */
+.c-details .embed-below{padding:.4rem 0 0;
+  border-top:1px solid rgba(255,255,255,.15);margin-top:.3rem}
 
-/* CARD BUTTONS (layout V2) */
+/* CARD BUTTONS (LP view) */
 .btn-card{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;
   font-size:.67rem;font-weight:600;color:#1A1A1A;background:rgba(255,255,255,.93);
   border:1px solid rgba(0,0,0,.16);border-radius:6px;padding:.26rem .68rem;
-  text-decoration:none;white-space:nowrap;
-  transition:border-color .15s,color .15s}
-.btn-card:hover{color:var(--acc);border-color:var(--acc2)}
-.btn-card-sm{display:inline-flex;align-items:center;justify-content:center;gap:.26rem;
-  font-size:.61rem;font-weight:600;color:#1A1A1A;background:rgba(255,255,255,.93);
-  border:1px solid rgba(0,0,0,.14);border-radius:5px;padding:.18rem .52rem;
   text-decoration:none;white-space:nowrap;transition:border-color .15s,color .15s}
-.btn-card-sm:hover{color:var(--acc);border-color:var(--acc2)}
-/* align-items:stretch faz os dois botões terem a mesma largura */
+.btn-card:hover{color:var(--acc);border-color:var(--acc2)}
 .rg-col-center{display:flex;flex-direction:column;align-items:stretch;gap:.3rem;
-  flex-shrink:0;position:relative;z-index:1}
-.tr-links{display:flex;flex-direction:column;align-items:stretch;gap:.22rem;
   flex-shrink:0;position:relative;z-index:1}
 
 /* RESPONSIVE */
@@ -1269,13 +1277,12 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .controls{padding:.45rem .9rem}.main{padding:.9rem .9rem}
   .album-header{gap:.7rem;padding:.8rem .9rem}
   .cover-img,.cover-ph{width:68px;height:68px}
-  .tr-bpm-num{font-size:1.5rem}
-  /* Faixas card: flex com quebra natural de texto */
-  .track-row{align-items:flex-start;gap:.5rem;padding:.65rem .75rem}
-  .tr-thumb,.tr-thumb-ph{width:52px;height:52px;flex-shrink:0}
-  .tr-info{min-width:0;flex:1}
-  .tr-bpm-area{flex-shrink:0;min-width:48px;text-align:center}
-  .tr-links{flex-shrink:0}
+  /* Compact track rows */
+  .track-row{padding:4px 8px;gap:7px}
+  .c-ph,.c-thumb{width:36px;height:36px}
+  .c-bpm{min-width:32px;font-size:.82rem}
+  .ic-btn{width:27px;height:27px}
+  .ic-btn svg{width:13px;height:13px}
 }
 """
 
@@ -1462,6 +1469,13 @@ function filterTracks(){
   }
 }
 
+// ── DETAILS EXPAND ────────────────────────────────────────────────────────────
+function toggleDetails(row){
+  if(row.classList.contains('hidden'))return;
+  var d=row.querySelector('.c-details');
+  if(d)d.classList.toggle('open');
+}
+
 // ── EMBED ──────────────────────────────────────────────────────────────────────
 function _doEmbed(el,iframe){
   var trackRow=el.closest('.track-row');
@@ -1469,8 +1483,10 @@ function _doEmbed(el,iframe){
   var w=document.createElement('div');w.className='embed-below';
   w.appendChild(iframe);
   if(trackRow){
-    // Faixas: append inside card so it inherits gradient/color
-    trackRow.appendChild(w);
+    // Faixas compact: embed goes inside .c-details (opens it)
+    var details=trackRow.querySelector('.c-details');
+    if(details){details.classList.add('open');details.appendChild(w);}
+    else{trackRow.appendChild(w);}
   }else if(trackLp){
     // LP accordion: insert below the track row within tracks-list
     trackLp.parentNode.insertBefore(w,trackLp.nextSibling);
@@ -1530,6 +1546,57 @@ _SVG_SPOTIFY_SM = (
     ' 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>'
     '</svg>'
 )
+
+# ── Icon-only variants for compact track rows (no text labels) ────────────────
+_SVG_DISCOGS_IC = (
+    '<svg viewBox="0 0 100 100" width="15" height="15" style="flex-shrink:0">'
+    '<circle cx="50" cy="50" r="50" fill="currentColor"/>'
+    '<circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="4"/>'
+    '<circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="4"/>'
+    '<circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="4"/>'
+    '<circle cx="50" cy="50" r="13" fill="white"/>'
+    '<circle cx="50" cy="50" r="4" fill="currentColor"/>'
+    '<polygon points="72,3 85,17 28,97 15,83" fill="white"/>'
+    '</svg>'
+)
+_SVG_SPOTIFY_IC = (
+    '<svg viewBox="0 0 24 24" width="15" height="15" style="flex-shrink:0">'
+    '<path fill="#1DB954" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0z'
+    'M17.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141'
+    '-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6'
+    ' 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3'
+    '-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48'
+    '.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2z'
+    'M19.08 10.62C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721'
+    '-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719'
+    ' 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>'
+    '</svg>'
+)
+_SVG_PLAY_IC = (
+    '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="flex-shrink:0">'
+    '<polygon points="6,3 20,12 6,21"/>'
+    '</svg>'
+)
+
+
+def pastel_gradient(hex_color: str) -> str:
+    """CSS for compact track-row: true pastel mix (colour blended with white)."""
+    if not hex_color or len(hex_color) != 7 or not hex_color.startswith("#"):
+        return ""
+    try:
+        r, g, b = int(hex_color[1:3], 16), int(hex_color[3:5], 16), int(hex_color[5:7], 16)
+    except ValueError:
+        return ""
+    def mix(c, a): return round(c * a + 255 * (1 - a))
+    rL, gL, bL = mix(r, .62), mix(g, .62), mix(b, .62)   # left  62% colour
+    rR, gR, bR = mix(r, .38), mix(g, .38), mix(b, .38)   # right 38% colour
+    def lin(c):
+        c /= 255; return c / 12.92 if c <= 0.04045 else ((c + .055) / 1.055) ** 2.4
+    lum = 0.2126 * lin(rL) + 0.7152 * lin(gL) + 0.0722 * lin(bL)
+    tc  = "#111" if lum > 0.30 else "#fff"
+    left  = f"#{rL:02x}{gL:02x}{bL:02x}"
+    right = f"#{rR:02x}{gR:02x}{bR:02x}"
+    return f"background:linear-gradient(105deg,{left} 0%,{right} 100%);--tc:{tc}"
 
 
 def render_track_lp(row):
@@ -1746,43 +1813,59 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     bpm_int = int(bpm_f) if bpm_f else 0
     has_bpm = "1" if bpm_f else "0"
 
-    ouvir_btn_sm = ""
-    if uri and "spotify" in uri and status == "ACEITO":
-        tid = uri.split(":")[-1]
-        ouvir_btn_sm = (f'<button class="btn-card-sm" onclick="loadEmbed(this,\'{tid}\')">'
-                        f'&#9654; Ouvir</button>')
-    elif deezer_id:
-        ouvir_btn_sm = (f'<button class="btn-card-sm" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">'
-                        f'&#9654; Ouvir</button>')
+    # ── pastel gradient ──────────────────────────────────────────
+    pg = pastel_gradient(color_pastel)
+    row_style = f' style="{pg}"' if pg else ""
 
-    img_tag = (f'<img class="tr-thumb" src="{thumb}" alt="" loading="lazy" '
-               f'onerror="this.style.display=\'none\'">'
-               if thumb else '<div class="tr-thumb-ph">&#9836;</div>')
+    # ── BPM chip (left of cover) ─────────────────────────────────
+    bpm_el = (f'<div class="c-bpm">{bpm_txt}<small>bpm</small></div>'
+              if bpm_f else '<div class="c-bpm-none">—</div>')
 
-    blur_div = (f'<div class="cover-blur" style="background-image:url(\'{thumb}\')"></div>'
-                if thumb else '')
+    # ── Cover ────────────────────────────────────────────────────
+    if thumb:
+        img_tag = (f'<img class="c-thumb" src="{thumb}" alt="" loading="lazy" '
+                   f'onerror="this.style.display=\'none\'">')
+    else:
+        ph_bg = f"background:{color_pastel}99" if color_pastel else "background:var(--bg2)"
+        img_tag = f'<div class="c-ph" style="{ph_bg}">&#9836;</div>'
 
+    # ── Icon buttons ─────────────────────────────────────────────
     discogs_url = f"https://www.discogs.com/release/{release_id}"
     _tr_tid = _clean(row.get("track_id"))
-    discogs_btn_sm = (f'<a class="btn-card-sm" href="{discogs_url}" target="_blank">'
-                      f'{_SVG_DISCOGS_SM} Discogs</a>') if release_id else ""
-    spotify_btn_sm = (
-        f'<a class="btn-card-sm" href="spotify:track:{_tr_tid}">'
-        f'{_SVG_SPOTIFY_SM} Spotify</a>'
+
+    discogs_btn = (
+        f'<a class="ic-btn" href="{discogs_url}" target="_blank" '
+        f'onclick="event.stopPropagation()" title="Discogs">{_SVG_DISCOGS_IC}</a>'
+    ) if release_id else ""
+
+    spotify_btn = (
+        f'<a class="ic-btn" href="spotify:track:{_tr_tid}" '
+        f'onclick="event.stopPropagation()" title="Spotify">{_SVG_SPOTIFY_IC}</a>'
     ) if _tr_tid and status == "ACEITO" else ""
-    tr_links = f'<div class="tr-links">{discogs_btn_sm}{spotify_btn_sm}{ouvir_btn_sm}</div>'
 
+    if uri and "spotify" in uri and status == "ACEITO":
+        tid = uri.split(":")[-1]
+        play_btn = (f'<button class="ic-btn" title="Ouvir" '
+                    f'onclick="event.stopPropagation();loadEmbed(this,\'{tid}\')">'
+                    f'{_SVG_PLAY_IC}</button>')
+    elif deezer_id:
+        play_btn = (f'<button class="ic-btn" title="Ouvir Deezer" '
+                    f'onclick="event.stopPropagation();loadDeezerEmbed(this,\'{deezer_id}\')">'
+                    f'{_SVG_PLAY_IC}</button>')
+    else:
+        play_btn = f'<button class="ic-btn" disabled title="Sem áudio">{_SVG_PLAY_IC}</button>'
+
+    # ── Expandable details ───────────────────────────────────────
+    album_s = esc(row.get("album_title") or "")
     fmt_label_s = esc(fmt_label[:22]) if fmt_label else ""
-    meta_parts = [p for p in [year_s, esc(country), esc(genre_style_s), fmt_label_s] if p]
-    meta_html = f'<div class="tr-meta">{" &middot; ".join(meta_parts)}</div>' if meta_parts else ""
+    det_parts = [p for p in [year_s, esc(country), esc(genre_style_s), fmt_label_s] if p]
+    details_html = ""
+    if album_s:
+        details_html += f'<div class="tr-album">{album_s}</div>'
+    if det_parts:
+        details_html += f'<div class="tr-meta">{" &middot; ".join(det_parts)}</div>'
 
-    row_style = ""
-    if color_pastel and len(color_pastel) == 7:
-        _, cvars = card_colors(color_pastel)
-        if cvars:
-            row_style = (f' style="background:linear-gradient(105deg,{color_pastel}EE 0%,'
-                         f'{color_pastel}55 100%);{cvars}"')
-
+    # ── Search / filter data ─────────────────────────────────────
     search_str = html_module.escape(
         f'{row.get("track_title","")} {row.get("artist_clean","")} '
         f'{row.get("album_title","")} {country} {genres_s} {styles_s} {year_s} {fmt_label}'.lower()
@@ -1790,28 +1873,20 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     artist_str = html_module.escape(str(row.get("artist_clean") or ""))
 
     return f'''<div class="track-row"{row_style}
-  data-bpm="{bpm_int}"
-  data-hasbpm="{has_bpm}"
-  data-search="{search_str}"
-  data-artist="{artist_str}"
-  data-country="{esc(country_key)}"
-  data-decade="{decade_key}"
-  data-compilation="{fmt_is_compil}"
-  data-format="{esc(fmt_size)}"
-  data-origem="{esc(origem_val)}">
-  {blur_div}
+  data-bpm="{bpm_int}" data-hasbpm="{has_bpm}"
+  data-search="{search_str}" data-artist="{artist_str}"
+  data-country="{esc(country_key)}" data-decade="{decade_key}"
+  data-compilation="{fmt_is_compil}" data-format="{esc(fmt_size)}"
+  data-origem="{esc(origem_val)}"
+  onclick="toggleDetails(this)">
+  {bpm_el}
   {img_tag}
-  <div class="tr-info">
-    <div class="tr-name">{esc(row.get("track_title"))}</div>
-    <div class="tr-artist">{esc(row.get("artist_clean"))}</div>
-    <div class="tr-album">{esc(row.get("album_title"))}</div>
-    {meta_html}
+  <div class="c-info">
+    <div class="c-title">{esc(row.get("track_title"))}</div>
+    <div class="c-artist">{esc(row.get("artist_clean"))}</div>
   </div>
-  <div class="tr-bpm-area">
-    <div class="tr-bpm-num">{bpm_txt}</div>
-    <div class="tr-bpm-lbl">bpm</div>
-  </div>
-  {tr_links}
+  <div class="c-btns">{discogs_btn}{spotify_btn}{play_btn}</div>
+  <div class="c-details">{details_html}</div>
 </div>'''
 
 
