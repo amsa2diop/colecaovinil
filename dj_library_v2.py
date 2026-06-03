@@ -1101,8 +1101,8 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .chip{padding:.26rem .62rem;border-radius:20px;font-size:.69rem;letter-spacing:.03em;
   cursor:pointer;border:1px solid var(--bdr);background:transparent;color:var(--text3);
   transition:all .15s;white-space:nowrap}
-.chip.active{background:#555;border-color:#555;color:#fff}
-.chip.multi-active{background:#888;border-color:#888;color:#fff}
+.chip.active{background:#F5F1EB;border-color:#999;color:#111;font-weight:600}
+.chip.multi-active{background:#EAE5DA;border-color:#888;color:#111;font-weight:600}
 .chip:hover:not(.active):not(.multi-active){border-color:var(--acc2);color:var(--acc)}
 .chips-label{font-size:.62rem;color:var(--text3);white-space:nowrap;letter-spacing:.05em;
   text-transform:uppercase}
@@ -1134,7 +1134,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .filter-panel.open{display:flex}
 .filter-group{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap}
 .filter-group-label{font-size:.6rem;color:var(--text3);text-transform:uppercase;
-  letter-spacing:.07em;white-space:nowrap;min-width:52px;flex-shrink:0}
+  letter-spacing:.07em;white-space:nowrap;flex-basis:100%;flex-shrink:0;margin-bottom:.05rem}
 
 /* MAIN */
 .main{max-width:1200px;margin:0 auto;padding:1.4rem 2.5rem}
@@ -1206,6 +1206,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .embed-ph:hover{border-color:var(--acc2);color:var(--acc)}
 .sp-embed{margin-top:.38rem;border-radius:var(--r-sm);display:block}
 .no-spotify{margin-top:.3rem;font-size:.67rem;color:var(--text3);font-style:italic}
+.embed-below{background:var(--card);border:1px solid var(--bdr);
+  border-radius:0 0 var(--r) var(--r);padding:.45rem .9rem .6rem;
+  margin-top:-.5rem;margin-bottom:.4rem;position:relative;z-index:0}
 
 /* ── TRACK VIEW ── */
 .track-rows{display:flex;flex-direction:column;gap:.38rem}
@@ -1272,8 +1275,14 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .album-header{gap:.7rem;padding:.8rem .9rem}
   .cover-img,.cover-ph{width:68px;height:68px}
   .tr-bpm-num{font-size:1.5rem}
-  .filter-group{flex-direction:column;align-items:flex-start;gap:.28rem}
-  .filter-group-label{display:block;width:100%;margin-bottom:.05rem;font-size:.58rem}
+  /* Faixas card: grid 2×2 com thumb span */
+  .track-row{display:grid;grid-template-columns:52px 1fr auto;
+    grid-template-rows:auto auto;gap:.42rem .55rem;align-items:start}
+  .cover-blur{grid-column:1/-1;grid-row:1/-1}
+  .tr-thumb,.tr-thumb-ph{grid-column:1;grid-row:1/3;align-self:center;width:52px;height:52px}
+  .tr-info{grid-column:2;grid-row:1;min-width:0}
+  .tr-bpm-area{grid-column:2;grid-row:2;text-align:left;min-width:0}
+  .tr-links{grid-column:3;grid-row:1/3;align-self:center}
 }
 """
 
@@ -1461,13 +1470,27 @@ function filterTracks(){
 }
 
 // ── EMBED ──────────────────────────────────────────────────────────────────────
+function _doEmbed(el,iframe){
+  var tr=el.closest('.track-row');
+  if(tr){
+    // Faixas view: insert player below the card, keep all buttons visible
+    var w=document.createElement('div');w.className='embed-below';
+    w.appendChild(iframe);
+    tr.parentNode.insertBefore(w,tr.nextSibling);
+    el.innerHTML='&#9646;&#9646; Tocando';
+    el.style.opacity='.55';el.style.pointerEvents='none';
+  }else{
+    // LP accordion: replace button in-place
+    el.parentNode.replaceChild(iframe,el);
+  }
+}
 function loadEmbed(el,tid){
   var iframe=document.createElement('iframe');
   iframe.src='https://open.spotify.com/embed/track/'+tid+'?utm_source=generator';
   iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
   iframe.allow='autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture';
   iframe.className='sp-embed';
-  el.parentNode.replaceChild(iframe,el);
+  _doEmbed(el,iframe);
 }
 function loadDeezerEmbed(el,did){
   var iframe=document.createElement('iframe');
@@ -1475,7 +1498,7 @@ function loadDeezerEmbed(el,did){
   iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
   iframe.allow='autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture';
   iframe.className='sp-embed';
-  el.parentNode.replaceChild(iframe,el);
+  _doEmbed(el,iframe);
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
