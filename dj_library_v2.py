@@ -1165,12 +1165,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .alb-artist{font-weight:600;font-size:.94rem;color:var(--text)}
 .alb-title{color:var(--text2);font-size:.81rem;margin-top:.1rem;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.alb-meta{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.48rem;align-items:center}
-.tag{padding:.11rem .42rem;border-radius:5px;font-size:.59rem;font-weight:600;
-  letter-spacing:.06em;text-transform:uppercase;
-  background:rgba(255,255,255,.88);color:#333;border:1px solid rgba(0,0,0,.09)}
-.tag-acc{background:rgba(255,255,255,.88);color:#222;border:1px solid rgba(0,0,0,.10)}
-.alb-tracks-info{font-size:.65rem;color:var(--text3);margin-top:.32rem}
+.alb-meta{font-size:.67rem;color:var(--text3);margin-top:.3rem;
+  line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.alb-tracks-info{font-size:.65rem;color:var(--text3);margin-top:.22rem}
 .toggle-btn{background:none;border:none;color:var(--text3);cursor:pointer;
   padding:.3rem .6rem;font-size:.85rem;flex-shrink:0;transition:transform .25s,color .2s;
   position:relative;z-index:1}
@@ -1275,14 +1272,13 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .album-header{gap:.7rem;padding:.8rem .9rem}
   .cover-img,.cover-ph{width:68px;height:68px}
   .tr-bpm-num{font-size:1.5rem}
-  /* Faixas card: grid 2×2 com thumb span */
-  .track-row{display:grid;grid-template-columns:52px 1fr auto;
-    grid-template-rows:auto auto;gap:.42rem .55rem;align-items:start}
-  .cover-blur{grid-column:1/-1;grid-row:1/-1}
+  /* Faixas card: grid — info ocupa linha 1 completa, BPM+botões na linha 2 */
+  .track-row{display:grid;grid-template-columns:52px 1fr auto auto;
+    grid-template-rows:auto auto;gap:.4rem .45rem;align-items:center}
   .tr-thumb,.tr-thumb-ph{grid-column:1;grid-row:1/3;align-self:center;width:52px;height:52px}
-  .tr-info{grid-column:2;grid-row:1;min-width:0}
-  .tr-bpm-area{grid-column:2;grid-row:2;text-align:left;min-width:0}
-  .tr-links{grid-column:3;grid-row:1/3;align-self:center}
+  .tr-info{grid-column:2/5;grid-row:1;min-width:0}
+  .tr-bpm-area{grid-column:3;grid-row:2;text-align:left;min-width:0}
+  .tr-links{grid-column:4;grid-row:2;align-self:center}
 }
 """
 
@@ -1486,7 +1482,7 @@ function _doEmbed(el,iframe){
 }
 function loadEmbed(el,tid){
   var iframe=document.createElement('iframe');
-  iframe.src='https://open.spotify.com/embed/track/'+tid+'?utm_source=generator';
+  iframe.src='https://open.spotify.com/embed/track/'+tid+'?utm_source=generator&autoplay=1';
   iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
   iframe.allow='autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture';
   iframe.className='sp-embed';
@@ -1494,7 +1490,7 @@ function loadEmbed(el,tid){
 }
 function loadDeezerEmbed(el,did){
   var iframe=document.createElement('iframe');
-  iframe.src='https://widget.deezer.com/widget/light/track/'+did;
+  iframe.src='https://widget.deezer.com/widget/light/track/'+did+'?autoplay=true';
   iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
   iframe.allow='autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture';
   iframe.className='sp-embed';
@@ -1640,13 +1636,14 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
                f'onerror="this.style.display=\'none\'">'
                if cover else '<div class="cover-ph">&#9836;</div>')
 
-    tags = ""
-    if year_s:       tags += f'<span class="tag">{year_s}</span>'
-    if country_s:    tags += f'<span class="tag">{country_s}</span>'
-    if fmt_size and fmt_size not in ("LP","Other"): tags += f'<span class="tag">{esc(fmt_size)}</span>'
-    if genre_style_s: tags += f'<span class="tag tag-acc">{genre_style_s[:50]}</span>'
-    if bpm_range:    tags += f'<span class="tag">{bpm_range}</span>'
-    if fmt_label:    tags += f'<span class="tag">{esc(fmt_label[:28])}</span>'
+    meta_parts = []
+    if year_s:       meta_parts.append(year_s)
+    if country_s:    meta_parts.append(country_s)
+    if fmt_size and fmt_size not in ("LP","Other"): meta_parts.append(esc(fmt_size))
+    if genre_style_s: meta_parts.append(genre_style_s[:60])
+    if bpm_range:    meta_parts.append(bpm_range)
+    if fmt_label:    meta_parts.append(esc(fmt_label[:28]))
+    tags = " · ".join(meta_parts)
 
     copy_badge = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
 
@@ -1721,7 +1718,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     <div class="album-info">
       <div class="alb-artist">{esc(first.get("album_artist",""))}{copy_badge}</div>
       <div class="alb-title">{esc(first.get("album_title",""))}</div>
-      <div class="alb-meta">{tags}</div>
+      {f'<div class="alb-meta">{tags}</div>' if tags else ''}
       {custom_html}
       <div class="alb-tracks-info">{alb_tracks_info}</div>
     </div>
