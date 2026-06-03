@@ -1189,7 +1189,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .trk-name{font-size:.87rem;font-weight:500;color:var(--text)}
 .trk-badges{display:flex;gap:.3rem;align-items:center;flex-shrink:0}
 .badge-bpm{padding:.15rem .42rem;border-radius:5px;font-size:.71rem;font-weight:700;
-  background:rgba(0,0,0,.08);color:#111}
+  background:rgba(255,255,255,.93);color:#111;border:1px solid rgba(0,0,0,.16)}
 .trk-btn-col{display:flex;flex-direction:column;gap:.2rem;align-items:stretch;flex-shrink:0;min-width:66px}
 .trk-btn{font-size:.61rem;font-weight:600;color:#1A1A1A;background:rgba(255,255,255,.93);
   border:1px solid rgba(0,0,0,.16);border-radius:5px;padding:.18rem .4rem;
@@ -1232,7 +1232,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .tr-discogs-link:hover{color:var(--acc);border-color:var(--acc2)}
 .tr-bpm-area{flex-shrink:0;text-align:center;min-width:60px;position:relative;z-index:1}
 .tr-bpm-num{font-family:Georgia,serif;font-size:2rem;font-weight:bold;
-  color:var(--bpm-col);line-height:1}
+  color:#111;line-height:1}
 .tr-bpm-lbl{font-size:.53rem;color:var(--text3);text-transform:uppercase;
   letter-spacing:.1em;margin-top:.08rem}
 .tr-src{font-size:.52rem;color:var(--text3);letter-spacing:.04em;
@@ -1749,14 +1749,14 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     bpm_int = int(bpm_f) if bpm_f else 0
     has_bpm = "1" if bpm_f else "0"
 
-    play_btn = ""
+    ouvir_btn_sm = ""
     if uri and "spotify" in uri and status == "ACEITO":
         tid = uri.split(":")[-1]
-        play_btn = (f'<button class="tr-play-btn" onclick="loadEmbed(this,\'{tid}\')">'
-                    f'&#9654; Ouvir</button>')
+        ouvir_btn_sm = (f'<button class="btn-card-sm" onclick="loadEmbed(this,\'{tid}\')">'
+                        f'&#9654; Ouvir</button>')
     elif deezer_id:
-        play_btn = (f'<button class="tr-play-btn" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">'
-                    f'&#9654; Ouvir</button>')
+        ouvir_btn_sm = (f'<button class="btn-card-sm" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">'
+                        f'&#9654; Ouvir</button>')
 
     img_tag = (f'<img class="tr-thumb" src="{thumb}" alt="" loading="lazy" '
                f'onerror="this.style.display=\'none\'">'
@@ -1774,7 +1774,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
         f'<a class="btn-card-sm" href="https://open.spotify.com/track/{_tr_tid}" target="_blank">'
         f'{_SVG_SPOTIFY_SM} Spotify</a>'
     ) if _tr_tid and status == "ACEITO" else ""
-    tr_links = f'<div class="tr-links">{discogs_btn_sm}{spotify_btn_sm}</div>'
+    tr_links = f'<div class="tr-links">{discogs_btn_sm}{spotify_btn_sm}{ouvir_btn_sm}</div>'
 
     fmt_label_s = esc(fmt_label[:22]) if fmt_label else ""
     meta_parts = [p for p in [year_s, esc(country), esc(genre_style_s), fmt_label_s] if p]
@@ -1816,7 +1816,6 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     <div class="tr-bpm-num">{bpm_txt}</div>
     <div class="tr-bpm-lbl">bpm</div>
   </div>
-  <div class="tr-play">{play_btn}</div>
 </div>'''
 
 
@@ -2101,21 +2100,19 @@ def generate_html(df):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DJ Amsa &mdash; Biblioteca</title>
+<title>Cole&#231;&#227;o do Amsa</title>
 <style>{CSS}</style>
 </head>
 <body>
 
 <header class="site-header">
   <span class="logo-mark">&#9670;</span>
-  <a class="logo-name logo-link" href="https://www.instagram.com/amsa2diop" target="_blank">DJ Amsa</a>
+  <a class="logo-name logo-link" href="https://www.instagram.com/amsa2diop" target="_blank">Cole&#231;&#227;o do Amsa</a>
   <div class="header-sep"></div>
   <div class="site-stats">
     <span class="stat-item"><strong>{n_items}</strong> discos</span>
     <span class="stat-dot">&#8226;</span>
     <span class="stat-item"><strong>{n_tracks}</strong> faixas</span>
-    <span class="stat-dot">&#8226;</span>
-    <span class="stat-item"><strong>{bpm_count}</strong> com BPM</span>
   </div>
   <div class="header-sep"></div>
   <a class="header-social-btn" href="https://www.discogs.com/pt_BR/user/amsa2diop/collection" target="_blank">{SVG_DISCOGS} Discogs</a>
