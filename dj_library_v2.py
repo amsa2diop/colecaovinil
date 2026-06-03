@@ -1116,9 +1116,18 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .f-bpm {background:#FFF3E0;color:#BF5700}
 .f-sp  {background:#E3F2FD;color:#1258A8}
 .f-both{background:#FCE4EC;color:#880E4F}
-/* secret Incompletas tab */
-.tab-btn.secret-tab{border-style:none;color:#aaa;font-style:italic}
-.tab-btn.secret-tab.active{color:var(--acc);border-bottom-color:var(--acc)}
+/* Incompletas in-place section */
+.inc-section{display:none;border-top:2px solid var(--bdr2);margin-top:.5rem}
+.inc-section.open{display:block}
+.inc-group-hd{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 12px;background:var(--bg2);border-bottom:1px solid var(--bdr);
+  cursor:pointer;user-select:none;font-size:.68rem;font-weight:700;
+  color:var(--text2);text-transform:uppercase;letter-spacing:.08em}
+.inc-group-hd:hover{background:var(--card2)}
+.inc-arrow{font-size:.6rem;transition:transform .18s;display:inline-block}
+.inc-group-hd.open .inc-arrow{transform:rotate(90deg)}
+.inc-group-body{display:none;background:var(--bg)}
+.inc-group-body.open{display:block}
 .ctrl-row{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap}
 .ctrl-input{background:var(--bg2);border:1px solid var(--bdr);color:var(--text);
   padding:.4rem .9rem;border-radius:20px;font-size:.84rem;outline:none;
@@ -1325,6 +1334,9 @@ var origemFilter='all';
 var nacionalFilter='all';
 var decadeFilter=new Set();
 var compilFilter='all';
+var djFilter='all';
+var paFilter='all';
+var dupFilter='all';
 
 function syncAllChips(){
   document.querySelectorAll('.nac-chip').forEach(function(c){
@@ -1409,6 +1421,24 @@ function setCompilFilter(val,el){
   document.querySelectorAll('.compil-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('active')});
   filterLP();filterTracks();
 }
+function setDjFilter(val,el){
+  djFilter=val;
+  document.querySelectorAll('.dj-chip').forEach(function(c){c.classList.remove('active')});
+  el.classList.add('active');
+  filterLP();filterTracks();
+}
+function setPaFilter(val,el){
+  paFilter=val;
+  document.querySelectorAll('.pa-chip').forEach(function(c){c.classList.remove('active')});
+  el.classList.add('active');
+  filterLP();
+}
+function setDupFilter(val,el){
+  dupFilter=val;
+  document.querySelectorAll('.dup-chip').forEach(function(c){c.classList.remove('active')});
+  el.classList.add('active');
+  filterLP();
+}
 
 // ── LP FILTER ─────────────────────────────────────────────────────────────────
 function filterLP(){
@@ -1424,7 +1454,10 @@ function filterLP(){
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(c.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&c.dataset.compilation==='1')||(compilFilter==='nocomp'&&c.dataset.compilation!=='1');
-    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk;
+    var djOk=djFilter==='all'||(djFilter==='yes'&&(c.dataset.dj||'').trim()!=='');
+    var paOk=paFilter==='all'||(paFilter==='yes'&&(c.dataset.pa||'').trim()!=='');
+    var dupOk=dupFilter==='all'||(dupFilter==='dup'&&+c.dataset.copies>1);
+    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&djOk&&paOk&&dupOk;
     c.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-lp').textContent=vis;
@@ -1477,7 +1510,8 @@ function filterTracks(){
     var decOk=decadeFilter.size===0||decadeFilter.has(r.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&r.dataset.compilation==='1')||(compilFilter==='nocomp'&&r.dataset.compilation!=='1');
     var origOk=origemFilter==='all'||(origemFilter===''?!r.dataset.origem:r.dataset.origem===origemFilter);
-    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk;
+    var djOk=djFilter==='all'||(djFilter==='yes'&&(r.dataset.dj||'').trim()!=='');
+    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk&&djOk;
     r.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-faixas').textContent=vis;
@@ -1495,7 +1529,11 @@ function filterTracks(){
   }
 }
 
-// ── INCOMPLETAS ───────────────────────────────────────────────────────────────
+// ── INCOMPLETAS (in-place, collapsible groups) ────────────────────────────────
+function toggleIncGroup(hd){
+  hd.classList.toggle('open');
+  hd.nextElementSibling.classList.toggle('open');
+}
 function renderIncompletas(){
   var allRows=Array.from(document.querySelectorAll('#grid-faixas .track-row'));
   var noBpm =allRows.filter(function(r){return r.dataset.hasbpm==='0'&&r.dataset.hasspotify!=='0';});
@@ -1503,19 +1541,23 @@ function renderIncompletas(){
   var noSp  =allRows.filter(function(r){return r.dataset.hasbpm!=='0'&&r.dataset.hasspotify==='0';});
   var total =noBpm.length+noBoth.length+noSp.length;
   var link=document.getElementById('incomplete-link');
-  if(link)link.textContent=total+' incompletas →';
-  var grid=document.getElementById('grid-incompletas');
-  if(!grid)return;
-  grid.innerHTML='';
+  if(link)link.textContent=total+' incompletas';
+  var sec=document.getElementById('incompletas-section');
+  if(!sec)return;
+  sec.innerHTML='';
   var sections=[
-    {title:'Sem BPM — '+noBpm.length,  rows:noBpm,  cls:'f-bpm', lbl:'sem BPM'},
-    {title:'Sem BPM e sem Spotify — '+noBoth.length,rows:noBoth,cls:'f-both',lbl:'sem ambos'},
-    {title:'Sem Spotify — '+noSp.length,rows:noSp, cls:'f-sp',  lbl:'sem Spotify'},
+    {title:'Sem BPM — '+noBpm.length,                   rows:noBpm,  cls:'f-bpm', lbl:'sem BPM'},
+    {title:'Sem BPM e sem Spotify — '+noBoth.length,     rows:noBoth, cls:'f-both',lbl:'sem ambos'},
+    {title:'Sem Spotify — '+noSp.length,                 rows:noSp,   cls:'f-sp',  lbl:'sem Spotify'},
   ];
   sections.forEach(function(s){
     if(!s.rows.length)return;
-    var hd=document.createElement('div');hd.className='h-section-title';hd.textContent=s.title;
-    grid.appendChild(hd);
+    var hd=document.createElement('div');
+    hd.className='inc-group-hd';
+    hd.innerHTML=s.title+'&nbsp;<span class="inc-arrow">&#9658;</span>';
+    hd.onclick=function(){toggleIncGroup(this);};
+    var body=document.createElement('div');
+    body.className='inc-group-body';  // closed by default
     s.rows.forEach(function(orig){
       var clone=orig.cloneNode(true);
       clone.removeAttribute('onclick');
@@ -1525,22 +1567,19 @@ function renderIncompletas(){
         var fl=document.createElement('span');fl.className='h-flag '+s.cls;fl.textContent=s.lbl;
         info.parentNode.insertBefore(fl,info);
       }
-      grid.appendChild(clone);
+      body.appendChild(clone);
     });
+    sec.appendChild(hd);
+    sec.appendChild(body);
   });
 }
-function unlockIncompletas(){
-  var btn=document.getElementById('tab-incompletas');
-  if(!btn)return;
-  if(btn.style.display==='none'){
-    btn.style.display='';
-    renderIncompletas();
-    btn.animate([{opacity:0,transform:'scale(.85)'},{opacity:1,transform:'scale(1)'}],{duration:220,easing:'ease-out'});
-  }
-  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
-  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
-  document.getElementById('view-incompletas').classList.add('active');
+function toggleIncompletas(){
+  var sec=document.getElementById('incompletas-section');
+  if(!sec)return;
+  if(!sec.dataset.built){renderIncompletas();sec.dataset.built='1';}
+  sec.classList.toggle('open');
+  var link=document.getElementById('incomplete-link');
+  if(link)link.classList.toggle('active');
 }
 
 // ── DETAILS EXPAND ────────────────────────────────────────────────────────────
@@ -1592,12 +1631,12 @@ var t1;document.getElementById('q-lp').addEventListener('input',function(){clear
 var t2;document.getElementById('q-faixas').addEventListener('input',function(){clearTimeout(t2);t2=setTimeout(filterTracks,200)});
 document.getElementById('cnt-lp').textContent=document.querySelectorAll('#grid-lp .album-card').length;
 document.getElementById('cnt-faixas').textContent=document.querySelectorAll('#grid-faixas .track-row').length;
-// Populate incomplete count on load
+// Populate incomplete count on load (don't render yet)
 (function(){
   var all=Array.from(document.querySelectorAll('#grid-faixas .track-row'));
   var n=all.filter(function(r){return r.dataset.hasbpm==='0'||r.dataset.hasspotify==='0';}).length;
   var lk=document.getElementById('incomplete-link');
-  if(lk)lk.textContent=n+' incompletas →';
+  if(lk)lk.textContent=n+' incompletas';
 })();
 """
 
@@ -1848,7 +1887,10 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
   data-country="{esc(country_key)}"
   data-decade="{decade_key}"
   data-compilation="{is_compil_flag}"
-  data-format="{esc(fmt_size)}">
+  data-format="{esc(fmt_size)}"
+  data-dj="{esc((fields.get('DJ') or '').strip())}"
+  data-pa="{esc((fields.get('PA') or '').strip())}"
+  data-copies="{copy_count}">
   {f'<div class="cover-blur" style="background-image:url(\'{cover}\')"></div>' if cover else ''}
   <header class="album-header" onclick="toggleAlbum(this)">
     <div class="cover-wrap">{img_tag}</div>
@@ -1866,7 +1908,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
 </article>'''
 
 
-def render_track_row(row, country="", color_pastel="", format_data=None, origem=""):
+def render_track_row(row, country="", color_pastel="", format_data=None, origem="", dj=""):
     """Renderiza uma linha de faixa (Track view)."""
     format_info = format_data or {}
     bpm_f     = safe_float(row.get("bpm"))
@@ -1956,6 +1998,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
 
     return f'''<div class="track-row"{row_style}
   data-bpm="{bpm_int}" data-hasbpm="{has_bpm}" data-hasspotify="{has_spotify}"
+  data-dj="{esc(dj.strip())}"
   data-search="{search_str}" data-artist="{artist_str}"
   data-country="{esc(country_key)}" data-decade="{decade_key}"
   data-compilation="{fmt_is_compil}" data-format="{esc(fmt_size)}"
@@ -2051,6 +2094,7 @@ def generate_html(df):
 
     n_unique  = df["release_id"].nunique()
     n_items   = sum(copy_counts.get(str(rid), 1) for rid in df["release_id"].unique()) if copy_counts else n_unique
+    n_dupes   = n_items - n_unique   # total extra copies
     n_tracks  = len(df.drop_duplicates(subset=["release_id","position"]))  # sem duplicatas de cópia
     n_matched = (df.drop_duplicates(subset=["release_id","position"])["status"] == "ACEITO").sum()
     pct       = round(n_matched / n_tracks * 100) if n_tracks else 0
@@ -2083,6 +2127,7 @@ def generate_html(df):
             color_pastel = colors_map.get(str(r.get("release_id","")), ""),
             format_data  = format_map.get(str(r.get("release_id","")), {}),
             origem       = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Origem", ""),
+            dj           = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("DJ", ""),
         )
         for _, r in df_tracks.iterrows()
     )
@@ -2158,18 +2203,42 @@ def generate_html(df):
         ]
     )
 
+    # DJ / PA / Duplicados filter chips
+    has_dj_data = any((v.get("DJ") or "").strip() for v in fields_map.values())
+    dj_inner = (
+        '<button class="chip dj-chip active" data-val="all" onclick="setDjFilter(\'all\',this)">Tudo</button>'
+        '<button class="chip dj-chip" data-val="yes" onclick="setDjFilter(\'yes\',this)">Para DJ</button>'
+    ) if has_dj_data else ''
+
+    has_pa_data = any((v.get("PA") or "").strip() for v in fields_map.values())
+    pa_inner = (
+        '<button class="chip pa-chip active" data-val="all" onclick="setPaFilter(\'all\',this)">Tudo</button>'
+        '<button class="chip pa-chip" data-val="yes" onclick="setPaFilter(\'yes\',this)">Para trocar</button>'
+    ) if has_pa_data else ''
+
+    n_dup_releases = sum(1 for rid in df["release_id"].unique() if copy_counts.get(str(rid), 1) > 1)
+    dup_inner = (
+        '<button class="chip dup-chip active" data-val="all" onclick="setDupFilter(\'all\',this)">Tudo</button>'
+        f'<button class="chip dup-chip" data-val="dup" onclick="setDupFilter(\'dup\',this)">'
+        f'Duplicados ({n_dup_releases})</button>'
+    )
+
     # ── Filter panels (collapsible) ───────────────────────────────────────────
     origem_group = (
         f'<div class="filter-group"><span class="filter-group-label">Loja</span>{origem_inner}</div>'
         if origem_inner else ''
     )
 
+    dj_group  = (f'<div class="filter-group"><span class="filter-group-label">DJ</span>{dj_inner}</div>'   if dj_inner  else '')
+    pa_group  = (f'<div class="filter-group"><span class="filter-group-label">Para trocar</span>{pa_inner}</div>' if pa_inner  else '')
+    dup_group =  f'<div class="filter-group"><span class="filter-group-label">C&#243;pias</span>{dup_inner}</div>'
+
     fp_lp = (
         f'<div class="filter-panel" id="fp-lp">'
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
-        f'{origem_group}'
+        f'{origem_group}{dj_group}{pa_group}{dup_group}'
         f'</div>'
     )
 
@@ -2178,7 +2247,7 @@ def generate_html(df):
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
-        f'{origem_group}'
+        f'{origem_group}{dj_group}'
         f'<div class="filter-group"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
         f'</div>'
     )
@@ -2231,7 +2300,9 @@ def generate_html(df):
   <a class="logo-name logo-link" href="https://www.instagram.com/amsa2diop" target="_blank">Cole&#231;&#227;o do Amsa</a>
   <div class="header-sep"></div>
   <div class="site-stats">
-    <span class="stat-item"><strong>{n_items}</strong> discos</span>
+    <span class="stat-item"><strong>{n_unique}</strong> discos &#250;nicos</span>
+    <span class="stat-dot">&#8226;</span>
+    <span class="stat-item"><strong>{n_dupes}</strong> duplicados</span>
     <span class="stat-dot">&#8226;</span>
     <span class="stat-item"><strong>{n_tracks}</strong> faixas</span>
   </div>
@@ -2242,7 +2313,6 @@ def generate_html(df):
   <div class="header-tabs">
     <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">Discos</button>
     <button class="tab-btn" data-v="faixas" onclick="switchView('faixas')">Faixas</button>
-    <button class="tab-btn secret-tab" id="tab-incompletas" data-v="incompletas" onclick="switchView('incompletas')" style="display:none">Incompletas</button>
   </div>
 </header>
 
@@ -2289,22 +2359,10 @@ def generate_html(df):
     <div class="results-bar">
       <strong id="cnt-faixas">{n_tracks}</strong> faixas
       &nbsp;&middot;&nbsp;
-      <a class="incomplete-link" id="incomplete-link" onclick="unlockIncompletas()"></a>
+      <a class="incomplete-link" id="incomplete-link" onclick="toggleIncompletas()" style="cursor:pointer"></a>
     </div>
     <div class="track-rows" id="grid-faixas">{tracks_html}</div>
-  </main>
-</div>
-
-<!-- ═══════════════ INCOMPLETAS VIEW ═══════════════ -->
-<div id="view-incompletas" class="view">
-  <div class="controls">
-    <div class="ctrl-row">
-      <span style="font-size:.75rem;color:var(--text3)">Faixas sem BPM e/ou sem Spotify</span>
-      <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
-    </div>
-  </div>
-  <main class="main">
-    <div class="track-rows" id="grid-incompletas"></div>
+    <div class="inc-section" id="incompletas-section"></div>
   </main>
 </div>
 
