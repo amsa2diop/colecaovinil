@@ -223,8 +223,8 @@ def card_colors(raw_hex, fator=0.28):
         if lum < 0.55:  # cor raw escura/média → gradiente escuro → texto branco
             cvars = ("--text:#F2F2F2;--text2:#E5E5E5;--text3:#CCCCCC;"
                      "--bdr:rgba(255,255,255,.18);--bdr2:rgba(255,255,255,.12);"
-                     "--bpm-col:#F8D080;--tracks-bg:rgba(0,0,0,.28);"
-                     "--acc2:rgba(255,200,120,.5)")
+                     "--bpm-col:#F2F2F2;--tracks-bg:rgba(0,0,0,.28);"
+                     "--acc2:rgba(255,255,255,.4)")
         else:  # cor raw clara → gradiente claro → texto preto
             cvars = ("--text:#111;--text2:#333;--text3:#555;"
                      "--bdr:rgba(0,0,0,.13);--bdr2:rgba(0,0,0,.08);"
@@ -1016,16 +1016,16 @@ def create_playlist(sp, df):
 CSS = """
 :root{
   --bg:#FFFFFF;--bg2:#F5F1EB;--card:#FAF8F5;--card2:#F0EBE3;
-  --text:#1A0C06;--text2:#5C4030;--text3:#A08070;
-  --acc:#6B1A0D;--acc2:#9B3A20;
-  --bdr:#EAE3DB;--bdr2:#F2EDE7;--tag:#EDE5D8;
-  --bpm-col:#6B1A0D;
+  --text:#111;--text2:#444;--text3:#777;
+  --acc:#111;--acc2:#444;
+  --bdr:#DDD;--bdr2:#E8E8E8;--tag:#E8E8E8;
+  --bpm-col:#111;
   --r:14px;--r-sm:8px;
   --shadow:0 2px 12px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.03);
   --shadow-h:0 4px 20px rgba(0,0,0,.10),0 2px 6px rgba(0,0,0,.05);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 
 /* HEADER — dashboard single-line */
@@ -1052,7 +1052,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 /* COPY BADGE */
 .copy-badge{display:inline-block;padding:.1rem .42rem;border-radius:4px;font-size:.6rem;
   font-weight:700;letter-spacing:.07em;text-transform:uppercase;
-  background:rgba(107,26,13,.1);color:var(--acc);border:1px solid rgba(107,26,13,.18);
+  background:#fff;color:#111;border:1px solid rgba(0,0,0,.22);
   margin-left:.35rem;vertical-align:middle}
 
 /* DISCOGS LINK */
@@ -1182,14 +1182,20 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .track{padding:.58rem 1.2rem;border-bottom:1px solid var(--bdr2);
   display:flex;align-items:center;gap:.65rem;transition:background .1s}
 .track:last-child{border-bottom:none}
-.track:hover{background:rgba(107,26,13,.025)}
+.track:hover{background:rgba(0,0,0,.03)}
 .trk-pos{font-size:.61rem;color:var(--text3);width:22px;flex-shrink:0;letter-spacing:.03em}
 .trk-info{flex:1;min-width:100px}
 .trk-artist{font-size:.67rem;color:var(--text3)}
 .trk-name{font-size:.87rem;font-weight:500;color:var(--text)}
-.trk-badges{display:flex;gap:.3rem;align-items:center}
+.trk-badges{display:flex;gap:.3rem;align-items:center;flex-shrink:0}
 .badge-bpm{padding:.15rem .42rem;border-radius:5px;font-size:.71rem;font-weight:700;
-  background:rgba(107,26,13,.1);color:var(--bpm-col)}
+  background:rgba(0,0,0,.08);color:#111}
+.trk-btn-col{display:flex;flex-direction:column;gap:.2rem;align-items:stretch;flex-shrink:0;min-width:66px}
+.trk-btn{font-size:.61rem;font-weight:600;color:#1A1A1A;background:rgba(255,255,255,.93);
+  border:1px solid rgba(0,0,0,.16);border-radius:5px;padding:.18rem .4rem;
+  text-align:center;text-decoration:none;white-space:nowrap;
+  transition:all .15s;cursor:pointer;display:block}
+.trk-btn:hover{border-color:#555;background:#eee}
 .trk-status{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-left:.15rem}
 .s-ok{background:#3A9060}.s-rev{background:#C08020}.s-rej{background:var(--bdr)}
 
@@ -1509,25 +1515,39 @@ _SVG_SPOTIFY_SM = (
 
 def render_track_lp(row):
     """Renderiza uma faixa dentro da view LP."""
-    bpm_f     = safe_float(row.get("bpm"))
-    uri       = str(row.get("spotify_uri") or "")
-    status    = str(row.get("status") or "REJEITADO")
-    deezer_id = str(row.get("deezer_id") or "")
-    deezer_id = "" if deezer_id in ("nan", "None", "none", "") else deezer_id
+    bpm_f      = safe_float(row.get("bpm"))
+    uri        = str(row.get("spotify_uri") or "")
+    status     = str(row.get("status") or "REJEITADO")
+    deezer_id  = str(row.get("deezer_id") or "")
+    deezer_id  = "" if deezer_id in ("nan", "None", "none", "") else deezer_id
+    release_id = str(row.get("release_id") or "")
+    release_id = "" if release_id in ("nan", "None", "none", "") else release_id
 
     bpm_txt = f"{bpm_f:.0f}" if bpm_f else "—"
     dot_cls = {"ACEITO":"s-ok","REVISAR":"s-rev"}.get(status,"s-rej")
 
-    embed = ""
+    # Discogs button
+    discogs_btn = ""
+    if release_id:
+        d_url = f"https://www.discogs.com/release/{release_id}"
+        discogs_btn = f'<a class="trk-btn" href="{d_url}" target="_blank">Discogs</a>'
+
+    # Spotify button
+    sp_btn = ""
+    if uri and uri != "nan" and "spotify" in uri:
+        sp_tid = uri.split(":")[-1]
+        sp_btn = f'<a class="trk-btn" href="https://open.spotify.com/track/{sp_tid}" target="_blank">Spotify</a>'
+
+    # Ouvir button (embed trigger)
+    ouvir_btn = ""
     if uri and uri != "nan" and "spotify" in uri and status == "ACEITO":
-        tid = uri.split(":")[-1]
-        embed = (f'<div class="embed-ph" onclick="loadEmbed(this,\'{tid}\')">'
-                 f'&#9654; Ouvir</div>')
+        sp_tid = uri.split(":")[-1]
+        ouvir_btn = f'<div class="trk-btn trk-ouvir-btn" onclick="loadEmbed(this,\'{sp_tid}\')">&#9654; Ouvir</div>'
     elif deezer_id:
-        embed = (f'<div class="embed-ph" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">'
-                 f'&#9654; Ouvir</div>')
-    elif status == "ACEITO":
-        embed = '<div class="no-spotify">sem pr&#233;via</div>'
+        ouvir_btn = f'<div class="trk-btn trk-ouvir-btn" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">&#9654; Ouvir</div>'
+
+    btn_col = (f'<div class="trk-btn-col">{discogs_btn}{sp_btn}{ouvir_btn}</div>'
+               if (discogs_btn or sp_btn or ouvir_btn) else "")
 
     return f'''<div class="track" data-bpm="{int(bpm_f) if bpm_f else 999}">
   <span class="trk-pos">{esc(row.get("position"))}</span>
@@ -1535,11 +1555,11 @@ def render_track_lp(row):
   <div class="trk-info">
     <div class="trk-artist">{esc(row.get("artist_clean"))}</div>
     <div class="trk-name">{esc(row.get("track_title"))}</div>
-    {embed}
   </div>
   <div class="trk-badges">
     <span class="badge-bpm">{bpm_txt}</span>
   </div>
+  {btn_col}
 </div>'''
 
 
@@ -1551,7 +1571,11 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     cover     = esc(first.get("cover_url") or "")
     bpm_vals  = group["bpm"].apply(safe_float).dropna()
     min_bpm   = int(bpm_vals.min()) if len(bpm_vals) else 999
-    bpm_range = f"{bpm_vals.min():.0f}–{bpm_vals.max():.0f} BPM" if len(bpm_vals) else ""
+    if len(bpm_vals):
+        bmin, bmax = int(bpm_vals.min()), int(bpm_vals.max())
+        bpm_range = f"{bmin} BPM" if bmin == bmax else f"{bmin}–{bmax} BPM"
+    else:
+        bpm_range = ""
     n_ok      = (group["status"] == "ACEITO").sum()
     year_s    = str(int(first["year"])) if safe_float(first.get("year")) else ""
     styles_s  = esc(first.get("styles") or "")
