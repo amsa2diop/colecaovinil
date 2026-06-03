@@ -1091,10 +1091,34 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 /* VIEW */
 .view{display:none}.view.active{display:block}
 
-/* CONTROLS */
-.controls{z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
+/* CONTROLS — sticky below header */
+.controls{position:sticky;top:54px;z-index:50;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
   border-bottom:1px solid var(--bdr);padding:.5rem 2.5rem;
   display:flex;flex-direction:column;gap:.38rem}
+/* back-to-top button inside controls row */
+.back-top-btn{margin-left:auto;width:30px;height:30px;border-radius:8px;
+  border:1px solid var(--bdr);background:var(--bg2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text3);font-size:.85rem;flex-shrink:0;
+  transition:background .15s,color .15s}
+.back-top-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+/* incomplete link in results-bar */
+.incomplete-link{font-size:.72rem;color:#bbb;text-decoration:none;
+  border-bottom:1px dashed #ccc;cursor:pointer;transition:color .15s,border-color .15s}
+.incomplete-link:hover{color:#555;border-color:#888}
+/* Incompletas section headings */
+.h-section-title{font-size:.68rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;color:#AAA;padding:12px 12px 5px;
+  background:var(--bg2);border-bottom:1px solid var(--bdr)}
+.h-flag{font-size:.62rem;font-weight:700;border-radius:4px;padding:2px 6px;
+  flex-shrink:0;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.f-bpm {background:#FFF3E0;color:#BF5700}
+.f-sp  {background:#E3F2FD;color:#1258A8}
+.f-both{background:#FCE4EC;color:#880E4F}
+/* secret Incompletas tab */
+.tab-btn.secret-tab{border-style:none;color:#aaa;font-style:italic}
+.tab-btn.secret-tab.active{color:var(--acc);border-bottom-color:var(--acc)}
 .ctrl-row{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap}
 .ctrl-input{background:var(--bg2);border:1px solid var(--bdr);color:var(--text);
   padding:.4rem .9rem;border-radius:20px;font-size:.84rem;outline:none;
@@ -1274,7 +1298,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .site-stats{display:none}
   .header-sep{display:none}
   .header-social-btn{display:none}
-  .controls{padding:.45rem .9rem}.main{padding:.9rem .9rem}
+  .controls{padding:.45rem .9rem;top:48px}.main{padding:.9rem .9rem}
   .album-header{gap:.7rem;padding:.8rem .9rem}
   .cover-img,.cover-ph{width:68px;height:68px}
   /* Compact track rows */
@@ -1460,13 +1484,63 @@ function filterTracks(){
   if(s){
     var vr=rows.filter(function(r){return!r.classList.contains('hidden')});
     vr.sort(function(a,b){
-      if(s==='bpm-asc'){var ba=+a.dataset.bpm||9999,bb=+b.dataset.bpm||9999;return ba-bb;}
-      if(s==='bpm-desc'){var ba=+a.dataset.bpm||0,bb=+b.dataset.bpm||0;return bb-ba;}
-      if(s==='az')return(a.dataset.artist||'').localeCompare(b.dataset.artist||'');
+      var artCmp=(a.dataset.artist||'').localeCompare(b.dataset.artist||'','pt');
+      var bpmA=+a.dataset.bpm||9999, bpmB=+b.dataset.bpm||9999;
+      if(s==='bpm-asc') return (bpmA-bpmB)||artCmp;
+      if(s==='bpm-desc'){var ba=+a.dataset.bpm||0,bb=+b.dataset.bpm||0;return (bb-ba)||artCmp;}
+      if(s==='az')       return artCmp||(bpmA-bpmB);
       return 0;
     });
     vr.forEach(function(r){grid.appendChild(r)});
   }
+}
+
+// ── INCOMPLETAS ───────────────────────────────────────────────────────────────
+function renderIncompletas(){
+  var allRows=Array.from(document.querySelectorAll('#grid-faixas .track-row'));
+  var noBpm =allRows.filter(function(r){return r.dataset.hasbpm==='0'&&r.dataset.hasspotify!=='0';});
+  var noBoth=allRows.filter(function(r){return r.dataset.hasbpm==='0'&&r.dataset.hasspotify==='0';});
+  var noSp  =allRows.filter(function(r){return r.dataset.hasbpm!=='0'&&r.dataset.hasspotify==='0';});
+  var total =noBpm.length+noBoth.length+noSp.length;
+  var link=document.getElementById('incomplete-link');
+  if(link)link.textContent=total+' incompletas →';
+  var grid=document.getElementById('grid-incompletas');
+  if(!grid)return;
+  grid.innerHTML='';
+  var sections=[
+    {title:'Sem BPM — '+noBpm.length,  rows:noBpm,  cls:'f-bpm', lbl:'sem BPM'},
+    {title:'Sem BPM e sem Spotify — '+noBoth.length,rows:noBoth,cls:'f-both',lbl:'sem ambos'},
+    {title:'Sem Spotify — '+noSp.length,rows:noSp, cls:'f-sp',  lbl:'sem Spotify'},
+  ];
+  sections.forEach(function(s){
+    if(!s.rows.length)return;
+    var hd=document.createElement('div');hd.className='h-section-title';hd.textContent=s.title;
+    grid.appendChild(hd);
+    s.rows.forEach(function(orig){
+      var clone=orig.cloneNode(true);
+      clone.removeAttribute('onclick');
+      clone.addEventListener('click',function(){toggleDetails(clone);});
+      var info=clone.querySelector('.c-info');
+      if(info){
+        var fl=document.createElement('span');fl.className='h-flag '+s.cls;fl.textContent=s.lbl;
+        info.parentNode.insertBefore(fl,info);
+      }
+      grid.appendChild(clone);
+    });
+  });
+}
+function unlockIncompletas(){
+  var btn=document.getElementById('tab-incompletas');
+  if(!btn)return;
+  if(btn.style.display==='none'){
+    btn.style.display='';
+    renderIncompletas();
+    btn.animate([{opacity:0,transform:'scale(.85)'},{opacity:1,transform:'scale(1)'}],{duration:220,easing:'ease-out'});
+  }
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.getElementById('view-incompletas').classList.add('active');
 }
 
 // ── DETAILS EXPAND ────────────────────────────────────────────────────────────
@@ -1518,6 +1592,13 @@ var t1;document.getElementById('q-lp').addEventListener('input',function(){clear
 var t2;document.getElementById('q-faixas').addEventListener('input',function(){clearTimeout(t2);t2=setTimeout(filterTracks,200)});
 document.getElementById('cnt-lp').textContent=document.querySelectorAll('#grid-lp .album-card').length;
 document.getElementById('cnt-faixas').textContent=document.querySelectorAll('#grid-faixas .track-row').length;
+// Populate incomplete count on load
+(function(){
+  var all=Array.from(document.querySelectorAll('#grid-faixas .track-row'));
+  var n=all.filter(function(r){return r.dataset.hasbpm==='0'||r.dataset.hasspotify==='0';}).length;
+  var lk=document.getElementById('incomplete-link');
+  if(lk)lk.textContent=n+' incompletas →';
+})();
 """
 
 
@@ -1812,6 +1893,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     bpm_txt = f"{bpm_f:.0f}" if bpm_f else "—"
     bpm_int = int(bpm_f) if bpm_f else 0
     has_bpm = "1" if bpm_f else "0"
+    has_spotify = "1" if (_clean(row.get("track_id")) and status == "ACEITO") else "0"
 
     # ── pastel gradient ──────────────────────────────────────────
     pg = pastel_gradient(color_pastel)
@@ -1873,7 +1955,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     artist_str = html_module.escape(str(row.get("artist_clean") or ""))
 
     return f'''<div class="track-row"{row_style}
-  data-bpm="{bpm_int}" data-hasbpm="{has_bpm}"
+  data-bpm="{bpm_int}" data-hasbpm="{has_bpm}" data-hasspotify="{has_spotify}"
   data-search="{search_str}" data-artist="{artist_str}"
   data-country="{esc(country_key)}" data-decade="{decade_key}"
   data-compilation="{fmt_is_compil}" data-format="{esc(fmt_size)}"
@@ -2160,6 +2242,7 @@ def generate_html(df):
   <div class="header-tabs">
     <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">Discos</button>
     <button class="tab-btn" data-v="faixas" onclick="switchView('faixas')">Faixas</button>
+    <button class="tab-btn secret-tab" id="tab-incompletas" data-v="incompletas" onclick="switchView('incompletas')" style="display:none">Incompletas</button>
   </div>
 </header>
 
@@ -2176,12 +2259,13 @@ def generate_html(df):
         <option value="bpm-desc">BPM decrescente</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">&#9881; Filtros &#9662;</button>
+      <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
     </div>
     {fp_lp}
   </div>
   <main class="main">
     {bpm_notice}
-    <div class="results-bar"><strong id="cnt-lp">{n_unique}</strong> &#225;lbuns</div>
+    <div class="results-bar"><strong id="cnt-lp">{n_unique}</strong> discos</div>
     <div class="albums-grid" id="grid-lp">{albums_html}</div>
   </main>
 </div>
@@ -2197,12 +2281,30 @@ def generate_html(df):
         <option value="az">Artista A&#8594;Z</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">&#9881; Filtros &#9662;</button>
+      <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
     </div>
     {fp_faixas}
   </div>
   <main class="main">
-    <div class="results-bar"><strong id="cnt-faixas">{n_tracks}</strong> faixas</div>
+    <div class="results-bar">
+      <strong id="cnt-faixas">{n_tracks}</strong> faixas
+      &nbsp;&middot;&nbsp;
+      <a class="incomplete-link" id="incomplete-link" onclick="unlockIncompletas()"></a>
+    </div>
     <div class="track-rows" id="grid-faixas">{tracks_html}</div>
+  </main>
+</div>
+
+<!-- ═══════════════ INCOMPLETAS VIEW ═══════════════ -->
+<div id="view-incompletas" class="view">
+  <div class="controls">
+    <div class="ctrl-row">
+      <span style="font-size:.75rem;color:var(--text3)">Faixas sem BPM e/ou sem Spotify</span>
+      <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
+    </div>
+  </div>
+  <main class="main">
+    <div class="track-rows" id="grid-incompletas"></div>
   </main>
 </div>
 
