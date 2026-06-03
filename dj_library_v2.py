@@ -1128,6 +1128,10 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .inc-group-hd.open .inc-arrow{transform:rotate(90deg)}
 .inc-group-body{display:none;background:var(--bg)}
 .inc-group-body.open{display:block}
+/* Inc badges — visible only when #grid-faixas has inc-mode class */
+.inc-badge{display:none}
+#grid-faixas.inc-mode .inc-badge{display:inline-block;margin-top:.2rem}
+.incomplete-link.active{color:#555;border-color:#888;font-weight:600}
 .ctrl-row{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap}
 .ctrl-input{background:var(--bg2);border:1px solid var(--bdr);color:var(--text);
   padding:.4rem .9rem;border-radius:20px;font-size:.84rem;outline:none;
@@ -1330,13 +1334,14 @@ function switchView(v){
 }
 
 // ── SHARED FILTER STATE ───────────────────────────────────────────────────────
-var origemFilter='all';
+var origemFilter=new Set();
 var nacionalFilter='all';
 var decadeFilter=new Set();
 var compilFilter='all';
 var djFilter='all';
 var paFilter='all';
 var dupFilter='all';
+var incFilterActive=false;
 
 function syncAllChips(){
   document.querySelectorAll('.nac-chip').forEach(function(c){
@@ -1350,10 +1355,12 @@ function syncAllChips(){
     c.classList.toggle('active',c.dataset.val===compilFilter);
   });
   document.querySelectorAll('.bpm-chip').forEach(function(c){
-    c.classList.toggle('active',c.dataset.val===activeBpmFilter);
+    if(c.dataset.val==='all'){c.classList.toggle('active',activeBpmFilter.size===0);c.classList.remove('multi-active');}
+    else{c.classList.toggle('multi-active',activeBpmFilter.has(c.dataset.val));c.classList.remove('active');}
   });
   document.querySelectorAll('.origem-chip').forEach(function(c){
-    c.classList.toggle('active',c.dataset.val===origemFilter);
+    if(c.dataset.val==='all'){c.classList.toggle('active',origemFilter.size===0);c.classList.remove('multi-active');}
+    else{c.classList.toggle('multi-active',origemFilter.has(c.dataset.val));c.classList.remove('active');}
   });
 }
 
@@ -1384,9 +1391,21 @@ function collapseAll(){
 
 // ── FILTER FUNCTIONS ──────────────────────────────────────────────────────────
 function setOrigemFilter(val,el){
-  origemFilter=val;
-  document.querySelectorAll('.origem-chip').forEach(function(c){c.classList.remove('active')});
-  document.querySelectorAll('.origem-chip[data-val="'+CSS.escape(val)+'"]').forEach(function(c){c.classList.add('active')});
+  if(val==='all'){
+    origemFilter.clear();
+    document.querySelectorAll('.origem-chip').forEach(function(c){c.classList.remove('active');c.classList.remove('multi-active')});
+    document.querySelectorAll('.origem-chip[data-val="all"]').forEach(function(c){c.classList.add('active')});
+  }else{
+    document.querySelectorAll('.origem-chip[data-val="all"]').forEach(function(c){c.classList.remove('active')});
+    if(origemFilter.has(val)){
+      origemFilter.delete(val);
+      document.querySelectorAll('.origem-chip[data-val="'+CSS.escape(val)+'"]').forEach(function(c){c.classList.remove('multi-active')});
+    }else{
+      origemFilter.add(val);
+      document.querySelectorAll('.origem-chip[data-val="'+CSS.escape(val)+'"]').forEach(function(c){c.classList.add('multi-active')});
+    }
+    if(origemFilter.size===0){document.querySelectorAll('.origem-chip[data-val="all"]').forEach(function(c){c.classList.add('active')});}
+  }
   filterLP();filterTracks();
 }
 function setNacionalFilter(val,el){
@@ -1449,7 +1468,7 @@ function filterLP(){
   var vis=0;
   cards.forEach(function(c){
     var qOk=!q||c.dataset.search.includes(q);
-    var origOk=origemFilter==='all'||(origemFilter===''?!c.dataset.origem:c.dataset.origem===origemFilter);
+    var origOk=origemFilter.size===0||origemFilter.has(c.dataset.origem||'');
     var isBrazil=c.dataset.country==='brazil';
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(c.dataset.decade);
@@ -1476,23 +1495,36 @@ function filterLP(){
 }
 
 // ── TRACK VIEW ────────────────────────────────────────────────────────────────
-var activeBpmFilter='all';
+var activeBpmFilter=new Set();
 
 function setBpmFilter(val,el){
-  activeBpmFilter=val;
-  document.querySelectorAll('.bpm-chip').forEach(function(c){c.classList.remove('active')});
-  el.classList.add('active');
+  if(val==='all'){
+    activeBpmFilter.clear();
+    document.querySelectorAll('.bpm-chip').forEach(function(c){c.classList.remove('active');c.classList.remove('multi-active')});
+    document.querySelectorAll('.bpm-chip[data-val="all"]').forEach(function(c){c.classList.add('active')});
+  }else{
+    document.querySelectorAll('.bpm-chip[data-val="all"]').forEach(function(c){c.classList.remove('active')});
+    if(activeBpmFilter.has(val)){
+      activeBpmFilter.delete(val);
+      document.querySelectorAll('.bpm-chip[data-val="'+val+'"]').forEach(function(c){c.classList.remove('multi-active')});
+    }else{
+      activeBpmFilter.add(val);
+      document.querySelectorAll('.bpm-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('multi-active')});
+    }
+    if(activeBpmFilter.size===0){document.querySelectorAll('.bpm-chip[data-val="all"]').forEach(function(c){c.classList.add('active')});}
+  }
   filterTracks();
 }
-function bpmFilterOk(bpm,hasBpm,filter){
-  if(filter==='all')return true;
-  if(filter==='with')return hasBpm;
-  if(filter==='nobpm')return !hasBpm;
-  if(!hasBpm)return false;
-  if(filter==='sub70')return bpm<70;
-  if(filter==='140plus')return bpm>=140;
-  var parts=filter.split('-');
-  return bpm>=+parts[0]&&bpm<+parts[1];
+function bpmFilterOk(bpm,hasBpm,filterSet){
+  if(filterSet.size===0)return true;
+  return Array.from(filterSet).some(function(f){
+    if(f==='with')return hasBpm;
+    if(f==='nobpm')return !hasBpm;
+    if(!hasBpm)return false;
+    if(f==='sub70')return bpm<70;
+    if(f==='140plus')return bpm>=140;
+    var p=f.split('-');return bpm>=+p[0]&&bpm<+p[1];
+  });
 }
 function filterTracks(){
   var q=document.getElementById('q-faixas').value.toLowerCase().trim();
@@ -1500,6 +1532,7 @@ function filterTracks(){
   var grid=document.getElementById('grid-faixas');
   var rows=Array.from(grid.querySelectorAll('.track-row'));
   var vis=0;
+  grid.classList.toggle('inc-mode',incFilterActive);
   rows.forEach(function(r){
     var bpm=+r.dataset.bpm||0;
     var hasBpm=r.dataset.hasbpm==='1';
@@ -1509,9 +1542,11 @@ function filterTracks(){
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(r.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&r.dataset.compilation==='1')||(compilFilter==='nocomp'&&r.dataset.compilation!=='1');
-    var origOk=origemFilter==='all'||(origemFilter===''?!r.dataset.origem:r.dataset.origem===origemFilter);
+    var origOk=origemFilter.size===0||origemFilter.has(r.dataset.origem||'');
     var djOk=djFilter==='all'||(djFilter==='yes'&&(r.dataset.dj||'').trim()!=='');
-    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk&&djOk;
+    var inctype=r.dataset.inctype||'';
+    var incOk=!incFilterActive||(inctype==='nosp'||inctype==='nobpm'||inctype==='both');
+    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk&&djOk&&incOk;
     r.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-faixas').textContent=vis;
@@ -1520,69 +1555,40 @@ function filterTracks(){
     vr.sort(function(a,b){
       var artCmp=(a.dataset.artist||'').localeCompare(b.dataset.artist||'','pt');
       var bpmA=+a.dataset.bpm||9999, bpmB=+b.dataset.bpm||9999;
-      if(s==='bpm-asc') return (bpmA-bpmB)||artCmp;
+      if(s==='bpm-asc'){
+        if(incFilterActive){
+          // Sem Spotify(c/BPM)=0 → Sem BPM(c/Spotify)=1 → Sem ambos=2
+          var ia=a.dataset.inctype==='nosp'?0:(a.dataset.inctype==='nobpm'?1:2);
+          var ib=b.dataset.inctype==='nosp'?0:(b.dataset.inctype==='nobpm'?1:2);
+          if(ia!==ib)return ia-ib;
+        }
+        return (bpmA-bpmB)||artCmp;
+      }
       if(s==='bpm-desc'){var ba=+a.dataset.bpm||0,bb=+b.dataset.bpm||0;return (bb-ba)||artCmp;}
-      if(s==='az')       return artCmp||(bpmA-bpmB);
+      if(s==='az') return artCmp||(bpmA-bpmB);
       return 0;
     });
     vr.forEach(function(r){grid.appendChild(r)});
   }
 }
 
-// ── INCOMPLETAS (in-place, collapsible groups) ────────────────────────────────
-function toggleIncGroup(hd){
-  hd.classList.toggle('open');
-  hd.nextElementSibling.classList.toggle('open');
-}
-function renderIncompletas(){
-  var allRows=Array.from(document.querySelectorAll('#grid-faixas .track-row'));
-  var noBpm =allRows.filter(function(r){return r.dataset.hasbpm==='0'&&r.dataset.hasspotify!=='0';});
-  var noBoth=allRows.filter(function(r){return r.dataset.hasbpm==='0'&&r.dataset.hasspotify==='0';});
-  var noSp  =allRows.filter(function(r){return r.dataset.hasbpm!=='0'&&r.dataset.hasspotify==='0';});
-  var total =noBpm.length+noBoth.length+noSp.length;
-  var link=document.getElementById('incomplete-link');
-  if(link)link.textContent=total+' incompletas';
-  var sec=document.getElementById('incompletas-section');
-  if(!sec)return;
-  sec.innerHTML='';
-  var sections=[
-    {title:'Sem BPM — '+noBpm.length,                   rows:noBpm,  cls:'f-bpm', lbl:'sem BPM'},
-    {title:'Sem BPM e sem Spotify — '+noBoth.length,     rows:noBoth, cls:'f-both',lbl:'sem ambos'},
-    {title:'Sem Spotify — '+noSp.length,                 rows:noSp,   cls:'f-sp',  lbl:'sem Spotify'},
-  ];
-  sections.forEach(function(s){
-    if(!s.rows.length)return;
-    var hd=document.createElement('div');
-    hd.className='inc-group-hd';
-    hd.innerHTML=s.title+'&nbsp;<span class="inc-arrow">&#9658;</span>';
-    hd.onclick=function(){toggleIncGroup(this);};
-    var body=document.createElement('div');
-    body.className='inc-group-body';  // closed by default
-    s.rows.forEach(function(orig){
-      var clone=orig.cloneNode(true);
-      clone.removeAttribute('onclick');
-      clone.classList.remove('hidden');
-      clone.addEventListener('click',function(){toggleDetails(clone);});
-      var info=clone.querySelector('.c-info');
-      if(info){
-        var fl=document.createElement('span');fl.className='h-flag '+s.cls;fl.textContent=s.lbl;
-        info.parentNode.insertBefore(fl,info);
-      }
-      body.appendChild(clone);
-    });
-    sec.appendChild(hd);
-    sec.appendChild(body);
-  });
-}
+// ── INCOMPLETAS FILTER (filters #grid-faixas in-place) ───────────────────────
 function toggleIncompletas(){
-  var sec=document.getElementById('incompletas-section');
-  if(!sec)return;
-  if(!sec.dataset.built){renderIncompletas();sec.dataset.built='1';}
-  var opening=!sec.classList.contains('open');
-  sec.classList.toggle('open');
+  incFilterActive=!incFilterActive;
   var link=document.getElementById('incomplete-link');
-  if(link)link.classList.toggle('active');
-  if(opening){setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},80);}
+  if(link)link.classList.toggle('active',incFilterActive);
+  filterTracks();
+}
+
+// ── DUPLICADOS FILTER (results bar quick-toggle) ──────────────────────────────
+function toggleDupFilter(){
+  var wasActive=dupFilter==='dup';
+  dupFilter=wasActive?'all':'dup';
+  var link=document.getElementById('dup-link');
+  if(link)link.classList.toggle('active',!wasActive);
+  document.querySelectorAll('.dup-chip').forEach(function(c){c.classList.remove('active')});
+  document.querySelectorAll('.dup-chip[data-val="'+dupFilter+'"]').forEach(function(c){c.classList.add('active')});
+  filterLP();
 }
 
 // ── DETAILS EXPAND ────────────────────────────────────────────────────────────
@@ -1936,7 +1942,21 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     bpm_txt = f"{bpm_f:.0f}" if bpm_f else "—"
     bpm_int = int(bpm_f) if bpm_f else 0
     has_bpm = "1" if bpm_f else "0"
-    has_spotify = "1" if (_clean(row.get("track_id")) and status == "ACEITO") else "0"
+    _tr_tid = _clean(row.get("track_id"))
+    _sp_ok = bool(_tr_tid and status == "ACEITO")
+    has_spotify = "1" if _sp_ok else "0"
+    # Incomplete type: nosp=BPM yes/Spotify no, nobpm=BPM no/Spotify yes, both=neither
+    if not bpm_f and not _sp_ok:
+        inc_type = "both"
+    elif not bpm_f:
+        inc_type = "nobpm"
+    elif not _sp_ok:
+        inc_type = "nosp"
+    else:
+        inc_type = ""
+    inc_badge = {"nosp":  '<span class="h-flag f-sp  inc-badge">sem Spotify</span>',
+                 "nobpm": '<span class="h-flag f-bpm inc-badge">sem BPM</span>',
+                 "both":  '<span class="h-flag f-both inc-badge">sem ambos</span>'}.get(inc_type, "")
 
     # ── pastel gradient ──────────────────────────────────────────
     pg = pastel_gradient(color_pastel)
@@ -1956,7 +1976,6 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
 
     # ── Icon buttons ─────────────────────────────────────────────
     discogs_url = f"https://www.discogs.com/release/{release_id}"
-    _tr_tid = _clean(row.get("track_id"))
 
     discogs_btn = (
         f'<a class="ic-btn" href="{discogs_url}" target="_blank" '
@@ -1999,6 +2018,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
 
     return f'''<div class="track-row"{row_style}
   data-bpm="{bpm_int}" data-hasbpm="{has_bpm}" data-hasspotify="{has_spotify}"
+  data-inctype="{inc_type}"
   data-dj="{esc(dj.strip())}"
   data-search="{search_str}" data-artist="{artist_str}"
   data-country="{esc(country_key)}" data-decade="{decade_key}"
@@ -2010,6 +2030,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
   <div class="c-info">
     <div class="c-title">{esc(row.get("track_title"))}</div>
     <div class="c-artist">{esc(row.get("artist_clean"))}</div>
+    {inc_badge}
   </div>
   <div class="c-btns">{discogs_btn}{spotify_btn}{play_btn}</div>
   <div class="c-details">{details_html}</div>
@@ -2097,6 +2118,8 @@ def generate_html(df):
     n_items   = sum(copy_counts.get(str(rid), 1) for rid in df["release_id"].unique()) if copy_counts else n_unique
     n_dupes   = n_items - n_unique   # total extra copies
     n_tracks  = len(df.drop_duplicates(subset=["release_id","position"]))  # sem duplicatas de cópia
+    dup_link  = (f'<a class="incomplete-link" id="dup-link" onclick="toggleDupFilter()" style="cursor:pointer">{n_dupes} duplicados</a>'
+                 if n_dupes > 0 else f'{n_dupes} duplicados')
     n_matched = (df.drop_duplicates(subset=["release_id","position"])["status"] == "ACEITO").sum()
     pct       = round(n_matched / n_tracks * 100) if n_tracks else 0
     bpm_vals  = df["bpm"].apply(safe_float).dropna()
@@ -2334,7 +2357,7 @@ def generate_html(df):
   </div>
   <main class="main">
     {bpm_notice}
-    <div class="results-bar"><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {n_dupes} duplicados</div>
+    <div class="results-bar"><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</div>
     <div class="albums-grid" id="grid-lp">{albums_html}</div>
   </main>
 </div>
@@ -2361,7 +2384,6 @@ def generate_html(df):
       <a class="incomplete-link" id="incomplete-link" onclick="toggleIncompletas()" style="cursor:pointer"></a>
     </div>
     <div class="track-rows" id="grid-faixas">{tracks_html}</div>
-    <div class="inc-section" id="incompletas-section"></div>
   </main>
 </div>
 
