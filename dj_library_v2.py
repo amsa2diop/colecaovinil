@@ -2091,8 +2091,8 @@ def generate_html(df):
     <span class="stat-item"><strong>{bpm_count}</strong> com BPM</span>
   </div>
   <div class="header-sep"></div>
-  {spotify_social_btn}
   <a class="header-social-btn" href="https://www.discogs.com/pt_BR/user/amsa2diop/collection" target="_blank">{SVG_DISCOGS} Discogs</a>
+  {spotify_social_btn}
   <div class="header-sep"></div>
   <div class="header-tabs">
     <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">Discos</button>
