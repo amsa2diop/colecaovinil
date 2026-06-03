@@ -208,8 +208,8 @@ def hex_pastel(hex_color, fator=0.25):
 
 
 def card_colors(raw_hex, fator=0.28):
-    """Retorna (bg_hex, css_vars) para fundo sólido do card com texto legível.
-    Mistura a cor com branco (fator) e escolhe texto preto ou branco por luminância."""
+    """Retorna (bg_hex, css_vars) para gradiente do card com texto legível.
+    Usa luminância da cor RAW (não clareada) porque o gradiente usa a cor raw."""
     if not raw_hex or len(raw_hex) != 7:
         return "", ""
     try:
@@ -218,14 +218,15 @@ def card_colors(raw_hex, fator=0.28):
         gp = int(g + (255 - g) * fator)
         bp = int(b + (255 - b) * fator)
         bg = f"#{rp:02X}{gp:02X}{bp:02X}"
-        lum = (0.299 * rp + 0.587 * gp + 0.114 * bp) / 255
-        if lum < 0.50:  # fundo escuro → texto branco
+        # Luminância da cor raw (o gradiente usa a cor raw, não a clareada)
+        lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+        if lum < 0.55:  # cor raw escura/média → gradiente escuro → texto branco
             cvars = ("--text:#F2F2F2;--text2:#E5E5E5;--text3:#CCCCCC;"
                      "--bdr:rgba(255,255,255,.18);--bdr2:rgba(255,255,255,.12);"
                      "--bpm-col:#F8D080;--tracks-bg:rgba(0,0,0,.28);"
                      "--acc2:rgba(255,200,120,.5)")
-        else:  # fundo claro → texto preto
-            cvars = ("--text:#111;--text2:#444;--text3:#777;"
+        else:  # cor raw clara → gradiente claro → texto preto
+            cvars = ("--text:#111;--text2:#333;--text3:#555;"
                      "--bdr:rgba(0,0,0,.13);--bdr2:rgba(0,0,0,.08);"
                      "--tracks-bg:rgba(255,255,255,.65)")
         return bg, cvars
@@ -1194,8 +1195,8 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 
 /* EMBED */
 .embed-ph{margin-top:.38rem;display:inline-flex;align-items:center;gap:.3rem;
-  border:1px solid var(--bdr);color:var(--text3);padding:.22rem .58rem;
-  border-radius:20px;font-size:.7rem;cursor:pointer;transition:all .15s}
+  background:rgba(255,255,255,.93);color:#1A1A1A;border:1px solid rgba(0,0,0,.16);
+  padding:.22rem .58rem;border-radius:20px;font-size:.7rem;cursor:pointer;transition:all .15s}
 .embed-ph:hover{border-color:var(--acc2);color:var(--acc)}
 .sp-embed{margin-top:.38rem;border-radius:var(--r-sm);display:block}
 .no-spotify{margin-top:.3rem;font-size:.67rem;color:var(--text3);font-style:italic}
@@ -1232,7 +1233,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   border:1px solid var(--bdr);border-radius:3px;padding:.04rem .28rem;
   margin-top:.15rem;display:inline-block}
 .tr-play{flex-shrink:0;position:relative;z-index:1}
-.tr-play-btn{border:1px solid var(--bdr);background:transparent;color:var(--text3);
+.tr-play-btn{background:rgba(255,255,255,.93);color:#1A1A1A;border:1px solid rgba(0,0,0,.16);
   padding:.28rem .62rem;border-radius:20px;font-size:.7rem;cursor:pointer;
   transition:all .15s;white-space:nowrap}
 .tr-play-btn:hover{border-color:var(--acc2);color:var(--acc)}
@@ -1241,17 +1242,18 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .btn-card{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;
   font-size:.67rem;font-weight:600;color:#1A1A1A;background:rgba(255,255,255,.93);
   border:1px solid rgba(0,0,0,.16);border-radius:6px;padding:.26rem .68rem;
-  text-decoration:none;flex-shrink:0;white-space:nowrap;
-  transition:border-color .15s,color .15s;align-self:center}
+  text-decoration:none;white-space:nowrap;
+  transition:border-color .15s,color .15s}
 .btn-card:hover{color:var(--acc);border-color:var(--acc2)}
-.btn-card-sm{display:inline-flex;align-items:center;gap:.26rem;font-size:.61rem;font-weight:600;
-  color:#1A1A1A;background:rgba(255,255,255,.93);border:1px solid rgba(0,0,0,.14);
-  border-radius:5px;padding:.18rem .52rem;text-decoration:none;flex-shrink:0;
-  white-space:nowrap;transition:border-color .15s,color .15s}
+.btn-card-sm{display:inline-flex;align-items:center;justify-content:center;gap:.26rem;
+  font-size:.61rem;font-weight:600;color:#1A1A1A;background:rgba(255,255,255,.93);
+  border:1px solid rgba(0,0,0,.14);border-radius:5px;padding:.18rem .52rem;
+  text-decoration:none;white-space:nowrap;transition:border-color .15s,color .15s}
 .btn-card-sm:hover{color:var(--acc);border-color:var(--acc2)}
-.rg-col-center{display:flex;flex-direction:column;align-items:center;gap:.3rem;
+/* align-items:stretch faz os dois botões terem a mesma largura */
+.rg-col-center{display:flex;flex-direction:column;align-items:stretch;gap:.3rem;
   flex-shrink:0;position:relative;z-index:1}
-.tr-links{display:flex;flex-direction:column;align-items:center;gap:.22rem;
+.tr-links{display:flex;flex-direction:column;align-items:stretch;gap:.22rem;
   flex-shrink:0;position:relative;z-index:1}
 
 /* RESPONSIVE */
@@ -1727,10 +1729,10 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     if uri and "spotify" in uri and status == "ACEITO":
         tid = uri.split(":")[-1]
         play_btn = (f'<button class="tr-play-btn" onclick="loadEmbed(this,\'{tid}\')">'
-                    f'&#9654; Pr&#233;via</button>')
+                    f'&#9654; Ouvir</button>')
     elif deezer_id:
         play_btn = (f'<button class="tr-play-btn" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">'
-                    f'&#9654; Pr&#233;via</button>')
+                    f'&#9654; Ouvir</button>')
 
     img_tag = (f'<img class="tr-thumb" src="{thumb}" alt="" loading="lazy" '
                f'onerror="this.style.display=\'none\'">'
@@ -1928,7 +1930,8 @@ def generate_html(df):
              f'<div class="stat-lbl">Cobertura</div></div>'
              f'</div>')
 
-    bpm_count = int(((df["status"] == "ACEITO") & df["bpm"].apply(safe_float).notna()).sum())
+    # Mesmo universo do filtro "Com BPM" na view de Faixas (todos os statuses, deduplicated)
+    bpm_count = int(df_tracks["bpm"].apply(safe_float).notna().sum())
 
     # ── Chip inner HTML (sem wrapper div, para uso nos filter-groups) ─────────
     nac_inner = (
