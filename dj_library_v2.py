@@ -220,7 +220,7 @@ def card_colors(raw_hex, fator=0.28):
         bg = f"#{rp:02X}{gp:02X}{bp:02X}"
         lum = (0.299 * rp + 0.587 * gp + 0.114 * bp) / 255
         if lum < 0.50:  # fundo escuro → texto branco
-            cvars = ("--text:#F2F2F2;--text2:#D8D8D8;--text3:#A8A8A8;"
+            cvars = ("--text:#F2F2F2;--text2:#E5E5E5;--text3:#CCCCCC;"
                      "--bdr:rgba(255,255,255,.18);--bdr2:rgba(255,255,255,.12);"
                      "--bpm-col:#F8D080;--tracks-bg:rgba(0,0,0,.28);"
                      "--acc2:rgba(255,200,120,.5)")
@@ -1166,8 +1166,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .alb-meta{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.48rem;align-items:center}
 .tag{padding:.11rem .42rem;border-radius:5px;font-size:.59rem;font-weight:600;
-  letter-spacing:.06em;text-transform:uppercase;background:var(--bg2);color:var(--text3)}
-.tag-acc{background:rgba(107,26,13,.08);color:var(--acc)}
+  letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(255,255,255,.88);color:#333;border:1px solid rgba(0,0,0,.09)}
+.tag-acc{background:rgba(255,255,255,.88);color:#222;border:1px solid rgba(0,0,0,.10)}
 .alb-tracks-info{font-size:.65rem;color:var(--text3);margin-top:.32rem}
 .toggle-btn{background:none;border:none;color:var(--text3);cursor:pointer;
   padding:.3rem .6rem;font-size:.85rem;flex-shrink:0;transition:transform .25s,color .2s;
@@ -1235,6 +1236,23 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   padding:.28rem .62rem;border-radius:20px;font-size:.7rem;cursor:pointer;
   transition:all .15s;white-space:nowrap}
 .tr-play-btn:hover{border-color:var(--acc2);color:var(--acc)}
+
+/* CARD BUTTONS (layout V2) */
+.btn-card{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;
+  font-size:.67rem;font-weight:600;color:#1A1A1A;background:rgba(255,255,255,.93);
+  border:1px solid rgba(0,0,0,.16);border-radius:6px;padding:.26rem .68rem;
+  text-decoration:none;flex-shrink:0;white-space:nowrap;
+  transition:border-color .15s,color .15s;align-self:center}
+.btn-card:hover{color:var(--acc);border-color:var(--acc2)}
+.btn-card-sm{display:inline-flex;align-items:center;gap:.26rem;font-size:.61rem;font-weight:600;
+  color:#1A1A1A;background:rgba(255,255,255,.93);border:1px solid rgba(0,0,0,.14);
+  border-radius:5px;padding:.18rem .52rem;text-decoration:none;flex-shrink:0;
+  white-space:nowrap;transition:border-color .15s,color .15s}
+.btn-card-sm:hover{color:var(--acc);border-color:var(--acc2)}
+.rg-col-center{display:flex;flex-direction:column;align-items:center;gap:.3rem;
+  flex-shrink:0;position:relative;z-index:1}
+.tr-links{display:flex;flex-direction:column;align-items:center;gap:.22rem;
+  flex-shrink:0;position:relative;z-index:1}
 
 /* RESPONSIVE */
 @media(max-width:640px){
@@ -1460,6 +1478,33 @@ document.getElementById('cnt-faixas').textContent=document.querySelectorAll('#gr
 """
 
 
+# ── SVG logos reutilizados nos render functions ──────────────────────────────
+_SVG_DISCOGS_SM = (
+    '<svg viewBox="0 0 100 100" width="14" height="14" fill="currentColor" style="flex-shrink:0">'
+    '<circle cx="50" cy="50" r="50"/>'
+    '<circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="3.5"/>'
+    '<circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="3.5"/>'
+    '<circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="3.5"/>'
+    '<circle cx="50" cy="50" r="13" fill="white"/>'
+    '<circle cx="50" cy="50" r="4" fill="currentColor"/>'
+    '<polygon points="72,3 85,17 28,97 15,83" fill="white"/>'
+    '</svg>'
+)
+_SVG_SPOTIFY_SM = (
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0">'
+    '<path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0z'
+    'M17.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141'
+    '-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6'
+    ' 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3'
+    '-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48'
+    '.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2z'
+    'M19.08 10.62C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721'
+    '-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719'
+    ' 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>'
+    '</svg>'
+)
+
+
 def render_track_lp(row):
     """Renderiza uma faixa dentro da view LP."""
     bpm_f     = safe_float(row.get("bpm"))
@@ -1472,15 +1517,15 @@ def render_track_lp(row):
     dot_cls = {"ACEITO":"s-ok","REVISAR":"s-rev"}.get(status,"s-rej")
 
     embed = ""
-    if deezer_id:
-        embed = (f'<div class="embed-ph" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">'
-                 f'&#9654; Ouvir</div>')
-    elif uri and uri != "nan" and "spotify" in uri:
+    if uri and uri != "nan" and "spotify" in uri and status == "ACEITO":
         tid = uri.split(":")[-1]
         embed = (f'<div class="embed-ph" onclick="loadEmbed(this,\'{tid}\')">'
                  f'&#9654; Ouvir</div>')
+    elif deezer_id:
+        embed = (f'<div class="embed-ph" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">'
+                 f'&#9654; Ouvir</div>')
     elif status == "ACEITO":
-        embed = '<div class="no-spotify">sem prévia</div>'
+        embed = '<div class="no-spotify">sem pr&#233;via</div>'
 
     return f'''<div class="track" data-bpm="{int(bpm_f) if bpm_f else 999}">
   <span class="trk-pos">{esc(row.get("position"))}</span>
@@ -1534,12 +1579,13 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     elif year_int > 0:     decade_key = "2020s"
     else:                  decade_key = ""
 
-    # Cor do card
+    # Cor do card (Gradiente F: EE→55)
     card_style = ""
     if color_pastel and len(color_pastel) == 7:
-        bg, cvars = card_colors(color_pastel)
-        if bg:
-            card_style = f' style="background:{bg};{cvars}"'
+        _, cvars = card_colors(color_pastel)
+        if cvars:
+            card_style = (f' style="background:linear-gradient(105deg,{color_pastel}EE 0%,'
+                          f'{color_pastel}55 100%);{cvars}"')
 
     img_tag = (f'<img class="cover-img" src="{cover}" alt="" loading="lazy" '
                f'onerror="this.style.display=\'none\'">'
@@ -1551,14 +1597,25 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     if fmt_size and fmt_size not in ("LP","Other"): tags += f'<span class="tag">{esc(fmt_size)}</span>'
     if genre_style_s: tags += f'<span class="tag tag-acc">{genre_style_s[:50]}</span>'
     if bpm_range:    tags += f'<span class="tag">{bpm_range}</span>'
-    if fmt_label:    tags += f'<span class="tag">Selo: {esc(fmt_label[:28])}</span>'
+    if fmt_label:    tags += f'<span class="tag">{esc(fmt_label[:28])}</span>'
 
     copy_badge = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
 
-    discogs_url  = f"https://www.discogs.com/release/{release_id}"
-    discogs_link = (f'<a class="discogs-link" href="{discogs_url}" target="_blank" '
-                    f'onclick="event.stopPropagation()" title="Ver no Discogs">'
-                    f'&#9675; Discogs</a>')
+    discogs_url = f"https://www.discogs.com/release/{release_id}"
+    # Spotify link: primeiro track ACEITO do álbum
+    _sp_ids = group[group["status"] == "ACEITO"]["track_id"].dropna()
+    _sp_tid = str(_sp_ids.iloc[0]) if len(_sp_ids) > 0 else ""
+    _sp_tid = "" if _sp_tid in ("nan", "None", "") else _sp_tid
+    sp_album_link = f"https://open.spotify.com/track/{_sp_tid}" if _sp_tid else ""
+    discogs_card_btn = (f'<a class="btn-card" href="{discogs_url}" target="_blank" '
+                        f'onclick="event.stopPropagation()">'
+                        f'{_SVG_DISCOGS_SM} Discogs</a>')
+    spotify_card_btn = (
+        f'<a class="btn-card" href="{sp_album_link}" target="_blank" '
+        f'onclick="event.stopPropagation()">'
+        f'{_SVG_SPOTIFY_SM} Spotify</a>'
+    ) if sp_album_link else ""
+    btn_group = f'<div class="rg-col-center">{discogs_card_btn}{spotify_card_btn}</div>'
 
     custom_html = ""
     field_items = []
@@ -1579,11 +1636,23 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     search_str = html_module.escape(
         f'{first.get("album_artist","")} {first.get("album_title","")} '
         f'{styles_s} {genres_s} {year_s} {country} {track_titles} '
-        f'{fields.get("Origem","")} {fields.get("Notas","")}'.lower()
+        f'{fmt_label} {fields.get("Origem","")} {fields.get("Notas","")}'.lower()
     )
 
     group_dedup = group.drop_duplicates(subset=["position"])
     tracks_html = "\n".join(render_track_lp(r) for _, r in group_dedup.iterrows())
+    n_bpm = int(group_dedup["bpm"].apply(safe_float).notna().sum())
+    n_preview = 0
+    for _, _r in group_dedup.iterrows():
+        _uri = str(_r.get("spotify_uri") or "")
+        _did = str(_r.get("deezer_id") or "")
+        _did = "" if _did in ("nan", "None", "none", "") else _did
+        if (_uri and "spotify" in _uri and str(_r.get("status", "")) == "ACEITO") or _did:
+            n_preview += 1
+    _tinfo = [f"{n_ok} de {len(group_dedup)} faixas"]
+    if n_bpm > 0:  _tinfo.append(f"{n_bpm} com BPM")
+    if n_preview > 0: _tinfo.append(f"{n_preview} com pr&#233;via")
+    alb_tracks_info = " &middot; ".join(_tinfo)
     origem_val = (fields.get("Origem") or "").strip().lower()
     country_key = country.strip().lower()
 
@@ -1603,10 +1672,11 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     <div class="album-info">
       <div class="alb-artist">{esc(first.get("album_artist",""))}{copy_badge}</div>
       <div class="alb-title">{esc(first.get("album_title",""))}</div>
-      <div class="alb-meta">{tags} {discogs_link}</div>
+      <div class="alb-meta">{tags}</div>
       {custom_html}
-      <div class="alb-tracks-info">{n_ok} de {len(group_dedup)} faixas</div>
+      <div class="alb-tracks-info">{alb_tracks_info}</div>
     </div>
+    {btn_group}
     <button class="toggle-btn" aria-label="expandir">&#8964;</button>
   </header>
   <div class="tracks-list collapsed">{tracks_html}</div>
@@ -1627,6 +1697,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     styles_s   = str(row.get("styles") or "")
     genres_s   = str(row.get("genres") or "")
     fmt_size         = format_info.get("format_size", "") or ""
+    fmt_label        = format_info.get("label", "") or ""
     fmt_is_compil    = "0"
     artist_lower     = (row.get("album_artist") or row.get("artist_clean") or "").lower()
     if any(kw in artist_lower for kw in ["various", "v.a.", "variados", "aa.vv."]):
@@ -1653,13 +1724,13 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     has_bpm = "1" if bpm_f else "0"
 
     play_btn = ""
-    if deezer_id:
-        play_btn = (f'<button class="tr-play-btn" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">'
-                    f'&#9654; Prévia</button>')
-    elif uri and "spotify" in uri and status == "ACEITO":
+    if uri and "spotify" in uri and status == "ACEITO":
         tid = uri.split(":")[-1]
         play_btn = (f'<button class="tr-play-btn" onclick="loadEmbed(this,\'{tid}\')">'
-                    f'&#9654; Prévia</button>')
+                    f'&#9654; Pr&#233;via</button>')
+    elif deezer_id:
+        play_btn = (f'<button class="tr-play-btn" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">'
+                    f'&#9654; Pr&#233;via</button>')
 
     img_tag = (f'<img class="tr-thumb" src="{thumb}" alt="" loading="lazy" '
                f'onerror="this.style.display=\'none\'">'
@@ -1669,21 +1740,30 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
                 if thumb else '')
 
     discogs_url = f"https://www.discogs.com/release/{release_id}"
-    discogs_link = (f'<a class="tr-discogs-link" href="{discogs_url}" target="_blank" '
-                    f'title="Ver no Discogs">&#9675; Discogs</a>' if release_id else "")
+    _tr_did = str(row.get("track_id") or "")
+    _tr_tid = _tr_did if _tr_did not in ("", "nan", "None") else ""
+    discogs_btn_sm = (f'<a class="btn-card-sm" href="{discogs_url}" target="_blank">'
+                      f'{_SVG_DISCOGS_SM} Discogs</a>') if release_id else ""
+    spotify_btn_sm = (
+        f'<a class="btn-card-sm" href="https://open.spotify.com/track/{_tr_tid}" target="_blank">'
+        f'{_SVG_SPOTIFY_SM} Spotify</a>'
+    ) if _tr_tid and status == "ACEITO" else ""
+    tr_links = f'<div class="tr-links">{discogs_btn_sm}{spotify_btn_sm}</div>'
 
-    meta_parts = [p for p in [year_s, esc(country), esc(genre_style_s)] if p]
-    meta_html = f'<div class="tr-meta">{" · ".join(meta_parts)}</div>' if meta_parts else ""
+    fmt_label_s = esc(fmt_label[:22]) if fmt_label else ""
+    meta_parts = [p for p in [year_s, esc(country), esc(genre_style_s), fmt_label_s] if p]
+    meta_html = f'<div class="tr-meta">{" &middot; ".join(meta_parts)}</div>' if meta_parts else ""
 
     row_style = ""
     if color_pastel and len(color_pastel) == 7:
-        bg, cvars = card_colors(color_pastel)
-        if bg:
-            row_style = f' style="background:{bg};{cvars}"'
+        _, cvars = card_colors(color_pastel)
+        if cvars:
+            row_style = (f' style="background:linear-gradient(105deg,{color_pastel}EE 0%,'
+                         f'{color_pastel}55 100%);{cvars}"')
 
     search_str = html_module.escape(
         f'{row.get("track_title","")} {row.get("artist_clean","")} '
-        f'{row.get("album_title","")} {country} {genres_s} {styles_s} {year_s}'.lower()
+        f'{row.get("album_title","")} {country} {genres_s} {styles_s} {year_s} {fmt_label}'.lower()
     )
     artist_str = html_module.escape(str(row.get("artist_clean") or ""))
 
@@ -1704,8 +1784,8 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     <div class="tr-artist">{esc(row.get("artist_clean"))}</div>
     <div class="tr-album">{esc(row.get("album_title"))}</div>
     {meta_html}
-    {discogs_link}
   </div>
+  {tr_links}
   <div class="tr-bpm-area">
     <div class="tr-bpm-num">{bpm_txt}</div>
     <div class="tr-bpm-lbl">bpm</div>
@@ -2024,7 +2104,7 @@ def generate_html(df):
 <div id="view-lp" class="view active">
   <div class="controls">
     <div class="ctrl-row">
-      <input class="ctrl-input" id="q-lp" type="search" placeholder="Buscar artista, &#225;lbum ou faixa...">
+      <input class="ctrl-input" id="q-lp" type="search" placeholder="Buscar artista, &#225;lbum, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-lp" onchange="filterLP()">
         <option value="">Artista A&#8594;Z</option>
         <option value="year-desc">Ano (recente)</option>
@@ -2047,7 +2127,7 @@ def generate_html(df):
 <div id="view-faixas" class="view">
   <div class="controls">
     <div class="ctrl-row">
-      <input class="ctrl-input" id="q-faixas" type="search" placeholder="Buscar artista, &#225;lbum ou faixa...">
+      <input class="ctrl-input" id="q-faixas" type="search" placeholder="Buscar artista, &#225;lbum, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-faixas" onchange="filterTracks()">
         <option value="bpm-asc">BPM crescente</option>
         <option value="bpm-desc">BPM decrescente</option>
