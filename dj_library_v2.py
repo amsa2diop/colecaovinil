@@ -1101,8 +1101,8 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .chip{padding:.26rem .62rem;border-radius:20px;font-size:.69rem;letter-spacing:.03em;
   cursor:pointer;border:1px solid var(--bdr);background:transparent;color:var(--text3);
   transition:all .15s;white-space:nowrap}
-.chip.active{background:var(--acc);border-color:var(--acc);color:#fff}
-.chip.multi-active{background:var(--acc2);border-color:var(--acc2);color:#fff}
+.chip.active{background:#555;border-color:#555;color:#fff}
+.chip.multi-active{background:#888;border-color:#888;color:#fff}
 .chip:hover:not(.active):not(.multi-active){border-color:var(--acc2);color:var(--acc)}
 .chips-label{font-size:.62rem;color:var(--text3);white-space:nowrap;letter-spacing:.05em;
   text-transform:uppercase}
@@ -1142,7 +1142,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   text-transform:uppercase;margin-bottom:1rem}
 
 /* BPM NOTICE */
-.bpm-notice{background:rgba(107,26,13,.05);border:1px solid rgba(107,26,13,.12);
+.bpm-notice{background:rgba(0,0,0,.04);border:1px solid var(--bdr);
   border-radius:var(--r-sm);padding:.55rem 1.1rem;font-size:.76rem;
   color:var(--text2);margin-bottom:1rem}
 
@@ -1233,7 +1233,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .tr-bpm-area{flex-shrink:0;text-align:center;min-width:60px;position:relative;z-index:1}
 .tr-bpm-num{font-family:Georgia,serif;font-size:2rem;font-weight:bold;
   color:#111;line-height:1}
-.tr-bpm-lbl{font-size:.53rem;color:var(--text3);text-transform:uppercase;
+.tr-bpm-lbl{font-size:.53rem;color:#111;text-transform:uppercase;
   letter-spacing:.1em;margin-top:.08rem}
 .tr-src{font-size:.52rem;color:var(--text3);letter-spacing:.04em;
   border:1px solid var(--bdr);border-radius:3px;padding:.04rem .28rem;
@@ -1811,11 +1811,11 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     <div class="tr-album">{esc(row.get("album_title"))}</div>
     {meta_html}
   </div>
-  {tr_links}
   <div class="tr-bpm-area">
     <div class="tr-bpm-num">{bpm_txt}</div>
     <div class="tr-bpm-lbl">bpm</div>
   </div>
+  {tr_links}
 </div>'''
 
 
@@ -2037,11 +2037,11 @@ def generate_html(df):
 
     fp_faixas = (
         f'<div class="filter-panel" id="fp-faixas">'
-        f'<div class="filter-group"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
         f'{origem_group}'
+        f'<div class="filter-group"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
         f'</div>'
     )
 
@@ -2106,7 +2106,6 @@ def generate_html(df):
 <body>
 
 <header class="site-header">
-  <span class="logo-mark">&#9670;</span>
   <a class="logo-name logo-link" href="https://www.instagram.com/amsa2diop" target="_blank">Cole&#231;&#227;o do Amsa</a>
   <div class="header-sep"></div>
   <div class="site-stats">
