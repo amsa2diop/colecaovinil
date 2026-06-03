@@ -179,34 +179,6 @@ def key_to_camelot(key, mode):
     return major[int(key)] if mode == 1 else minor[int(key)]
 
 
-def bpm_color(bpm):
-    if not bpm: return "#9C8070"
-    try: bpm = float(bpm)
-    except: return "#9C8070"
-    if bpm < 70:  return "#5B3DC8"
-    if bpm < 80:  return "#3B72C0"
-    if bpm < 90:  return "#2898A8"
-    if bpm < 100: return "#289870"
-    if bpm < 110: return "#88A028"
-    if bpm < 120: return "#C87820"
-    if bpm < 130: return "#C05020"
-    if bpm < 140: return "#B03020"
-    return "#882020"
-
-
-def hex_pastel(hex_color, fator=0.25):
-    """Mistura cor hex com branco pelo fator (0=original, 1=branco)."""
-    if not hex_color or len(hex_color) != 7:
-        return ""
-    try:
-        r = int(hex_color[1:3], 16)
-        g = int(hex_color[3:5], 16)
-        b = int(hex_color[5:7], 16)
-        return f"#{int(r+(255-r)*fator):02X}{int(g+(255-g)*fator):02X}{int(b+(255-b)*fator):02X}"
-    except Exception:
-        return ""
-
-
 def card_colors(raw_hex, fator=0.28):
     """Retorna (bg_hex, css_vars) para gradiente do card com texto legível.
     Usa luminância da cor RAW (não clareada) porque o gradiente usa a cor raw."""
@@ -1107,27 +1079,11 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .incomplete-link{font-size:.72rem;color:#bbb;text-decoration:none;
   border-bottom:1px dashed #ccc;cursor:pointer;transition:color .15s,border-color .15s}
 .incomplete-link:hover{color:#555;border-color:#888}
-/* Incompletas section headings */
-.h-section-title{font-size:.68rem;font-weight:600;text-transform:uppercase;
-  letter-spacing:.08em;color:#AAA;padding:12px 12px 5px;
-  background:var(--bg2);border-bottom:1px solid var(--bdr)}
 .h-flag{font-size:.62rem;font-weight:700;border-radius:4px;padding:2px 6px;
   flex-shrink:0;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
 .f-bpm {background:#FFF3E0;color:#BF5700}
 .f-sp  {background:#E3F2FD;color:#1258A8}
 .f-both{background:#FCE4EC;color:#880E4F}
-/* Incompletas in-place section */
-.inc-section{display:none;border-top:2px solid var(--bdr2);margin-top:.5rem}
-.inc-section.open{display:block}
-.inc-group-hd{display:flex;align-items:center;justify-content:space-between;
-  padding:9px 12px;background:var(--bg2);border-bottom:1px solid var(--bdr);
-  cursor:pointer;user-select:none;font-size:.68rem;font-weight:700;
-  color:var(--text2);text-transform:uppercase;letter-spacing:.08em}
-.inc-group-hd:hover{background:var(--card2)}
-.inc-arrow{font-size:.6rem;transition:transform .18s;display:inline-block}
-.inc-group-hd.open .inc-arrow{transform:rotate(90deg)}
-.inc-group-body{display:none;background:var(--bg)}
-.inc-group-body.open{display:block}
 /* Inc badges — visible only when #grid-faixas has inc-mode class */
 .inc-badge{display:none}
 #grid-faixas.inc-mode .inc-badge{display:inline-block;margin-top:.2rem}
@@ -1187,11 +1143,6 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .main{max-width:1200px;margin:0 auto;padding:1.4rem 2.5rem}
 .results-bar{font-size:.7rem;color:var(--text3);letter-spacing:.06em;
   text-transform:uppercase;margin-bottom:1rem}
-
-/* BPM NOTICE */
-.bpm-notice{background:rgba(0,0,0,.04);border:1px solid var(--bdr);
-  border-radius:var(--r-sm);padding:.55rem 1.1rem;font-size:.76rem;
-  color:var(--text2);margin-bottom:1rem}
 
 /* ── LP VIEW ── */
 .albums-grid{display:flex;flex-direction:column;gap:.45rem}
@@ -2255,28 +2206,28 @@ def generate_html(df):
         if origem_inner else ''
     )
 
-    dj_group  = (f'<div class="filter-group"><span class="filter-group-label">DJ</span>{dj_inner}</div>'   if dj_inner  else '')
+    dj_group  = (f'<div class="filter-group"><span class="filter-group-label">Para discotecar</span>{dj_inner}</div>'   if dj_inner  else '')
     pa_group  = (f'<div class="filter-group"><span class="filter-group-label">Para trocar</span>{pa_inner}</div>' if pa_inner  else '')
     dup_group =  f'<div class="filter-group"><span class="filter-group-label">C&#243;pias</span>{dup_inner}</div>'
 
     fp_lp = (
         f'<div class="filter-panel" id="fp-lp">'
-        f'<div class="filter-group"><span class="filter-group-label">Ano</span>{decade_inner}</div>'
-        f'{dj_group}'
-        f'{origem_group}'
+        f'<div class="filter-group"><span class="filter-group-label">D&#233;cada</span>{decade_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
-        f'{pa_group}'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
+        f'{origem_group}'
+        f'{dj_group}'
+        f'{pa_group}'
         f'</div>'
     )
 
     fp_faixas = (
         f'<div class="filter-panel" id="fp-faixas">'
-        f'<div class="filter-group"><span class="filter-group-label">Ano</span>{decade_inner}</div>'
-        f'{dj_group}'
-        f'{origem_group}'
+        f'<div class="filter-group"><span class="filter-group-label">D&#233;cada</span>{decade_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
+        f'{origem_group}'
+        f'{dj_group}'
         f'<div class="filter-group"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
         f'</div>'
     )
