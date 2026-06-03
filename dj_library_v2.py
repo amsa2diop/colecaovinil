@@ -1057,7 +1057,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .field-item{font-size:.65rem;color:var(--text3)}
 .field-item strong{color:var(--text2);font-weight:600}
 .field-notes{font-size:.68rem;color:var(--text2);font-style:italic;
-  margin-top:.3rem;padding:.28rem .5rem;background:var(--bg2);
+  margin-top:.3rem;padding:.28rem .5rem;background:var(--tracks-bg);
   border-left:2px solid var(--bdr);border-radius:0 4px 4px 0}
 
 /* VIEW */
@@ -1292,6 +1292,7 @@ var compilFilter='all';
 var djFilter='all';
 var paFilter='all';
 var dupFilter='all';
+var recebidoFilter='all';
 var incFilterActive=false;
 
 function syncAllChips(){
@@ -1409,6 +1410,12 @@ function setDupFilter(val,el){
   el.classList.add('active');
   filterLP();
 }
+function setRecebidoFilter(val,el){
+  recebidoFilter=val;
+  document.querySelectorAll('.recebido-chip').forEach(function(c){c.classList.remove('active')});
+  el.classList.add('active');
+  filterTracks();
+}
 
 // ── LP FILTER ─────────────────────────────────────────────────────────────────
 function filterLP(){
@@ -1424,8 +1431,8 @@ function filterLP(){
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(c.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&c.dataset.compilation==='1')||(compilFilter==='nocomp'&&c.dataset.compilation!=='1');
-    var djOk=djFilter==='all'||(djFilter==='yes'&&(c.dataset.dj||'').trim()!=='');
-    var paOk=paFilter==='all'||(paFilter==='yes'&&(c.dataset.pa||'').trim()!=='');
+    var djOk=djFilter==='all'||(djFilter==='yes'&&['Sim','Parcial'].indexOf(c.dataset.dj)!==-1);
+    var paOk=paFilter==='all'||(paFilter==='yes'&&['Sim','Em breve'].indexOf(c.dataset.pa)!==-1);
     var dupOk=dupFilter==='all'||(dupFilter==='dup'&&+c.dataset.copies>1);
     var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&djOk&&paOk&&dupOk;
     c.classList.toggle('hidden',!ok);if(ok)vis++;
@@ -1494,10 +1501,11 @@ function filterTracks(){
     var decOk=decadeFilter.size===0||decadeFilter.has(r.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&r.dataset.compilation==='1')||(compilFilter==='nocomp'&&r.dataset.compilation!=='1');
     var origOk=origemFilter.size===0||origemFilter.has(r.dataset.origem||'');
-    var djOk=djFilter==='all'||(djFilter==='yes'&&(r.dataset.dj||'').trim()!=='');
+    var djOk=djFilter==='all'||(djFilter==='yes'&&['Sim','Parcial'].indexOf(r.dataset.dj)!==-1);
+    var recOk=recebidoFilter==='all'||(recebidoFilter==='sim'&&r.dataset.recebido==='Sim')||(recebidoFilter==='nao'&&r.dataset.recebido!=='Sim');
     var inctype=r.dataset.inctype||'';
     var incOk=!incFilterActive||(inctype==='nosp'||inctype==='nobpm'||inctype==='both');
-    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk&&djOk&&incOk;
+    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk&&djOk&&recOk&&incOk;
     r.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-faixas').textContent=vis;
@@ -1801,9 +1809,9 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
 
     custom_html = ""
     field_items = []
-    if fields.get("Origem"):   field_items.append(f'<span class="field-item"><strong>Origem:</strong> {esc(fields["Origem"])}</span>')
-    if fields.get("DJ"):       field_items.append(f'<span class="field-item"><strong>DJ:</strong> {esc(fields["DJ"])}</span>')
-    if fields.get("PA"):       field_items.append(f'<span class="field-item"><strong>PA:</strong> {esc(fields["PA"])}</span>')
+    if fields.get("Origem"):   field_items.append(f'<span class="field-item"><strong>Loja:</strong> {esc(fields["Origem"])}</span>')
+    if fields.get("DJ") and fields["DJ"] != "Não":   field_items.append(f'<span class="field-item"><strong>Discotecar:</strong> {esc(fields["DJ"])}</span>')
+    if fields.get("PA") and fields["PA"] != "Não":   field_items.append(f'<span class="field-item"><strong>Trocar:</strong> {esc(fields["PA"])}</span>')
     if fields.get("$"):        field_items.append(f'<span class="field-item"><strong>$:</strong> {esc(fields["$"])}</span>')
     if fields.get("Recebido?"): field_items.append(f'<span class="field-item"><strong>Recebido:</strong> {esc(fields["Recebido?"])}</span>')
     mc = fields.get("Media Condition",""); sc = fields.get("Sleeve Condition","")
@@ -1868,7 +1876,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
 </article>'''
 
 
-def render_track_row(row, country="", color_pastel="", format_data=None, origem="", dj=""):
+def render_track_row(row, country="", color_pastel="", format_data=None, origem="", dj="", recebido=""):
     """Renderiza uma linha de faixa (Track view)."""
     format_info = format_data or {}
     bpm_f     = safe_float(row.get("bpm"))
@@ -1972,7 +1980,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     return f'''<div class="track-row"{row_style}
   data-bpm="{bpm_int}" data-hasbpm="{has_bpm}" data-hasspotify="{has_spotify}"
   data-inctype="{inc_type}" data-year="{year_int}"
-  data-dj="{esc(dj.strip())}"
+  data-dj="{esc(dj.strip())}" data-recebido="{esc(recebido.strip())}"
   data-search="{search_str}" data-artist="{artist_str}"
   data-country="{esc(country_key)}" data-decade="{decade_key}"
   data-compilation="{fmt_is_compil}" data-format="{esc(fmt_size)}"
@@ -2105,6 +2113,7 @@ def generate_html(df):
             format_data  = format_map.get(str(r.get("release_id","")), {}),
             origem       = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Origem", ""),
             dj           = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("DJ", ""),
+            recebido     = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Recebido?", ""),
         )
         for _, r in df_tracks.iterrows()
     )
@@ -2187,6 +2196,13 @@ def generate_html(df):
         '<button class="chip dj-chip" data-val="yes" onclick="setDjFilter(\'yes\',this)">Para DJ</button>'
     ) if has_dj_data else ''
 
+    has_recebido_data = any((v.get("Recebido?") or "").strip() for v in fields_map.values())
+    recebido_inner = (
+        '<button class="chip recebido-chip active" data-val="all" onclick="setRecebidoFilter(\'all\',this)">Tudo</button>'
+        '<button class="chip recebido-chip" data-val="sim" onclick="setRecebidoFilter(\'sim\',this)">Sim</button>'
+        '<button class="chip recebido-chip" data-val="nao" onclick="setRecebidoFilter(\'nao\',this)">N&#227;o</button>'
+    ) if has_recebido_data else ''
+
     has_pa_data = any((v.get("PA") or "").strip() for v in fields_map.values())
     pa_inner = (
         '<button class="chip pa-chip active" data-val="all" onclick="setPaFilter(\'all\',this)">Tudo</button>'
@@ -2206,8 +2222,9 @@ def generate_html(df):
         if origem_inner else ''
     )
 
-    dj_group  = (f'<div class="filter-group"><span class="filter-group-label">Para discotecar</span>{dj_inner}</div>'   if dj_inner  else '')
-    pa_group  = (f'<div class="filter-group"><span class="filter-group-label">Para trocar</span>{pa_inner}</div>' if pa_inner  else '')
+    dj_group       = (f'<div class="filter-group"><span class="filter-group-label">Para discotecar</span>{dj_inner}</div>'   if dj_inner       else '')
+    pa_group       = (f'<div class="filter-group"><span class="filter-group-label">Para trocar</span>{pa_inner}</div>'       if pa_inner       else '')
+    recebido_group = (f'<div class="filter-group"><span class="filter-group-label">Recebido?</span>{recebido_inner}</div>'  if recebido_inner else '')
     dup_group =  f'<div class="filter-group"><span class="filter-group-label">C&#243;pias</span>{dup_inner}</div>'
 
     fp_lp = (
@@ -2228,6 +2245,7 @@ def generate_html(df):
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
         f'{origem_group}'
         f'{dj_group}'
+        f'{recebido_group}'
         f'<div class="filter-group"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
         f'</div>'
     )
