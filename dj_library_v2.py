@@ -1203,14 +1203,16 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .embed-ph:hover{border-color:var(--acc2);color:var(--acc)}
 .sp-embed{margin-top:.38rem;border-radius:var(--r-sm);display:block}
 .no-spotify{margin-top:.3rem;font-size:.67rem;color:var(--text3);font-style:italic}
-.embed-below{padding:.45rem .9rem .6rem;border-top:1px solid var(--bdr2)}
-.track-rows .embed-below{background:var(--card);border:1px solid var(--bdr);
-  border-radius:0 0 var(--r) var(--r);margin-top:-.5rem;margin-bottom:.4rem;border-top:none}
+/* Faixas: embed dentro do card, herda gradiente */
+.track-row .embed-below{flex-basis:100%;padding:.4rem 0 0;margin-top:.15rem;
+  border-top:1px solid rgba(255,255,255,.15)}
+/* LP accordion: embed abaixo da linha de faixa */
+.tracks-list .embed-below{padding:.45rem 1.2rem .6rem;border-top:1px solid var(--bdr2)}
 
 /* ── TRACK VIEW ── */
 .track-rows{display:flex;flex-direction:column;gap:.38rem}
 .track-row{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);
-  padding:.8rem 1rem;display:flex;align-items:center;gap:.85rem;
+  padding:.8rem 1rem;display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;
   transition:box-shadow .15s;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .track-row:hover{box-shadow:var(--shadow-h)}
 .track-row.hidden{display:none}
@@ -1465,21 +1467,26 @@ function filterTracks(){
 }
 
 // ── EMBED ──────────────────────────────────────────────────────────────────────
+var _mob=/Mobi|Android/i.test(navigator.userAgent);
 function _doEmbed(el,iframe){
-  var tr=el.closest('.track-row')||el.closest('.track');
-  if(tr){
-    // Faixas view and LP accordion: insert player below the row
-    var w=document.createElement('div');w.className='embed-below';
-    w.appendChild(iframe);
-    tr.parentNode.insertBefore(w,tr.nextSibling);
-    el.innerHTML='&#9646;&#9646; Tocando';
-    el.style.opacity='.55';el.style.pointerEvents='none';
+  var trackRow=el.closest('.track-row');
+  var trackLp=el.closest('.track');
+  var w=document.createElement('div');w.className='embed-below';
+  w.appendChild(iframe);
+  if(trackRow){
+    // Faixas: append inside card so it inherits gradient/color
+    trackRow.appendChild(w);
+  }else if(trackLp){
+    // LP accordion: insert below the track row within tracks-list
+    trackLp.parentNode.insertBefore(w,trackLp.nextSibling);
   }else{
-    // fallback: replace button in-place
-    el.parentNode.replaceChild(iframe,el);
+    el.parentNode.replaceChild(iframe,el);return;
   }
+  el.innerHTML='&#9646;&#9646; Tocando';
+  el.style.opacity='.55';el.style.pointerEvents='none';
 }
 function loadEmbed(el,tid){
+  if(_mob){window.open('https://open.spotify.com/track/'+tid,'_blank');return;}
   var iframe=document.createElement('iframe');
   iframe.src='https://open.spotify.com/embed/track/'+tid+'?utm_source=generator&autoplay=1';
   iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
@@ -1488,6 +1495,7 @@ function loadEmbed(el,tid){
   _doEmbed(el,iframe);
 }
 function loadDeezerEmbed(el,did){
+  if(_mob){window.open('https://www.deezer.com/track/'+did,'_blank');return;}
   var iframe=document.createElement('iframe');
   iframe.src='https://widget.deezer.com/widget/light/track/'+did+'?autoplay=true';
   iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
