@@ -1566,6 +1566,8 @@ function filterTracks(){
       }
       if(s==='bpm-desc'){var ba=+a.dataset.bpm||0,bb=+b.dataset.bpm||0;return (bb-ba)||artCmp;}
       if(s==='az') return artCmp||(bpmA-bpmB);
+      if(s==='year-asc') return (+a.dataset.year||0)-(+b.dataset.year||0)||artCmp;
+      if(s==='year-desc') return (+b.dataset.year||0)-(+a.dataset.year||0)||artCmp;
       return 0;
     });
     vr.forEach(function(r){grid.appendChild(r)});
@@ -2018,7 +2020,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
 
     return f'''<div class="track-row"{row_style}
   data-bpm="{bpm_int}" data-hasbpm="{has_bpm}" data-hasspotify="{has_spotify}"
-  data-inctype="{inc_type}"
+  data-inctype="{inc_type}" data-year="{year_int}"
   data-dj="{esc(dj.strip())}"
   data-search="{search_str}" data-artist="{artist_str}"
   data-country="{esc(country_key)}" data-decade="{decade_key}"
@@ -2347,9 +2349,9 @@ def generate_html(df):
     <div class="ctrl-row">
       <input class="ctrl-input" id="q-lp" type="search" placeholder="Buscar artista, &#225;lbum, ano, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-lp" onchange="filterLP()">
-        <option value="">Artista A&#8594;Z</option>
         <option value="year-desc">Ano (recente)</option>
         <option value="year-asc">Ano (antigo)</option>
+        <option value="" selected>Artista A&#8594;Z</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">&#9881; Filtros &#9662;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
@@ -2369,9 +2371,11 @@ def generate_html(df):
     <div class="ctrl-row">
       <input class="ctrl-input" id="q-faixas" type="search" placeholder="Buscar artista, &#225;lbum, ano, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-faixas" onchange="filterTracks()">
-        <option value="bpm-asc">BPM crescente</option>
-        <option value="bpm-desc">BPM decrescente</option>
+        <option value="year-desc">Ano (recente)</option>
+        <option value="year-asc">Ano (antigo)</option>
         <option value="az">Artista A&#8594;Z</option>
+        <option value="bpm-asc" selected>BPM crescente</option>
+        <option value="bpm-desc">BPM decrescente</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">&#9881; Filtros &#9662;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
