@@ -254,6 +254,31 @@ def esc(v):
     if v is None or (isinstance(v, float) and math.isnan(v)): return ""
     return html_module.escape(str(v))
 
+_EMPTY = {"nan", "None", "none", ""}
+
+def _clean(val):
+    """Normalise any falsy / nan-string value to empty string."""
+    s = str(val) if val is not None else ""
+    return "" if s in _EMPTY else s
+
+def _decade(year_int):
+    """Return decade chip key for a year integer."""
+    if not year_int: return ""
+    if year_int < 1970: return "pre70"
+    if year_int < 1980: return "70s"
+    if year_int < 1990: return "80s"
+    if year_int < 2000: return "90s"
+    if year_int < 2010: return "2000s"
+    if year_int < 2020: return "2010s"
+    return "2020s"
+
+def _genre_style(genres_s, styles_s, limit=5):
+    """Return deduplicated 'Genre · Style' string."""
+    parts = [p.strip() for p in (str(genres_s or "") + "," + str(styles_s or "")).split(",")
+             if p.strip() and p.strip() != "nan"]
+    seen: set = set()
+    return " · ".join(p for p in parts if not (p in seen or seen.add(p)))[:limit * 30]
+
 
 # ==============================================================================
 # 4. DISCOGS: COLETA DE ÁLBUNS E FAIXAS
@@ -776,12 +801,12 @@ def fetch_bpm(sp, df):
             df[col] = None
 
     # Apenas faixas aceitas SEM BPM
-    missing_mask = (df["status"] == "ACEITO") & (df["bpm"].apply(safe_float).isna())
+    _bpm_safe = df["bpm"].apply(safe_float)
+    missing_mask = (df["status"] == "ACEITO") & _bpm_safe.isna()
     missing_ids  = df[missing_mask]["track_id"].dropna().unique().tolist()
 
     if not missing_ids:
-        filled = df["bpm"].apply(safe_float).notna().sum()
-        print(f"✓ BPM completo — {filled} faixas, nenhuma nova para buscar.")
+        print(f"✓ BPM completo — {_bpm_safe.notna().sum()} faixas, nenhuma nova para buscar.")
         return df
 
     print(f"\nBuscando BPM para {len(missing_ids)} faixas sem BPM...")
@@ -1018,7 +1043,7 @@ CSS = """
   --bg:#FFFFFF;--bg2:#F5F1EB;--card:#FAF8F5;--card2:#F0EBE3;
   --text:#111;--text2:#444;--text3:#777;
   --acc:#111;--acc2:#444;
-  --bdr:#DDD;--bdr2:#E8E8E8;--tag:#E8E8E8;
+  --bdr:#DDD;--bdr2:#E8E8E8;
   --bpm-col:#111;
   --r:14px;--r-sm:8px;
   --shadow:0 2px 12px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.03);
@@ -1033,7 +1058,6 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   display:flex;align-items:center;gap:1.4rem;padding:0 2.5rem;
   height:54px;position:sticky;top:0;z-index:100;flex-shrink:0}
 .logo{display:flex;align-items:center;gap:.45rem;text-decoration:none;flex-shrink:0}
-.logo-mark{color:var(--acc);font-size:.65rem}
 .logo-name{font-family:Georgia,serif;font-weight:normal;color:var(--acc);
   font-size:1.4rem;letter-spacing:.04em;white-space:nowrap}
 .header-sep{width:1px;height:22px;background:var(--bdr);flex-shrink:0}
@@ -1055,11 +1079,6 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   background:#fff;color:#111;border:1px solid rgba(0,0,0,.22);
   margin-left:.35rem;vertical-align:middle}
 
-/* DISCOGS LINK */
-.discogs-link{display:inline-flex;align-items:center;gap:.25rem;font-size:.65rem;
-  color:var(--text3);text-decoration:none;border:1px solid var(--bdr);
-  padding:.18rem .5rem;border-radius:6px;transition:color .15s,border-color .15s}
-.discogs-link:hover{color:var(--acc);border-color:var(--acc2)}
 
 /* CUSTOM FIELDS */
 .fields-row{display:flex;flex-wrap:wrap;gap:.25rem .7rem;margin-top:.45rem}
@@ -1068,14 +1087,6 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .field-notes{font-size:.68rem;color:var(--text2);font-style:italic;
   margin-top:.3rem;padding:.28rem .5rem;background:var(--bg2);
   border-left:2px solid var(--bdr);border-radius:0 4px 4px 0}
-
-/* tabs already inside .site-header — keep rule for compat */
-.tab-nav{display:none}
-.tab-btn{padding:.85rem 1.5rem;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
-  cursor:pointer;background:none;border:none;border-bottom:2px solid transparent;
-  color:var(--text3);transition:color .2s,border-color .2s}
-.tab-btn.active{color:var(--acc);border-bottom-color:var(--acc)}
-.tab-btn:hover:not(.active){color:var(--text2)}
 
 /* VIEW */
 .view{display:none}.view.active{display:block}
@@ -1097,7 +1108,6 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .ctrl-btn:hover{border-color:var(--acc);color:var(--acc)}
 
 /* CHIPS */
-.chips-row{display:flex;gap:.28rem;flex-wrap:wrap;align-items:center}
 .chip{padding:.26rem .62rem;border-radius:20px;font-size:.69rem;letter-spacing:.03em;
   cursor:pointer;border:1px solid var(--bdr);background:transparent;color:var(--text3);
   transition:all .15s;white-space:nowrap}
@@ -1197,12 +1207,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .s-ok{background:#3A9060}.s-rev{background:#C08020}.s-rej{background:var(--bdr)}
 
 /* EMBED */
-.embed-ph{margin-top:.38rem;display:inline-flex;align-items:center;gap:.3rem;
-  background:rgba(255,255,255,.93);color:#1A1A1A;border:1px solid rgba(0,0,0,.16);
-  padding:.22rem .58rem;border-radius:20px;font-size:.7rem;cursor:pointer;transition:all .15s}
-.embed-ph:hover{border-color:var(--acc2);color:var(--acc)}
-.sp-embed{margin-top:.38rem;border-radius:var(--r-sm);display:block}
-.no-spotify{margin-top:.3rem;font-size:.67rem;color:var(--text3);font-style:italic}
+.sp-embed{border-radius:var(--r-sm);display:block}
 /* Faixas: embed dentro do card, herda gradiente */
 .track-row .embed-below{flex-basis:100%;padding:.4rem 0 0;margin-top:.15rem;
   border-top:1px solid rgba(255,255,255,.15)}
@@ -1228,10 +1233,6 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .tr-album{font-size:.67rem;color:var(--text3);margin-top:.04rem;
   font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
 .tr-meta{font-size:.63rem;color:var(--text3);margin-top:.12rem}
-.tr-discogs-link{font-size:.6rem;color:var(--text3);text-decoration:none;
-  border:1px solid var(--bdr);border-radius:4px;padding:.04rem .3rem;
-  margin-top:.1rem;display:inline-block;transition:color .15s,border-color .15s}
-.tr-discogs-link:hover{color:var(--acc);border-color:var(--acc2)}
 .tr-bpm-area{flex-shrink:0;text-align:center;min-width:60px;position:relative;z-index:1}
 .tr-bpm-num{font-family:Georgia,serif;font-size:2rem;font-weight:bold;
   color:#111;line-height:1}
@@ -1240,11 +1241,6 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .tr-src{font-size:.52rem;color:var(--text3);letter-spacing:.04em;
   border:1px solid var(--bdr);border-radius:3px;padding:.04rem .28rem;
   margin-top:.15rem;display:inline-block}
-.tr-play{flex-shrink:0;position:relative;z-index:1}
-.tr-play-btn{background:rgba(255,255,255,.93);color:#1A1A1A;border:1px solid rgba(0,0,0,.16);
-  padding:.28rem .62rem;border-radius:20px;font-size:.7rem;cursor:pointer;
-  transition:all .15s;white-space:nowrap}
-.tr-play-btn:hover{border-color:var(--acc2);color:var(--acc)}
 
 /* CARD BUTTONS (layout V2) */
 .btn-card{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;
@@ -1542,12 +1538,10 @@ _SVG_SPOTIFY_SM = (
 def render_track_lp(row):
     """Renderiza uma faixa dentro da view LP."""
     bpm_f      = safe_float(row.get("bpm"))
-    uri        = str(row.get("spotify_uri") or "")
+    uri        = _clean(row.get("spotify_uri"))
     status     = str(row.get("status") or "REJEITADO")
-    deezer_id  = str(row.get("deezer_id") or "")
-    deezer_id  = "" if deezer_id in ("nan", "None", "none", "") else deezer_id
-    release_id = str(row.get("release_id") or "")
-    release_id = "" if release_id in ("nan", "None", "none", "") else release_id
+    deezer_id  = _clean(row.get("deezer_id"))
+    release_id = _clean(row.get("release_id"))
 
     bpm_txt = f"{bpm_f:.0f}" if bpm_f else "—"
     dot_cls = {"ACEITO":"s-ok","REVISAR":"s-rev"}.get(status,"s-rej")
@@ -1616,20 +1610,11 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
         is_compil_flag = "1"
 
     # Genre + Style unificados
-    genre_parts = [p.strip() for p in (genres_s + ", " + styles_s).split(",") if p.strip() and p.strip() != "nan"]
-    seen = set(); genre_parts_dedup = [p for p in genre_parts if not (p in seen or seen.add(p))]
-    genre_style_s = " · ".join(genre_parts_dedup[:5])
+    genre_style_s = _genre_style(genres_s, styles_s)
 
     # Decade key para filtro JS
-    year_int = int(first["year"]) if safe_float(first.get("year")) else 0
-    if year_int < 1970:    decade_key = "pre70"
-    elif year_int < 1980:  decade_key = "70s"
-    elif year_int < 1990:  decade_key = "80s"
-    elif year_int < 2000:  decade_key = "90s"
-    elif year_int < 2010:  decade_key = "2000s"
-    elif year_int < 2020:  decade_key = "2010s"
-    elif year_int > 0:     decade_key = "2020s"
-    else:                  decade_key = ""
+    year_int  = int(first["year"]) if safe_float(first.get("year")) else 0
+    decade_key = _decade(year_int)
 
     # Cor do card (Gradiente F: EE→55)
     card_style = ""
@@ -1740,11 +1725,10 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     """Renderiza uma linha de faixa (Track view)."""
     format_info = format_data or {}
     bpm_f     = safe_float(row.get("bpm"))
-    uri       = str(row.get("spotify_uri") or "")
+    uri       = _clean(row.get("spotify_uri"))
     status    = str(row.get("status") or "REJEITADO")
     thumb     = esc(row.get("thumb_url") or row.get("cover_url") or "")
-    deezer_id = str(row.get("deezer_id") or "")
-    deezer_id = "" if deezer_id in ("nan", "None", "none", "") else deezer_id
+    deezer_id  = _clean(row.get("deezer_id"))
     release_id = row.get("release_id", "")
     year_s     = str(int(row["year"])) if safe_float(row.get("year")) else ""
     styles_s   = str(row.get("styles") or "")
@@ -1757,20 +1741,9 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
         fmt_is_compil = "1"
     country_key = (country or "").strip().lower()
     origem_val  = (origem or "").strip().lower()
-    year_int = int(row["year"]) if safe_float(row.get("year")) else 0
-    if year_int < 1970:    decade_key = "pre70"
-    elif year_int < 1980:  decade_key = "70s"
-    elif year_int < 1990:  decade_key = "80s"
-    elif year_int < 2000:  decade_key = "90s"
-    elif year_int < 2010:  decade_key = "2000s"
-    elif year_int < 2020:  decade_key = "2010s"
-    elif year_int > 0:     decade_key = "2020s"
-    else:                  decade_key = ""
-
-    # Genre + Style unificados
-    genre_parts = [p.strip() for p in (genres_s + ", " + styles_s).split(",") if p.strip() and p.strip() != "nan"]
-    seen = set(); genre_parts_dedup = [p for p in genre_parts if not (p in seen or seen.add(p))]
-    genre_style_s = " · ".join(genre_parts_dedup[:4])
+    year_int    = int(row["year"]) if safe_float(row.get("year")) else 0
+    decade_key  = _decade(year_int)
+    genre_style_s = _genre_style(genres_s, styles_s, limit=4)
 
     bpm_txt = f"{bpm_f:.0f}" if bpm_f else "—"
     bpm_int = int(bpm_f) if bpm_f else 0
@@ -1793,8 +1766,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
                 if thumb else '')
 
     discogs_url = f"https://www.discogs.com/release/{release_id}"
-    _tr_did = str(row.get("track_id") or "")
-    _tr_tid = _tr_did if _tr_did not in ("", "nan", "None") else ""
+    _tr_tid = _clean(row.get("track_id"))
     discogs_btn_sm = (f'<a class="btn-card-sm" href="{discogs_url}" target="_blank">'
                       f'{_SVG_DISCOGS_SM} Discogs</a>') if release_id else ""
     spotify_btn_sm = (
@@ -1968,21 +1940,6 @@ def generate_html(df):
                       'color:#5C4030;margin-bottom:1rem;">'
                       'BPM n&#227;o dispon&#237;vel — execute dj_library_v2.py novamente para buscar via Deezer.</div>')
 
-    copy_note = f" ({n_unique} &#250;nicos, {n_items-n_unique} duplicatas)" if n_items != n_unique else ""
-    stats = (f'<div class="stats-row">'
-             f'<div class="stat"><div class="stat-val">{n_items}</div>'
-             f'<div class="stat-lbl">Itens{copy_note}</div></div>'
-             f'<div class="stat"><div class="stat-val">{n_tracks}</div>'
-             f'<div class="stat-lbl">Faixas</div></div>'
-             f'<div class="stat"><div class="stat-val">{n_matched}</div>'
-             f'<div class="stat-lbl">No Spotify</div></div>'
-             f'<div class="stat"><div class="stat-val">{pct}%</div>'
-             f'<div class="stat-lbl">Cobertura</div></div>'
-             f'</div>')
-
-    # Mesmo universo do filtro "Com BPM" na view de Faixas (todos os statuses, deduplicated)
-    bpm_count = int(df_tracks["bpm"].apply(safe_float).notna().sum())
-
     # ── Chip inner HTML (sem wrapper div, para uso nos filter-groups) ─────────
     nac_inner = (
         '<button class="chip nac-chip active" data-val="all"'
@@ -2073,22 +2030,6 @@ def generate_html(df):
     )
 
     # SVG logos para botões sociais do header
-    SVG_INSTAGRAM = (
-        '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="flex-shrink:0">'
-        '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919'
-        '.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664'
-        ' 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07'
-        '-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204'
-        '.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069'
-        ' 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052'
-        '.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98'
-        ' 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2'
-        ' 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667'
-        '-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0z'
-        'M12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0'
-        ' 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>'
-        '</svg>'
-    )
     SVG_SPOTIFY = (
         '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="flex-shrink:0">'
         '<path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0z'
