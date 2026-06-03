@@ -1463,7 +1463,6 @@ function filterTracks(){
 }
 
 // ── EMBED ──────────────────────────────────────────────────────────────────────
-var _mob=/Mobi|Android/i.test(navigator.userAgent);
 function _doEmbed(el,iframe){
   var trackRow=el.closest('.track-row');
   var trackLp=el.closest('.track');
@@ -1482,7 +1481,6 @@ function _doEmbed(el,iframe){
   el.style.opacity='.55';el.style.pointerEvents='none';
 }
 function loadEmbed(el,tid){
-  if(_mob){window.open('https://open.spotify.com/track/'+tid,'_blank');return;}
   var iframe=document.createElement('iframe');
   iframe.src='https://open.spotify.com/embed/track/'+tid+'?utm_source=generator&autoplay=1';
   iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
@@ -1491,7 +1489,6 @@ function loadEmbed(el,tid){
   _doEmbed(el,iframe);
 }
 function loadDeezerEmbed(el,did){
-  if(_mob){window.open('https://www.deezer.com/track/'+did,'_blank');return;}
   var iframe=document.createElement('iframe');
   iframe.src='https://widget.deezer.com/widget/light/track/'+did+'?autoplay=true';
   iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
@@ -1556,7 +1553,7 @@ def render_track_lp(row):
     sp_btn = ""
     if uri and uri != "nan" and "spotify" in uri:
         sp_tid = uri.split(":")[-1]
-        sp_btn = f'<a class="trk-btn" href="https://open.spotify.com/track/{sp_tid}" target="_blank">Spotify</a>'
+        sp_btn = f'<a class="trk-btn" href="spotify:track:{sp_tid}">Spotify</a>'
 
     # Ouvir button (embed trigger)
     ouvir_btn = ""
@@ -1644,12 +1641,12 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     _sp_ids = group[group["status"] == "ACEITO"]["track_id"].dropna()
     _sp_tid = str(_sp_ids.iloc[0]) if len(_sp_ids) > 0 else ""
     _sp_tid = "" if _sp_tid in ("nan", "None", "") else _sp_tid
-    sp_album_link = f"https://open.spotify.com/track/{_sp_tid}" if _sp_tid else ""
+    sp_album_link = f"spotify:track:{_sp_tid}" if _sp_tid else ""
     discogs_card_btn = (f'<a class="btn-card" href="{discogs_url}" target="_blank" '
                         f'onclick="event.stopPropagation()">'
                         f'{_SVG_DISCOGS_SM} Discogs</a>')
     spotify_card_btn = (
-        f'<a class="btn-card" href="{sp_album_link}" target="_blank" '
+        f'<a class="btn-card" href="{sp_album_link}" '
         f'onclick="event.stopPropagation()">'
         f'{_SVG_SPOTIFY_SM} Spotify</a>'
     ) if sp_album_link else ""
@@ -1770,7 +1767,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     discogs_btn_sm = (f'<a class="btn-card-sm" href="{discogs_url}" target="_blank">'
                       f'{_SVG_DISCOGS_SM} Discogs</a>') if release_id else ""
     spotify_btn_sm = (
-        f'<a class="btn-card-sm" href="https://open.spotify.com/track/{_tr_tid}" target="_blank">'
+        f'<a class="btn-card-sm" href="spotify:track:{_tr_tid}">'
         f'{_SVG_SPOTIFY_SM} Spotify</a>'
     ) if _tr_tid and status == "ACEITO" else ""
     tr_links = f'<div class="tr-links">{discogs_btn_sm}{spotify_btn_sm}{ouvir_btn_sm}</div>'
