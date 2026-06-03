@@ -2259,19 +2259,22 @@ def generate_html(df):
 
     fp_lp = (
         f'<div class="filter-panel" id="fp-lp">'
+        f'<div class="filter-group"><span class="filter-group-label">Ano</span>{decade_inner}</div>'
+        f'{dj_group}'
+        f'{origem_group}'
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
+        f'{pa_group}'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
-        f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
-        f'{dj_group}{pa_group}{dup_group}{origem_group}'
         f'</div>'
     )
 
     fp_faixas = (
         f'<div class="filter-panel" id="fp-faixas">'
+        f'<div class="filter-group"><span class="filter-group-label">Ano</span>{decade_inner}</div>'
+        f'{dj_group}'
+        f'{origem_group}'
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
-        f'<div class="filter-group"><span class="filter-group-label">Per&#237;odo</span>{decade_inner}</div>'
-        f'{dj_group}{origem_group}'
         f'<div class="filter-group"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
         f'</div>'
     )
@@ -2347,8 +2350,6 @@ def generate_html(df):
         <option value="">Artista A&#8594;Z</option>
         <option value="year-desc">Ano (recente)</option>
         <option value="year-asc">Ano (antigo)</option>
-        <option value="bpm-asc">BPM crescente</option>
-        <option value="bpm-desc">BPM decrescente</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">&#9881; Filtros &#9662;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
