@@ -1225,6 +1225,16 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   overflow:hidden;text-overflow:ellipsis;line-height:1.35;color:var(--tc,#111)}
 .c-artist{font-size:.72rem;white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis;line-height:1.3;color:var(--tc,#111);opacity:.72}
+/* Inline extra info (badges + notes) */
+.c-extra{display:flex;flex-wrap:wrap;align-items:center;gap:.18rem .3rem;margin-top:.18rem;min-width:0}
+.c-badge{font-size:.58rem;font-weight:700;border-radius:3px;padding:1px 5px;
+  letter-spacing:.04em;white-space:nowrap;
+  background:rgba(255,255,255,.78);border:1px solid rgba(0,0,0,.1)}
+.c-badge-trocar{color:#1258A8}
+.c-badge-disc{color:#2E7D32}
+.c-badge-nrec{color:#BF5700}
+.c-notes-inline{font-size:.63rem;font-style:italic;color:var(--tc,#888);
+  opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 /* Icon-only buttons */
 .c-btns{display:flex;gap:3px;flex-shrink:0}
 .ic-btn{width:30px;height:30px;border-radius:8px;
@@ -1395,14 +1405,14 @@ function setCompilFilter(val,el){
 function setDjFilter(val,el){
   djFilter=val;
   document.querySelectorAll('.dj-chip').forEach(function(c){c.classList.remove('active')});
-  el.classList.add('active');
+  document.querySelectorAll('.dj-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('active')});
   filterLP();filterTracks();
 }
 function setPaFilter(val,el){
   paFilter=val;
   document.querySelectorAll('.pa-chip').forEach(function(c){c.classList.remove('active')});
-  el.classList.add('active');
-  filterLP();
+  document.querySelectorAll('.pa-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('active')});
+  filterLP();filterTracks();
 }
 function setDupFilter(val,el){
   dupFilter=val;
@@ -1413,11 +1423,24 @@ function setDupFilter(val,el){
 function setRecebidoFilter(val,el){
   recebidoFilter=val;
   document.querySelectorAll('.recebido-chip').forEach(function(c){c.classList.remove('active')});
-  el.classList.add('active');
-  filterTracks();
+  document.querySelectorAll('.recebido-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('active')});
+  filterLP();filterTracks();
 }
 
 // ── LP FILTER ─────────────────────────────────────────────────────────────────
+function albumBpmOk(card, filterSet){
+  if(filterSet.size===0)return true;
+  var list=(card.dataset.bpmList||'').split(',').filter(Boolean).map(Number);
+  return Array.from(filterSet).some(function(f){
+    if(f==='with')return list.length>0;
+    if(f==='nobpm')return list.length===0;
+    return list.some(function(bpm){
+      if(f==='sub70')return bpm<70;
+      if(f==='140plus')return bpm>=140;
+      var p=f.split('-');return bpm>=+p[0]&&bpm<+p[1];
+    });
+  });
+}
 function filterLP(){
   var q=document.getElementById('q-lp').value.toLowerCase().trim();
   var s=document.getElementById('sort-lp').value;
@@ -1434,7 +1457,9 @@ function filterLP(){
     var djOk=djFilter==='all'||(djFilter==='yes'&&['Sim','Parcial'].indexOf(c.dataset.dj)!==-1);
     var paOk=paFilter==='all'||(paFilter==='yes'&&['Sim','Em breve'].indexOf(c.dataset.pa)!==-1);
     var dupOk=dupFilter==='all'||(dupFilter==='dup'&&+c.dataset.copies>1);
-    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&djOk&&paOk&&dupOk;
+    var recOk=recebidoFilter==='all'||(recebidoFilter==='sim'&&c.dataset.recebido==='Sim')||(recebidoFilter==='nao'&&c.dataset.recebido!=='Sim');
+    var bpmOk=albumBpmOk(c,activeBpmFilter);
+    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&djOk&&paOk&&dupOk&&recOk&&bpmOk;
     c.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-lp').textContent=vis;
@@ -1502,10 +1527,11 @@ function filterTracks(){
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&r.dataset.compilation==='1')||(compilFilter==='nocomp'&&r.dataset.compilation!=='1');
     var origOk=origemFilter.size===0||origemFilter.has(r.dataset.origem||'');
     var djOk=djFilter==='all'||(djFilter==='yes'&&['Sim','Parcial'].indexOf(r.dataset.dj)!==-1);
+    var paOk=paFilter==='all'||(paFilter==='yes'&&['Sim','Em breve'].indexOf(r.dataset.pa)!==-1);
     var recOk=recebidoFilter==='all'||(recebidoFilter==='sim'&&r.dataset.recebido==='Sim')||(recebidoFilter==='nao'&&r.dataset.recebido!=='Sim');
     var inctype=r.dataset.inctype||'';
     var incOk=!incFilterActive||(inctype==='nosp'||inctype==='nobpm'||inctype==='both');
-    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk&&djOk&&recOk&&incOk;
+    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk&&djOk&&paOk&&recOk&&incOk;
     r.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-faixas').textContent=vis;
@@ -1743,6 +1769,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     cover     = esc(first.get("cover_url") or "")
     bpm_vals  = group["bpm"].apply(safe_float).dropna()
     min_bpm   = int(bpm_vals.min()) if len(bpm_vals) else 999
+    bpm_list_str = ",".join(str(int(v)) for v in bpm_vals)
     if len(bpm_vals):
         bmin, bmax = int(bpm_vals.min()), int(bpm_vals.max())
         bpm_range = f"{bmin} BPM" if bmin == bmax else f"{bmin}–{bmax} BPM"
@@ -1858,6 +1885,8 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
   data-format="{esc(fmt_size)}"
   data-dj="{esc((fields.get('DJ') or '').strip())}"
   data-pa="{esc((fields.get('PA') or '').strip())}"
+  data-recebido="{esc((fields.get('Recebido?') or '').strip())}"
+  data-bpm-list="{bpm_list_str}"
   data-copies="{copy_count}">
   {f'<div class="cover-blur" style="background-image:url(\'{cover}\')"></div>' if cover else ''}
   <header class="album-header" onclick="toggleAlbum(this)">
@@ -1876,7 +1905,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
 </article>'''
 
 
-def render_track_row(row, country="", color_pastel="", format_data=None, origem="", dj="", recebido=""):
+def render_track_row(row, country="", color_pastel="", format_data=None, origem="", dj="", recebido="", pa="", notas=""):
     """Renderiza uma linha de faixa (Track view)."""
     format_info = format_data or {}
     bpm_f     = safe_float(row.get("bpm"))
@@ -1918,6 +1947,18 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     inc_badge = {"nosp":  '<span class="h-flag f-sp  inc-badge">sem Spotify</span>',
                  "nobpm": '<span class="h-flag f-bpm inc-badge">sem BPM</span>',
                  "both":  '<span class="h-flag f-both inc-badge">sem ambos</span>'}.get(inc_type, "")
+
+    # ── inline extra info (badges + notes) ───────────────────────
+    _pa_v  = (pa  or "").strip()
+    _dj_v  = (dj  or "").strip()
+    _rec_v = (recebido or "").strip()
+    _not_v = (notas or "").strip()
+    _extra_parts = []
+    if _pa_v  and _pa_v  != "Não": _extra_parts.append('<span class="c-badge c-badge-trocar">Trocar</span>')
+    if _dj_v  and _dj_v  != "Não": _extra_parts.append('<span class="c-badge c-badge-disc">DJ</span>')
+    if _rec_v == "Não":             _extra_parts.append('<span class="c-badge c-badge-nrec">N&#227;o recebido</span>')
+    if _not_v:                      _extra_parts.append(f'<span class="c-notes-inline">{esc(_not_v)}</span>')
+    c_extra = f'<div class="c-extra">{"".join(_extra_parts)}</div>' if _extra_parts else ""
 
     # ── pastel gradient ──────────────────────────────────────────
     pg = pastel_gradient(color_pastel)
@@ -1980,7 +2021,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     return f'''<div class="track-row"{row_style}
   data-bpm="{bpm_int}" data-hasbpm="{has_bpm}" data-hasspotify="{has_spotify}"
   data-inctype="{inc_type}" data-year="{year_int}"
-  data-dj="{esc(dj.strip())}" data-recebido="{esc(recebido.strip())}"
+  data-dj="{esc(dj.strip())}" data-pa="{esc(pa.strip())}" data-recebido="{esc(recebido.strip())}"
   data-search="{search_str}" data-artist="{artist_str}"
   data-country="{esc(country_key)}" data-decade="{decade_key}"
   data-compilation="{fmt_is_compil}" data-format="{esc(fmt_size)}"
@@ -1991,6 +2032,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
   <div class="c-info">
     <div class="c-title">{esc(row.get("track_title"))}</div>
     <div class="c-artist">{esc(row.get("artist_clean"))}</div>
+    {c_extra}
     {inc_badge}
   </div>
   <div class="c-btns">{discogs_btn}{spotify_btn}{play_btn}</div>
@@ -2114,6 +2156,8 @@ def generate_html(df):
             origem       = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Origem", ""),
             dj           = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("DJ", ""),
             recebido     = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Recebido?", ""),
+            pa           = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("PA", ""),
+            notas        = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Notas", ""),
         )
         for _, r in df_tracks.iterrows()
     )
@@ -2227,28 +2271,19 @@ def generate_html(df):
     recebido_group = (f'<div class="filter-group"><span class="filter-group-label">Recebido?</span>{recebido_inner}</div>'  if recebido_inner else '')
     dup_group =  f'<div class="filter-group"><span class="filter-group-label">C&#243;pias</span>{dup_inner}</div>'
 
-    fp_lp = (
-        f'<div class="filter-panel" id="fp-lp">'
+    _shared_groups = (
         f'<div class="filter-group"><span class="filter-group-label">D&#233;cada</span>{decade_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
         f'{origem_group}'
         f'{dj_group}'
         f'{pa_group}'
-        f'</div>'
-    )
-
-    fp_faixas = (
-        f'<div class="filter-panel" id="fp-faixas">'
-        f'<div class="filter-group"><span class="filter-group-label">D&#233;cada</span>{decade_inner}</div>'
-        f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
-        f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
-        f'{origem_group}'
-        f'{dj_group}'
         f'{recebido_group}'
         f'<div class="filter-group"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
-        f'</div>'
     )
+
+    fp_lp     = f'<div class="filter-panel" id="fp-lp">{_shared_groups}</div>'
+    fp_faixas = f'<div class="filter-panel" id="fp-faixas">{_shared_groups}</div>'
 
     # SVG logos para botões sociais do header
     SVG_SPOTIFY = (
