@@ -1128,11 +1128,38 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .logo-link:hover{opacity:.7}
 
 /* VINYL LOGO */
-.logo-vinyl-wrap{position:relative;width:38px;height:38px;flex-shrink:0}
-.logo-vinyl-img{width:38px;height:38px;object-fit:cover;border-radius:50%;display:block}
+.logo-vinyl-wrap{position:relative;width:38px;height:38px;flex-shrink:0;cursor:pointer}
+.logo-vinyl-img{width:38px;height:38px;object-fit:cover;border-radius:50%;display:block;
+  outline:2px solid #CCC;outline-offset:2px;transition:outline-color .18s}
+.logo-vinyl-wrap:hover .logo-vinyl-img{outline-color:#999}
 .logo-vinyl-hole{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .logo-vinyl-hole::after{content:'';width:10px;height:10px;border-radius:50%;
   background:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.18)}
+
+/* STORY LIGHTBOX */
+.story-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);
+  backdrop-filter:blur(14px);z-index:9500;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s}
+.story-overlay.open{opacity:1;pointer-events:all}
+.story-box{position:relative;display:flex;align-items:center;gap:1rem}
+.story-close{position:absolute;top:-42px;right:0;background:none;border:none;
+  color:#fff;font-size:1.5rem;cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1}
+.story-close:hover{opacity:1}
+.story-img{max-height:88vh;max-width:78vw;border-radius:12px;
+  object-fit:contain;box-shadow:0 20px 60px rgba(0,0,0,.6);display:block}
+.story-nav-btn{background:rgba(255,255,255,.14);backdrop-filter:blur(4px);
+  border:none;color:#fff;font-size:1.1rem;width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .15s;flex-shrink:0}
+.story-nav-btn:hover{background:rgba(255,255,255,.28)}
+.story-nav-btn:disabled{opacity:.12;pointer-events:none}
+.story-bars{position:absolute;top:-12px;left:0;right:0;display:flex;gap:3px}
+.story-bar{height:2px;flex:1;background:rgba(255,255,255,.28);border-radius:1px;overflow:hidden}
+.story-bar-fill{height:100%;background:#fff;width:0}
+.story-bar-fill.done{width:100%}
+.story-bar-fill.playing{animation:sbf 5s linear forwards}
+@keyframes sbf{from{width:0}to{width:100%}}
 
 /* FILTER PANEL */
 .filter-toggle-btn{display:inline-flex;align-items:center;gap:.3rem;
@@ -1912,6 +1939,50 @@ function refreshCardDisplayedFields(card,vals){
   if(vals['PA']!==undefined)    card.dataset.pa=vals['PA'];
   if(vals['Recebido?']!==undefined) card.dataset.recebido=vals['Recebido?'];
 }
+
+/* ── STORY LIGHTBOX ── */
+var _storyIdx=0, _storyTmr=null;
+function openStoryLightbox(){
+  if(!window.STORY_IMAGES||!STORY_IMAGES.length)return;
+  _showStory(0);
+}
+function _showStory(idx){
+  clearTimeout(_storyTmr);
+  _storyIdx=Math.max(0,Math.min(idx,STORY_IMAGES.length-1));
+  var overlay=document.getElementById('story-overlay');
+  var img=document.getElementById('story-img');
+  img.src=STORY_IMAGES[_storyIdx];
+  overlay.classList.add('open');
+  // nav buttons
+  var prev=document.getElementById('story-prev-btn');
+  var next=document.getElementById('story-next-btn');
+  if(prev)prev.disabled=(_storyIdx===0);
+  if(next)next.disabled=(_storyIdx===STORY_IMAGES.length-1);
+  // progress bars
+  var barsEl=document.getElementById('story-bars');
+  if(barsEl&&STORY_IMAGES.length>1){
+    barsEl.innerHTML=STORY_IMAGES.map(function(_,i){
+      var cls=i<_storyIdx?'done':i===_storyIdx?'playing':'';
+      return '<div class="story-bar"><div class="story-bar-fill '+cls+'"></div></div>';
+    }).join('');
+    if(_storyIdx<STORY_IMAGES.length-1){
+      _storyTmr=setTimeout(function(){_showStory(_storyIdx+1);},5000);
+    }
+  } else if(barsEl){
+    barsEl.innerHTML='';
+  }
+}
+function _closeStory(){
+  clearTimeout(_storyTmr);
+  document.getElementById('story-overlay').classList.remove('open');
+}
+document.addEventListener('keydown',function(e){
+  var o=document.getElementById('story-overlay');
+  if(!o||!o.classList.contains('open'))return;
+  if(e.key==='Escape')_closeStory();
+  if(e.key==='ArrowRight')_showStory(_storyIdx+1);
+  if(e.key==='ArrowLeft') _showStory(_storyIdx-1);
+});
 """
 
 
@@ -2673,6 +2744,14 @@ def generate_html(df):
         f'{SVG_SPOTIFY} Spotify</a>'
     )
 
+    # ── Stories ───────────────────────────────────────────────────────────────
+    stories_dir = WORK_DIR / "stories"
+    _story_exts = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+    story_images = sorted(
+        [f"stories/{f.name}" for f in stories_dir.iterdir() if f.suffix.lower() in _story_exts]
+    ) if stories_dir.exists() else []
+    story_json = json.dumps(story_images)
+
     _og_base = "https://amsa2diop.github.io/colecaovinil"
     _og_desc = f"{n_items} discos &#183; {n_tracks} faixas"
 
@@ -2712,8 +2791,19 @@ def generate_html(df):
   </div>
 </div>
 
+<!-- ═══ STORY LIGHTBOX ═══ -->
+<div class="story-overlay" id="story-overlay" onclick="if(event.target===this)_closeStory()">
+  <div class="story-box">
+    <button class="story-close" onclick="_closeStory()">&#10005;</button>
+    <div id="story-bars" class="story-bars"></div>
+    <button class="story-nav-btn" id="story-prev-btn" onclick="_showStory(_storyIdx-1)">&#9664;</button>
+    <img class="story-img" id="story-img" src="" alt="">
+    <button class="story-nav-btn" id="story-next-btn" onclick="_showStory(_storyIdx+1)">&#9654;</button>
+  </div>
+</div>
+
 <header class="site-header">
-  <div class="logo-vinyl-wrap">
+  <div class="logo-vinyl-wrap" onclick="openStoryLightbox()" title="Ver stories">
     <img class="logo-vinyl-img" src="preview_squared.jpg" alt="Discos do Amsa">
     <div class="logo-vinyl-hole"></div>
   </div>
@@ -2787,6 +2877,7 @@ def generate_html(df):
   </main>
 </div>
 
+<script>var STORY_IMAGES={story_json};</script>
 <script>{JS}</script>
 </body>
 </html>"""
