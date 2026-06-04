@@ -36,6 +36,7 @@ while True:
         items.append({
             "release_id":   rel.get("id"),
             "instance_id":  item.get("instance_id"),
+            "date_added":   item.get("date_added", ""),
             "album_title":  rel.get("title"),
             "album_artist": (rel.get("artists") or [{}])[0].get("name", ""),
             "year":         rel.get("year"),

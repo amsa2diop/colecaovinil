@@ -1,0 +1,42 @@
+name: Sync semanal Discogs → GitHub Pages
+
+on:
+  schedule:
+    # Toda segunda-feira às 06:00 UTC (03:00 BRT)
+    - cron: '0 6 * * 1'
+  workflow_dispatch:   # permite rodar manualmente pela aba Actions
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar dependências
+        run: |
+          pip install requests pandas openpyxl thefuzz python-Levenshtein unidecode
+
+      - name: Atualizar campos da coleção Discogs
+        run: python fetch_discogs_fields.py
+
+      - name: Regenerar HTML + XLSX
+        run: python regen_html.py
+
+      - name: Commit e push se houver mudanças
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html MinhaColecao_DJ.html MinhaColecao_DJ.xlsx backup_collection_fields.csv
+          git diff --cached --quiet && echo "Nada mudou." || \
+            git commit -m "chore: sync automático Discogs $(date +'%Y-%m-%d')"
+          git push

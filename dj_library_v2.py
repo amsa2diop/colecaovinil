@@ -1284,40 +1284,37 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 }
 
 /* ── EDIT MODE ──────────────────────────────────────────────────────────────── */
-/* Header edit button */
-.edit-mode-btn{display:inline-flex;align-items:center;gap:.28rem;padding:.22rem .6rem;
-  border-radius:6px;border:1px solid var(--bdr);background:transparent;
-  color:var(--text3);font-size:.72rem;cursor:pointer;transition:all .18s;
-  letter-spacing:.03em;flex-shrink:0}
-.edit-mode-btn:hover{border-color:var(--acc2);color:var(--acc)}
-.edit-mode-btn.active{background:#FFF8E1;border-color:#F9A825;color:#E65100;font-weight:600}
-/* Pencil button on cards — hidden until edit mode */
-.cef-edit-btn{position:absolute;top:.55rem;right:2.8rem;
-  width:26px;height:26px;border-radius:6px;border:1px solid rgba(0,0,0,.13);
-  background:rgba(255,255,255,.82);display:none;align-items:center;justify-content:center;
-  cursor:pointer;font-size:.8rem;z-index:3;transition:background .12s;padding:0;color:#555}
-.cef-edit-btn:hover{background:rgba(255,255,255,.97)}
-body.edit-mode .cef-edit-btn{display:flex}
+/* Pencil toggle button — lives beside filter/back-top buttons in ctrl-row */
+.pencil-mode-btn{width:30px;height:30px;border-radius:8px;
+  border:1px solid var(--bdr);background:var(--bg2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:.9rem;flex-shrink:0;
+  transition:background .15s,color .15s,border-color .15s;color:var(--text3)}
+.pencil-mode-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+.pencil-mode-btn.active{background:#FEFCE6;border-color:#C8B800;color:#7A6E00;font-weight:700}
+/* Edit button on card — styled same as Discogs/Spotify btn-card, hidden until edit mode */
+body:not(.edit-mode) .cef-edit-btn{display:none}
 /* Inline edit form */
 .card-edit-form{display:none;padding:.6rem 1rem .8rem;border-top:1px solid var(--bdr2);
-  background:var(--bg2)}
+  background:var(--tracks-bg,rgba(255,255,255,.8));color:var(--text,#111)}
 .card-edit-form.open{display:block}
 .cef-grid{display:grid;grid-template-columns:auto 1fr;gap:.28rem .65rem;
   align-items:center;margin-bottom:.5rem}
-.cef-label{font-size:.65rem;font-weight:600;color:var(--text3);
+.cef-label{font-size:.65rem;font-weight:600;color:var(--text,#111);opacity:.65;
   text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
-.cef-input{background:var(--bg);border:1px solid var(--bdr);color:var(--text);
+.cef-input{background:rgba(255,255,255,.22);border:1px solid var(--bdr);
+  color:var(--text,#111);
   padding:.3rem .55rem;border-radius:6px;font-size:.8rem;outline:none;
   transition:border-color .15s;font-family:inherit;width:100%}
 .cef-input:focus{border-color:var(--acc)}
 .cef-textarea{resize:vertical;min-height:46px}
 .cef-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-.cef-status{font-size:.72rem;color:var(--text3);flex:1}
+.cef-status{font-size:.72rem;color:var(--text,#111);opacity:.7;flex:1}
 .cef-btn{padding:.28rem .7rem;border-radius:6px;font-size:.74rem;cursor:pointer;
   border:1px solid var(--bdr);transition:all .15s}
 .cef-save{background:#111;color:#fff;border-color:#111}
 .cef-save:hover{background:#333}
-.cef-cancel{background:transparent;color:var(--text3)}
+.cef-cancel{background:transparent;color:var(--text,#555);opacity:.8}
 .cef-cancel:hover{border-color:var(--acc2);color:var(--acc)}
 /* Setup modal */
 .setup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);
@@ -1531,6 +1528,8 @@ function filterLP(){
       if(s==='year-asc') return(+a.dataset.year||0)-(+b.dataset.year||0);
       if(s==='year-desc')return(+b.dataset.year||0)-(+a.dataset.year||0);
       if(s==='az')return(a.dataset.artist||'').localeCompare(b.dataset.artist||'');
+      if(s==='added-asc') return(a.dataset.dateAdded||'').localeCompare(b.dataset.dateAdded||'');
+      if(s==='added-desc')return(b.dataset.dateAdded||'').localeCompare(a.dataset.dateAdded||'');
       return 0;
     });
     vc.forEach(function(c){grid.appendChild(c)});
@@ -1703,8 +1702,7 @@ function toggleEditMode(){
   if(!cfg.token||!cfg.username){openSetupModal();return;}
   editMode=!editMode;
   document.body.classList.toggle('edit-mode',editMode);
-  var btn=document.getElementById('edit-mode-btn');
-  if(btn)btn.classList.toggle('active',editMode);
+  document.querySelectorAll('.pencil-mode-btn').forEach(function(b){b.classList.toggle('active',editMode);});
 }
 
 function openSetupModal(){
@@ -1731,15 +1729,18 @@ async function connectDiscogs(){
     var fr=await fetch('https://api.discogs.com/users/'+username+'/collection/fields',{headers:h});
     if(!fr.ok)throw new Error('Erro campos ('+fr.status+')');
     var fd=await fr.json();
-    var ids={};(fd.fields||[]).forEach(function(f){ids[f.name]=f.id;});
-    _dSave({username:username,token:token,folder:folder,fieldIds:ids});
+    var ids={};var fieldOptions={};
+    (fd.fields||[]).forEach(function(f){
+      ids[f.name]=f.id;
+      if(f.options&&f.options.length)fieldOptions[f.name]=f.options;
+    });
+    _dSave({username:username,token:token,folder:folder,fieldIds:ids,fieldOptions:fieldOptions});
     st.innerHTML='<span style="color:#2a7a2a">✓ Conectado! Campos: '+Object.keys(ids).join(', ')+'</span>';
     setTimeout(function(){
       closeSetupModal();
       editMode=true;
       document.body.classList.add('edit-mode');
-      var btn=document.getElementById('edit-mode-btn');
-      if(btn)btn.classList.add('active');
+      document.querySelectorAll('.pencil-mode-btn').forEach(function(b){b.classList.add('active');});
     },1200);
   }catch(e){st.innerHTML='<span style="color:#c0392b">✗ '+e.message+'</span>';}
 }
@@ -1749,7 +1750,21 @@ function openCardEdit(card){
     if(f.closest('.album-card')!==card)f.classList.remove('open');
   });
   var form=card.querySelector('.card-edit-form');
-  if(form){form.classList.toggle('open');form.querySelector('.cef-status').textContent='';}
+  if(!form)return;
+  form.classList.toggle('open');
+  form.querySelector('.cef-status').textContent='';
+  // Populate Loja select from Discogs field options stored in localStorage
+  var cfg=_dcfg();
+  var lojaOpts=(cfg.fieldOptions||{})['Origem']||[];
+  var lojaSel=form.querySelector('select[data-field="Origem"]');
+  if(lojaSel&&lojaOpts.length){
+    var curVal=lojaSel.dataset.curVal||lojaSel.value||'';
+    lojaSel.innerHTML='<option value="">—</option>'+
+      lojaOpts.map(function(o){
+        return '<option value="'+o+'"'+(o===curVal?' selected':'')+'>'+o+'</option>';
+      }).join('');
+    lojaSel.value=curVal;
+  }
 }
 function closeCardEdit(card){
   var form=card.querySelector('.card-edit-form');
@@ -1818,6 +1833,10 @@ function refreshCardDisplayedFields(card,form){
   row.innerHTML=items.join('');
   var notesEl=card.querySelector('.field-notes');
   if(notesEl){notesEl.textContent=vals['Notas']||'';notesEl.style.display=vals['Notas']?'':'none';}
+  // Sync data-* attributes so filters work immediately after save
+  if(vals['DJ']!==undefined)    card.dataset.dj=vals['DJ'];
+  if(vals['PA']!==undefined)    card.dataset.pa=vals['PA'];
+  if(vals['Recebido?']!==undefined) card.dataset.recebido=vals['Recebido?'];
 }
 """
 
@@ -2020,7 +2039,8 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
         f'onclick="event.stopPropagation()">'
         f'{_SVG_SPOTIFY_SM} Spotify</a>'
     ) if sp_album_link else ""
-    btn_group = f'<div class="rg-col-center">{discogs_card_btn}{spotify_card_btn}</div>'
+    # edit_btn_html defined below (after instance_id is computed from edit_form_html section)
+    # btn_group will be assembled after edit_btn_html is ready
 
     custom_html = ""
     field_items = []
@@ -2072,13 +2092,15 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
 
     edit_form_html = ""
     if instance_id:
+        cur_origem = esc((fields.get("Origem") or "").strip())
+        loja_opt   = f'<option value="{cur_origem}" selected>{cur_origem}</option>' if cur_origem else ""
         edit_form_html = f'''<div class="card-edit-form">
   <div class="cef-grid">
-    <span class="cef-label">Loja</span><input class="cef-input" data-field="Origem" type="text" value="{esc((fields.get('Origem') or '').strip())}" placeholder="ex: Rio Records">
+    <span class="cef-label">Loja</span><select class="cef-input" data-field="Origem" data-cur-val="{cur_origem}"><option value="">—</option>{loja_opt}</select>
+    <span class="cef-label">Pre&#231;o ($)</span><input class="cef-input" data-field="$" type="text" value="{esc((fields.get('$') or '').strip())}" placeholder="ex: 450">
+    <span class="cef-label">Recebido?</span>{_sel("Recebido?",["Sim","Não"])}
     <span class="cef-label">Discotecar</span>{_sel("DJ",["Sim","Parcial","Não"])}
     <span class="cef-label">Trocar</span>{_sel("PA",["Sim","Em breve","Não"])}
-    <span class="cef-label">Recebido?</span>{_sel("Recebido?",["Sim","Não"])}
-    <span class="cef-label">Preço ($)</span><input class="cef-input" data-field="$" type="text" value="{esc((fields.get('$') or '').strip())}" placeholder="ex: 450">
     <span class="cef-label">Notas</span><textarea class="cef-input cef-textarea" data-field="Notas" rows="2" placeholder="Notas livres...">{esc((fields.get('Notas') or '').strip())}</textarea>
   </div>
   <div class="cef-actions">
@@ -2089,11 +2111,13 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
 </div>'''
 
     edit_btn_html = (
-        f'<button class="cef-edit-btn" title="Editar campos" '
-        f'onclick="event.stopPropagation();openCardEdit(this.closest(\'.album-card\'))">&#9998;</button>'
+        f'<a class="btn-card cef-edit-btn" href="#" '
+        f'onclick="event.preventDefault();event.stopPropagation();openCardEdit(this.closest(\'.album-card\'))">&#9998; Editar</a>'
         if instance_id else ""
     )
+    btn_group = f'<div class="rg-col-center">{edit_btn_html}{discogs_card_btn}{spotify_card_btn}</div>'
 
+    date_added_s = esc((fields.get("date_added") or "").strip())
     return f'''<article class="album-card"{card_style}
   data-search="{search_str}"
   data-artist="{esc(first.get('album_artist',''))}"
@@ -2109,6 +2133,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
   data-recebido="{esc((fields.get('Recebido?') or '').strip())}"
   data-bpm-list="{bpm_list_str}"
   data-copies="{copy_count}"
+  data-date-added="{date_added_s}"
   data-release-id="{release_id}"
   data-instance-id="{instance_id}">
   {f'<div class="cover-blur" style="background-image:url(\'{cover}\')"></div>' if cover else ''}
@@ -2122,7 +2147,6 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
       <div class="alb-tracks-info">{alb_tracks_info}</div>
     </div>
     {btn_group}
-    {edit_btn_html}
     <button class="toggle-btn" aria-label="expandir">&#8964;</button>
   </header>
   {edit_form_html}
@@ -2597,8 +2621,6 @@ def generate_html(df):
   <a class="header-social-btn" href="https://www.discogs.com/pt_BR/user/amsa2diop/collection" target="_blank">{SVG_DISCOGS} Discogs</a>
   {spotify_social_btn}
   <div class="header-sep"></div>
-  <button class="edit-mode-btn" id="edit-mode-btn" onclick="toggleEditMode()" title="Modo edição">&#9998; Editar</button>
-  <div class="header-sep"></div>
   <div class="header-tabs">
     <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">Discos</button>
     <button class="tab-btn" data-v="faixas" onclick="switchView('faixas')">Faixas</button>
@@ -2611,11 +2633,14 @@ def generate_html(df):
     <div class="ctrl-row">
       <input class="ctrl-input" id="q-lp" type="search" placeholder="Buscar artista, &#225;lbum, ano, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-lp" onchange="filterLP()">
+        <option value="added-desc">Adicionado (recente)</option>
+        <option value="added-asc">Adicionado (antigo)</option>
         <option value="year-desc">Ano (recente)</option>
         <option value="year-asc">Ano (antigo)</option>
         <option value="" selected>Artista A&#8594;Z</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">&#9881; Filtros &#9662;</button>
+      <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
     </div>
     {fp_lp}
@@ -2640,6 +2665,7 @@ def generate_html(df):
         <option value="bpm-desc">BPM decrescente</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">&#9881; Filtros &#9662;</button>
+      <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
     </div>
     {fp_faixas}
