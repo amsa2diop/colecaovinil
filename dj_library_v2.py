@@ -1014,7 +1014,7 @@ def create_playlist(sp, df):
 # ==============================================================================
 CSS = """
 :root{
-  --bg:#FFFFFF;--bg2:#F5F1EB;--card:#FAF8F5;--card2:#F0EBE3;
+  --bg:#FFFFFF;--bg2:#EBEBEB;--card:#FAF8F5;--card2:#F0EBE3;
   --text:#111;--text2:#444;--text3:#777;
   --acc:#111;--acc2:#444;
   --bdr:#DDD;--bdr2:#E8E8E8;
@@ -1106,8 +1106,8 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .chip{padding:.26rem .62rem;border-radius:20px;font-size:.69rem;letter-spacing:.03em;
   cursor:pointer;border:1px solid var(--bdr);background:transparent;color:var(--text3);
   transition:all .15s;white-space:nowrap}
-.chip.active{background:#F5F1EB;border-color:#999;color:#111;font-weight:600}
-.chip.multi-active{background:#EAE5DA;border-color:#888;color:#111;font-weight:600}
+.chip.active{background:#E0E0E0;border-color:#999;color:#111;font-weight:600}
+.chip.multi-active{background:#D5D5D5;border-color:#888;color:#111;font-weight:600}
 .chip:hover:not(.active):not(.multi-active){border-color:var(--acc2);color:var(--acc)}
 .chips-label{font-size:.62rem;color:var(--text3);white-space:nowrap;letter-spacing:.05em;
   text-transform:uppercase}
@@ -1131,9 +1131,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 
 /* FILTER PANEL */
 .filter-toggle-btn{display:inline-flex;align-items:center;gap:.3rem;
-  border:1px solid var(--bdr);background:transparent;color:var(--text3);
-  padding:.32rem .8rem;border-radius:8px;font-size:.72rem;letter-spacing:.04em;
-  text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all .18s;flex-shrink:0}
+  border:1px solid var(--bdr);background:var(--bg2);color:var(--text3);
+  padding:.4rem .8rem;border-radius:8px;font-size:.72rem;
+  cursor:pointer;white-space:nowrap;transition:all .18s;flex-shrink:0}
 .filter-toggle-btn.open{border-color:var(--acc2);color:var(--acc)}
 .filter-panel{display:none;flex-direction:column;gap:.32rem;padding:.18rem 0}
 .filter-panel.open{display:flex}
@@ -1278,6 +1278,8 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .controls{padding:.45rem .9rem;top:48px}.main{padding:.9rem .9rem}
   .album-header{gap:.7rem;padding:.8rem .9rem}
   .cover-img,.cover-ph{width:68px;height:68px}
+  /* Search bar fills full row 1; sort+buttons go to row 2 */
+  .ctrl-input{flex:0 0 100%;order:-1;min-width:0}
   /* Compact track rows */
   .track-row{padding:4px 8px;gap:7px}
   .c-ph,.c-thumb{width:36px;height:36px}
@@ -1701,20 +1703,22 @@ var editMode=false;
 function _dcfg(){try{return JSON.parse(localStorage.getItem('discogs_cfg')||'{}')}catch(e){return{}}}
 function _dSave(o){localStorage.setItem('discogs_cfg',JSON.stringify(o))}
 
+var DISCOGS_OWNER='amsa2diop';
+
 function toggleEditMode(){
   var cfg=_dcfg();
-  if(!cfg.token||!cfg.username){openSetupModal();return;}
+  if(!cfg.token){openSetupModal();return;}
   editMode=!editMode;
   document.body.classList.toggle('edit-mode',editMode);
   document.querySelectorAll('.pencil-mode-btn').forEach(function(b){b.classList.toggle('active',editMode);});
-  if(editMode) refreshDiscogsFieldOptions(); // atualiza opções em background
+  if(editMode) refreshDiscogsFieldOptions();
 }
 
 function refreshDiscogsFieldOptions(){
   var cfg=_dcfg();
-  if(!cfg.token||!cfg.username)return;
+  if(!cfg.token)return;
   var h={'Authorization':'Discogs token='+cfg.token,'User-Agent':'ColecaoDoAmsa/1.0'};
-  fetch('https://api.discogs.com/users/'+cfg.username+'/collection/fields',{headers:h})
+  fetch('https://api.discogs.com/users/'+DISCOGS_OWNER+'/collection/fields',{headers:h})
     .then(function(r){return r.json();})
     .then(function(fd){
       var fo={};
@@ -1730,7 +1734,6 @@ function refreshDiscogsFieldOptions(){
 function openSetupModal(){
   var cfg=_dcfg();
   var m=document.getElementById('setup-modal');
-  if(cfg.username)document.getElementById('setup-username').value=cfg.username;
   if(cfg.token)   document.getElementById('setup-token').value=cfg.token;
   if(cfg.folder)  document.getElementById('setup-folder').value=cfg.folder;
   m.classList.add('open');
@@ -1738,17 +1741,16 @@ function openSetupModal(){
 function closeSetupModal(){document.getElementById('setup-modal').classList.remove('open');}
 
 async function connectDiscogs(){
-  var username=document.getElementById('setup-username').value.trim();
   var token=document.getElementById('setup-token').value.trim();
   var folder=document.getElementById('setup-folder').value.trim()||'1';
   var st=document.getElementById('setup-status');
-  if(!username||!token){st.textContent='Preencha usuário e token.';return;}
-  st.textContent='Conectando…';
+  if(!token){st.textContent='Insira o token pessoal do Discogs.';return;}
+  st.textContent='Verificando token…';
   var h={'Authorization':'Discogs token='+token,'User-Agent':'ColecaoDoAmsa/1.0'};
   try{
-    var r=await fetch('https://api.discogs.com/users/'+username,{headers:h});
+    var r=await fetch('https://api.discogs.com/users/'+DISCOGS_OWNER,{headers:h});
     if(!r.ok)throw new Error('Token inválido ('+r.status+')');
-    var fr=await fetch('https://api.discogs.com/users/'+username+'/collection/fields',{headers:h});
+    var fr=await fetch('https://api.discogs.com/users/'+DISCOGS_OWNER+'/collection/fields',{headers:h});
     if(!fr.ok)throw new Error('Erro campos ('+fr.status+')');
     var fd=await fr.json();
     var ids={};var fieldOptions={};
@@ -1758,8 +1760,8 @@ async function connectDiscogs(){
         fieldOptions[f.name]=f.options.map(function(o){return typeof o==='string'?o:(o.value||String(o));});
       }
     });
-    _dSave({username:username,token:token,folder:folder,fieldIds:ids,fieldOptions:fieldOptions});
-    st.innerHTML='<span style="color:#2a7a2a">✓ Conectado! Campos: '+Object.keys(ids).join(', ')+'</span>';
+    _dSave({token:token,folder:folder,fieldIds:ids,fieldOptions:fieldOptions});
+    st.innerHTML='<span style="color:#2a7a2a">✓ Token válido! Campos: '+Object.keys(ids).join(', ')+'</span>';
     setTimeout(function(){
       closeSetupModal();
       editMode=true;
@@ -1783,8 +1785,9 @@ function openCardEdit(card){
   var lojaSel=form.querySelector('select[data-field="Origem"]');
   if(lojaSel&&lojaOpts.length){
     var curVal=lojaSel.dataset.curVal||lojaSel.value||'';
+    var sortedOpts=lojaOpts.slice().sort(function(a,b){return a.localeCompare(b,'pt');});
     lojaSel.innerHTML='<option value="">—</option>'+
-      lojaOpts.map(function(o){
+      sortedOpts.map(function(o){
         return '<option value="'+o+'"'+(o===curVal?' selected':'')+'>'+o+'</option>';
       }).join('');
     lojaSel.value=curVal;
@@ -1797,7 +1800,7 @@ function closeCardEdit(card){
 
 async function saveCardEdit(card){
   var cfg=_dcfg();
-  if(!cfg.token||!cfg.username){alert('Configure o token primeiro.');return;}
+  if(!cfg.token){alert('Configure o token primeiro.');return;}
   var inst=card.dataset.instanceId;
   var rid =card.dataset.releaseId;
   var fld =cfg.folder||'1';
@@ -1816,7 +1819,7 @@ async function saveCardEdit(card){
     if(!fid){errs.push(fname+':sem ID');continue;}
     var val=inp.tagName==='TEXTAREA'?inp.value:inp.value;
     try{
-      var url='https://api.discogs.com/users/'+cfg.username+
+      var url='https://api.discogs.com/users/'+DISCOGS_OWNER+
               '/collection/folders/'+fld+
               '/releases/'+rid+
               '/instances/'+inst+
@@ -1873,13 +1876,15 @@ document.addEventListener('DOMContentLoaded',applyLocalOverrides);
 function refreshCardDisplayedFields(card,vals){
   var row=card.querySelector('.fields-row');
   if(!row)return;
+  var dateSpan=row.querySelector('.alb-date-added');
+  var dateHtml=dateSpan?dateSpan.outerHTML:'';
   var items=[];
   if(vals['Origem'])  items.push('<span class="field-item"><strong>Loja:</strong> '+vals['Origem']+'</span>');
   if(vals['DJ']&&vals['DJ']!=='Não') items.push('<span class="field-item"><strong>Discotecar:</strong> '+vals['DJ']+'</span>');
   if(vals['PA']&&vals['PA']!=='Não') items.push('<span class="field-item"><strong>Trocar:</strong> '+vals['PA']+'</span>');
   if(vals['$'])       items.push('<span class="field-item"><strong>$:</strong> '+vals['$']+'</span>');
   if(vals['Recebido?']) items.push('<span class="field-item"><strong>Recebido:</strong> '+vals['Recebido?']+'</span>');
-  row.innerHTML=items.join('');
+  row.innerHTML=dateHtml+items.join('');
   var notesEl=card.querySelector('.field-notes');
   if(notesEl){notesEl.textContent=vals['Notas']||'';notesEl.style.display=vals['Notas']?'':'none';}
   // Sync data-* attributes so filters work immediately after save
@@ -2103,6 +2108,8 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
 
     custom_html = ""
     field_items = []
+    if date_added_display:
+        field_items.append(f'<span class="field-item alb-date-added">adicionado {date_added_display}</span>')
     if fields.get("Origem"):   field_items.append(f'<span class="field-item"><strong>Loja:</strong> {esc(fields["Origem"])}</span>')
     if fields.get("DJ") and fields["DJ"] != "Não":   field_items.append(f'<span class="field-item"><strong>Discotecar:</strong> {esc(fields["DJ"])}</span>')
     if fields.get("PA") and fields["PA"] != "Não":   field_items.append(f'<span class="field-item"><strong>Trocar:</strong> {esc(fields["PA"])}</span>')
@@ -2155,7 +2162,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
         loja_opt   = f'<option value="{cur_origem}" selected>{cur_origem}</option>' if cur_origem else ""
         edit_form_html = f'''<div class="card-edit-form">
   <div class="cef-grid">
-    <span class="cef-label">Loja</span><select class="cef-input" data-field="Origem" data-cur-val="{cur_origem}"><option value="">—</option>{loja_opt}</select>
+    <span class="cef-label">Loja</span><select class="cef-input" data-field="Origem" data-cur-val="{cur_origem}" size="5"><option value="">—</option>{loja_opt}</select>
     <span class="cef-label">Pre&#231;o ($)</span><input class="cef-input" data-field="$" type="text" value="{esc((fields.get('$') or '').strip())}" placeholder="ex: 450">
     <span class="cef-label">Recebido?</span>{_sel("Recebido?",["Sim","Não"])}
     <span class="cef-label">Discotecar</span>{_sel("DJ",["Sim","Parcial","Não"])}
@@ -2203,7 +2210,6 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
       {f'<div class="alb-meta">{tags}</div>' if tags else ''}
       {custom_html}
       <div class="alb-tracks-info">{alb_tracks_info}</div>
-      {f'<div class="alb-date-added">adicionado {date_added_display}</div>' if date_added_display else ''}
     </div>
     {btn_group}
     <button class="toggle-btn" aria-label="expandir">&#8964;</button>
@@ -2653,11 +2659,9 @@ def generate_html(df):
 <!-- ═══ SETUP MODAL ═══ -->
 <div class="setup-overlay" id="setup-modal">
   <div class="setup-box">
-    <h3>&#9998; Configurar edi&#231;&#227;o Discogs</h3>
-    <label>Usu&#225;rio Discogs</label>
-    <input class="setup-input" id="setup-username" type="text" placeholder="seu_usuario" autocomplete="off">
-    <label>Token pessoal &nbsp;<a href="https://www.discogs.com/settings/developers" target="_blank">(gerar aqui &#8599;)</a></label>
-    <input class="setup-input" id="setup-token" type="password" placeholder="token..." autocomplete="off">
+    <h3>&#9998; Modo de edi&#231;&#227;o</h3>
+    <label>Token pessoal Discogs &nbsp;<a href="https://www.discogs.com/settings/developers" target="_blank">(gerar aqui &#8599;)</a></label>
+    <input class="setup-input" id="setup-token" type="password" placeholder="Cole o token aqui..." autocomplete="off">
     <label>Pasta (folder_id &mdash; normalmente 1)</label>
     <input class="setup-input" id="setup-folder" type="number" value="1" min="1" style="width:80px">
     <div id="setup-status"></div>
@@ -2692,10 +2696,10 @@ def generate_html(df):
     <div class="ctrl-row">
       <input class="ctrl-input" id="q-lp" type="search" placeholder="Buscar artista, &#225;lbum, ano, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-lp" onchange="filterLP()">
-        <option value="added-desc">Adicionado (recente)</option>
-        <option value="added-asc">Adicionado (antigo)</option>
-        <option value="year-desc">Ano (recente)</option>
-        <option value="year-asc">Ano (antigo)</option>
+        <option value="added-desc">Adicionado &#8595;</option>
+        <option value="added-asc">Adicionado &#8593;</option>
+        <option value="year-desc">Ano &#8595;</option>
+        <option value="year-asc">Ano &#8593;</option>
         <option value="" selected>Artista A&#8594;Z</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">&#9881; Filtros &#9662;</button>
@@ -2717,8 +2721,8 @@ def generate_html(df):
     <div class="ctrl-row">
       <input class="ctrl-input" id="q-faixas" type="search" placeholder="Buscar artista, &#225;lbum, ano, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-faixas" onchange="filterTracks()">
-        <option value="year-desc">Ano (recente)</option>
-        <option value="year-asc">Ano (antigo)</option>
+        <option value="year-desc">Ano &#8595;</option>
+        <option value="year-asc">Ano &#8593;</option>
         <option value="az">Artista A&#8594;Z</option>
         <option value="bpm-asc" selected>BPM crescente</option>
         <option value="bpm-desc">BPM decrescente</option>
