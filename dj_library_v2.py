@@ -196,11 +196,13 @@ def card_colors(raw_hex, fator=0.28):
             cvars = ("--text:#F2F2F2;--text2:#E5E5E5;--text3:#CCCCCC;"
                      "--bdr:rgba(255,255,255,.18);--bdr2:rgba(255,255,255,.12);"
                      "--bpm-col:#F2F2F2;--tracks-bg:rgba(0,0,0,.28);"
-                     "--acc2:rgba(255,255,255,.4)")
+                     "--acc2:rgba(255,255,255,.4);"
+                     "--cef-inp-bg:#252525;--cef-inp-tc:#e6e6e6")
         else:  # cor raw clara → gradiente claro → texto preto
             cvars = ("--text:#111;--text2:#333;--text3:#555;"
                      "--bdr:rgba(0,0,0,.13);--bdr2:rgba(0,0,0,.08);"
-                     "--tracks-bg:rgba(255,255,255,.65)")
+                     "--tracks-bg:rgba(255,255,255,.65);"
+                     "--cef-inp-bg:#e9e5de;--cef-inp-tc:#1a1a1a")
         return bg, cvars
     except Exception:
         return "", ""
@@ -1166,6 +1168,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .alb-meta{font-size:.67rem;color:var(--text3);margin-top:.3rem;
   line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .alb-tracks-info{font-size:.65rem;color:var(--text3);margin-top:.22rem}
+.alb-date-added{font-size:.58rem;color:var(--text3,#aaa);margin-top:.1rem;opacity:.7}
 .toggle-btn{background:none;border:none;color:var(--text3);cursor:pointer;
   padding:.3rem .6rem;font-size:.85rem;flex-shrink:0;transition:transform .25s,color .2s;
   position:relative;z-index:1}
@@ -1291,31 +1294,32 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   cursor:pointer;font-size:.9rem;flex-shrink:0;
   transition:background .15s,color .15s,border-color .15s;color:var(--text3)}
 .pencil-mode-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
-.pencil-mode-btn.active{background:#FEFCE6;border-color:#C8B800;color:#7A6E00;font-weight:700}
+.pencil-mode-btn.active{background:#e2e2e2;border-color:#999;color:#333;font-weight:600}
 /* Edit button on card — styled same as Discogs/Spotify btn-card, hidden until edit mode */
 body:not(.edit-mode) .cef-edit-btn{display:none}
 /* Inline edit form */
 .card-edit-form{display:none;padding:.6rem 1rem .8rem;border-top:1px solid var(--bdr2);
-  background:var(--tracks-bg,rgba(255,255,255,.8));color:var(--text,#111)}
+  background:var(--tracks-bg,rgba(245,242,237,.92));color:var(--text,#111)}
 .card-edit-form.open{display:block}
 .cef-grid{display:grid;grid-template-columns:auto 1fr;gap:.28rem .65rem;
   align-items:center;margin-bottom:.5rem}
-.cef-label{font-size:.65rem;font-weight:600;color:var(--text,#111);opacity:.65;
+.cef-label{font-size:.65rem;font-weight:600;color:var(--text,#111);opacity:.6;
   text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
-.cef-input{background:rgba(255,255,255,.22);border:1px solid var(--bdr);
-  color:var(--text,#111);
+.cef-input{background:var(--cef-inp-bg,#e9e5de);border:1px solid var(--bdr);
+  color:var(--cef-inp-tc,#1a1a1a);
   padding:.3rem .55rem;border-radius:6px;font-size:.8rem;outline:none;
-  transition:border-color .15s;font-family:inherit;width:100%}
-.cef-input:focus{border-color:var(--acc)}
+  transition:border-color .15s;font-family:inherit;width:100%;box-sizing:border-box}
+.cef-input:focus{border-color:var(--acc,#7A5C2C)}
+select.cef-input option{background:#1e1e1e;color:#e6e6e6}
 .cef-textarea{resize:vertical;min-height:46px}
-.cef-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.cef-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.3rem}
 .cef-status{font-size:.72rem;color:var(--text,#111);opacity:.7;flex:1}
 .cef-btn{padding:.28rem .7rem;border-radius:6px;font-size:.74rem;cursor:pointer;
-  border:1px solid var(--bdr);transition:all .15s}
-.cef-save{background:#111;color:#fff;border-color:#111}
-.cef-save:hover{background:#333}
-.cef-cancel{background:transparent;color:var(--text,#555);opacity:.8}
-.cef-cancel:hover{border-color:var(--acc2);color:var(--acc)}
+  border:1px solid var(--bdr,rgba(0,0,0,.15));transition:all .15s}
+.cef-save{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.cef-save:hover{background:#3a3a3a}
+.cef-cancel{background:transparent;color:var(--text,#555);opacity:.75;border-color:transparent}
+.cef-cancel:hover{opacity:1;border-color:var(--bdr)}
 /* Setup modal */
 .setup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);
   z-index:9000;display:none;align-items:center;justify-content:center}
@@ -1703,6 +1707,24 @@ function toggleEditMode(){
   editMode=!editMode;
   document.body.classList.toggle('edit-mode',editMode);
   document.querySelectorAll('.pencil-mode-btn').forEach(function(b){b.classList.toggle('active',editMode);});
+  if(editMode) refreshDiscogsFieldOptions(); // atualiza opções em background
+}
+
+function refreshDiscogsFieldOptions(){
+  var cfg=_dcfg();
+  if(!cfg.token||!cfg.username)return;
+  var h={'Authorization':'Discogs token='+cfg.token,'User-Agent':'ColecaoDoAmsa/1.0'};
+  fetch('https://api.discogs.com/users/'+cfg.username+'/collection/fields',{headers:h})
+    .then(function(r){return r.json();})
+    .then(function(fd){
+      var fo={};
+      (fd.fields||[]).forEach(function(f){
+        if(f.options&&f.options.length){
+          fo[f.name]=f.options.map(function(o){return typeof o==='string'?o:(o.value||String(o));});
+        }
+      });
+      var c2=_dcfg(); c2.fieldOptions=fo; _dSave(c2);
+    }).catch(function(){});
 }
 
 function openSetupModal(){
@@ -1732,7 +1754,9 @@ async function connectDiscogs(){
     var ids={};var fieldOptions={};
     (fd.fields||[]).forEach(function(f){
       ids[f.name]=f.id;
-      if(f.options&&f.options.length)fieldOptions[f.name]=f.options;
+      if(f.options&&f.options.length){
+        fieldOptions[f.name]=f.options.map(function(o){return typeof o==='string'?o:(o.value||String(o));});
+      }
     });
     _dSave({username:username,token:token,folder:folder,fieldIds:ids,fieldOptions:fieldOptions});
     st.innerHTML='<span style="color:#2a7a2a">✓ Conectado! Campos: '+Object.keys(ids).join(', ')+'</span>';
@@ -1812,16 +1836,41 @@ async function saveCardEdit(card){
     st.innerHTML='<span style="color:#c0392b">✗ '+errs.join(' · ')+'</span>';
   }else{
     st.innerHTML='<span style="color:#2a7a2a">✓ Salvo no Discogs!</span>';
-    // Refresh displayed fields in card
-    refreshCardDisplayedFields(card,form);
+    var vals2={};
+    form.querySelectorAll('.cef-input').forEach(function(inp){vals2[inp.dataset.field]=inp.value.trim();});
+    refreshCardDisplayedFields(card,vals2);
+    storeLocalOverride(rid,vals2);
     setTimeout(function(){closeCardEdit(card);},900);
   }
 }
 
-function refreshCardDisplayedFields(card,form){
-  // Rebuild the fields-row HTML from the current form values
-  var vals={};
-  form.querySelectorAll('.cef-input').forEach(function(inp){vals[inp.dataset.field]=inp.value.trim();});
+function storeLocalOverride(rid,vals){
+  var all=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
+  all[rid]=Object.assign(all[rid]||{},vals);
+  localStorage.setItem('discogs_edits',JSON.stringify(all));
+}
+
+function applyLocalOverrides(){
+  var all=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
+  Object.keys(all).forEach(function(rid){
+    var card=document.querySelector('[data-release-id="'+rid+'"]');
+    if(!card)return;
+    var vals=all[rid];
+    refreshCardDisplayedFields(card,vals);
+    var form=card.querySelector('.card-edit-form');
+    if(form){
+      Object.keys(vals).forEach(function(field){
+        var inp=form.querySelector('[data-field="'+field+'"]');
+        if(!inp)return;
+        inp.value=vals[field];
+        if(inp.tagName==='SELECT')inp.dataset.curVal=vals[field];
+      });
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded',applyLocalOverrides);
+
+function refreshCardDisplayedFields(card,vals){
   var row=card.querySelector('.fields-row');
   if(!row)return;
   var items=[];
@@ -2023,6 +2072,16 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     if fmt_label:    meta_parts.append(esc(fmt_label[:28]))
     tags = " · ".join(meta_parts)
 
+    _months = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"]
+    date_added_raw = (fields.get("date_added") or "").strip()
+    date_added_display = ""
+    if date_added_raw:
+        try:
+            _d = date_added_raw[:10].split("-")
+            date_added_display = f"{int(_d[2])} {_months[int(_d[1])-1]} {_d[0]}"
+        except Exception:
+            pass
+
     copy_badge = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
 
     discogs_url = f"https://www.discogs.com/release/{release_id}"
@@ -2117,7 +2176,6 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     )
     btn_group = f'<div class="rg-col-center">{edit_btn_html}{discogs_card_btn}{spotify_card_btn}</div>'
 
-    date_added_s = esc((fields.get("date_added") or "").strip())
     return f'''<article class="album-card"{card_style}
   data-search="{search_str}"
   data-artist="{esc(first.get('album_artist',''))}"
@@ -2133,7 +2191,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
   data-recebido="{esc((fields.get('Recebido?') or '').strip())}"
   data-bpm-list="{bpm_list_str}"
   data-copies="{copy_count}"
-  data-date-added="{date_added_s}"
+  data-date-added="{esc(date_added_raw)}"
   data-release-id="{release_id}"
   data-instance-id="{instance_id}">
   {f'<div class="cover-blur" style="background-image:url(\'{cover}\')"></div>' if cover else ''}
@@ -2145,6 +2203,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
       {f'<div class="alb-meta">{tags}</div>' if tags else ''}
       {custom_html}
       <div class="alb-tracks-info">{alb_tracks_info}</div>
+      {f'<div class="alb-date-added">adicionado {date_added_display}</div>' if date_added_display else ''}
     </div>
     {btn_group}
     <button class="toggle-btn" aria-label="expandir">&#8964;</button>
