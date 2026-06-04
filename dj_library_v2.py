@@ -1127,6 +1127,13 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .logo-link{text-decoration:none;color:inherit;transition:opacity .15s}
 .logo-link:hover{opacity:.7}
 
+/* VINYL LOGO */
+.logo-vinyl-wrap{position:relative;width:38px;height:38px;flex-shrink:0}
+.logo-vinyl-img{width:38px;height:38px;object-fit:cover;border-radius:50%;display:block}
+.logo-vinyl-hole{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.logo-vinyl-hole::after{content:'';width:10px;height:10px;border-radius:50%;
+  background:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.18)}
+
 /* FILTER PANEL */
 .filter-toggle-btn{display:inline-flex;align-items:center;gap:.3rem;
   border:1px solid var(--bdr);background:var(--bg2);color:var(--text3);
@@ -2698,6 +2705,10 @@ def generate_html(df):
 </div>
 
 <header class="site-header">
+  <div class="logo-vinyl-wrap">
+    <img class="logo-vinyl-img" src="preview_squared.jpg" alt="Discos do Amsa">
+    <div class="logo-vinyl-hole"></div>
+  </div>
   <a class="logo-name logo-link" href="https://www.instagram.com/amsa2diop" target="_blank">Discos do Amsa</a>
   <div class="header-sep"></div>
   <div class="site-stats">
