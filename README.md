@@ -1,4 +1,4 @@
-# Coleção do Amsa — DJ Library
+# Discos do Amsa — DJ Library
 
 Webapp estático que transforma uma coleção do [Discogs](https://www.discogs.com) em um catálogo interativo de vinis, publicado via GitHub Pages.
 

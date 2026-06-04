@@ -1058,7 +1058,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .fields-row{display:flex;flex-wrap:wrap;gap:.25rem .7rem;margin-top:.45rem}
 .field-item{font-size:.65rem;color:var(--text3)}
 .field-item strong{color:var(--text2);font-weight:600}
-.field-notes{font-size:.65rem;color:var(--text3);font-style:italic;margin-top:.2rem}
+.field-notes{font-size:.65rem;color:var(--text2);font-weight:600;margin-top:.2rem}
 
 /* VIEW */
 .view{display:none}.view.active{display:block}
@@ -1281,6 +1281,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .ctrl-sel{flex:1}
   .filter-toggle-btn{flex:1;justify-content:center}
   .back-top-btn{margin-left:0}
+  /* Compact card: hide secondary fields and truncate meta when closed */
+  .alb-meta{-webkit-line-clamp:1}
+  .album-card:not(.open) .fields-secondary{display:none}
   /* Compact track rows */
   .track-row{padding:4px 8px;gap:7px}
   .c-ph,.c-thumb{width:36px;height:36px}
@@ -1735,15 +1738,14 @@ function refreshDiscogsFieldOptions(){
 function openSetupModal(){
   var cfg=_dcfg();
   var m=document.getElementById('setup-modal');
-  if(cfg.token)   document.getElementById('setup-token').value=cfg.token;
-  if(cfg.folder)  document.getElementById('setup-folder').value=cfg.folder;
+  if(cfg.token) document.getElementById('setup-token').value=cfg.token;
   m.classList.add('open');
 }
 function closeSetupModal(){document.getElementById('setup-modal').classList.remove('open');}
 
 async function connectDiscogs(){
   var token=document.getElementById('setup-token').value.trim();
-  var folder=document.getElementById('setup-folder').value.trim()||'1';
+  var folder='1';
   var st=document.getElementById('setup-status');
   if(!token){st.textContent='Insira o token pessoal do Discogs.';return;}
   st.textContent='Verificando token…';
@@ -1880,11 +1882,13 @@ function refreshCardDisplayedFields(card,vals){
   var dateSpan=row.querySelector('.alb-date-added');
   var dateHtml=dateSpan?dateSpan.outerHTML:'';
   var items=[];
-  if(vals['Origem'])  items.push('<span class="field-item"><strong>Loja:</strong> '+vals['Origem']+'</span>');
-  if(vals['DJ']&&vals['DJ']!=='Não') items.push('<span class="field-item"><strong>Discotecar:</strong> '+vals['DJ']+'</span>');
-  if(vals['PA']&&vals['PA']!=='Não') items.push('<span class="field-item"><strong>Trocar:</strong> '+vals['PA']+'</span>');
+  if(vals['Origem'])  items.push('<span class="field-item">'+vals['Origem']+'</span>');
+  if(vals['DJ']==='Sim') items.push('<span class="field-item">Para discotecar</span>');
+  else if(vals['DJ']==='Parcial') items.push('<span class="field-item">Discotecar parcialmente</span>');
+  if(vals['PA']==='Sim') items.push('<span class="field-item">Para trocar</span>');
+  else if(vals['PA']==='Em breve') items.push('<span class="field-item">Trocar em breve</span>');
   if(vals['$'])       items.push('<span class="field-item"><strong>R$</strong> '+vals['$']+'</span>');
-  if(vals['Recebido?']&&vals['Recebido?']==='Não') items.push('<span class="field-item">Não recebido</span>');
+  if(vals['Recebido?']==='Não') items.push('<span class="field-item">Não recebido</span>');
   row.innerHTML=dateHtml+items.join('');
   var notesEl=card.querySelector('.field-notes');
   if(notesEl){notesEl.textContent=vals['Notas']||'';notesEl.style.display=vals['Notas']?'':'none';}
@@ -1895,6 +1899,16 @@ function refreshCardDisplayedFields(card,vals){
 }
 """
 
+
+# ── SVG icons ───────────────────────────────────────────────────────────────
+_SVG_FILTER_LINES = (
+    '<svg viewBox="0 0 12 11" width="11" height="11" fill="none" stroke="currentColor" '
+    'stroke-width="1.6" stroke-linecap="round" style="flex-shrink:0">'
+    '<line x1="0.5" y1="2" x2="11.5" y2="2"/>'
+    '<line x1="2.5" y1="5.5" x2="9.5" y2="5.5"/>'
+    '<line x1="4.5" y1="9" x2="7.5" y2="9"/>'
+    '</svg>'
+)
 
 # ── SVG logos reutilizados nos render functions ──────────────────────────────
 _SVG_DISCOGS_SM = (
@@ -2108,21 +2122,31 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     # btn_group will be assembled after edit_btn_html is ready
 
     custom_html = ""
-    field_items = []
+    primary_items = []
+    secondary_items = []
     if date_added_display:
-        field_items.append(f'<span class="field-item alb-date-added">Adicionado em {date_added_display}</span>')
-    if fields.get("Origem"):   field_items.append(f'<span class="field-item"><strong>Loja:</strong> {esc(fields["Origem"])}</span>')
-    if fields.get("DJ") and fields["DJ"] != "Não":   field_items.append(f'<span class="field-item"><strong>Discotecar:</strong> {esc(fields["DJ"])}</span>')
-    if fields.get("PA") and fields["PA"] != "Não":   field_items.append(f'<span class="field-item"><strong>Trocar:</strong> {esc(fields["PA"])}</span>')
-    if fields.get("$"):        field_items.append(f'<span class="field-item"><strong>R$</strong> {esc(fields["$"])}</span>')
-    if fields.get("Recebido?") == "Não": field_items.append(f'<span class="field-item">Não recebido</span>')
+        primary_items.append(f'<span class="field-item alb-date-added">Adicionado em {date_added_display}</span>')
+    if fields.get("Origem"):
+        primary_items.append(f'<span class="field-item">{esc(fields["Origem"])}</span>')
+    _dj = fields.get("DJ","")
+    if _dj == "Sim":     primary_items.append('<span class="field-item">Para discotecar</span>')
+    elif _dj == "Parcial": primary_items.append('<span class="field-item">Discotecar parcialmente</span>')
+    _pa = fields.get("PA","")
+    if _pa == "Sim":       primary_items.append('<span class="field-item">Para trocar</span>')
+    elif _pa == "Em breve": primary_items.append('<span class="field-item">Trocar em breve</span>')
+    if fields.get("$"):
+        secondary_items.append(f'<span class="field-item"><strong>R$</strong> {esc(fields["$"])}</span>')
+    if fields.get("Recebido?") == "Não":
+        secondary_items.append('<span class="field-item">Não recebido</span>')
     mc = fields.get("Media Condition",""); sc = fields.get("Sleeve Condition","")
     if mc or sc:
-        field_items.append(f'<span class="field-item"><strong>Cond:</strong> {esc(" / ".join(filter(None,[mc,sc])))}</span>')
-    if field_items:
-        custom_html += f'<div class="fields-row">{"".join(field_items)}</div>'
+        secondary_items.append(f'<span class="field-item"><strong>Cond:</strong> {esc(" / ".join(filter(None,[mc,sc])))}</span>')
+    if primary_items:
+        custom_html += f'<div class="fields-row">{"".join(primary_items)}</div>'
+    if secondary_items:
+        custom_html += f'<div class="fields-row fields-secondary">{"".join(secondary_items)}</div>'
     if fields.get("Notas"):
-        custom_html += f'<div class="field-notes">{esc(fields["Notas"])}</div>'
+        custom_html += f'<div class="field-notes fields-secondary">{esc(fields["Notas"])}</div>'
 
     track_titles = " ".join(str(r.get("track_title","")) for _, r in group.iterrows())
     search_str = html_module.escape(
@@ -2635,19 +2659,19 @@ def generate_html(df):
     )
 
     _og_base = "https://amsa2diop.github.io/colecaovinil"
-    _og_desc = f"Biblioteca de vinis &#183; {n_items} discos &#183; {n_tracks} faixas"
+    _og_desc = f"{n_items} discos &#183; {n_tracks} faixas"
 
     html = f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Cole&#231;&#227;o do Amsa</title>
+<title>Discos do Amsa</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128191;</text></svg>">
 <!-- Open Graph / WhatsApp preview -->
 <meta property="og:type"        content="website">
 <meta property="og:url"         content="{_og_base}/">
-<meta property="og:title"       content="Cole&#231;&#227;o do Amsa">
+<meta property="og:title"       content="Discos do Amsa">
 <meta property="og:description" content="{_og_desc}">
 <meta property="og:image"       content="{_og_base}/preview.jpg">
 <meta property="og:image:width" content="900">
@@ -2662,20 +2686,19 @@ def generate_html(df):
 <div class="setup-overlay" id="setup-modal">
   <div class="setup-box">
     <h3>&#9998; Modo de edi&#231;&#227;o</h3>
-    <label>Token pessoal Discogs &nbsp;<a href="https://www.discogs.com/settings/developers" target="_blank">(gerar aqui &#8599;)</a></label>
+    <label>Token pessoal Discogs</label>
     <input class="setup-input" id="setup-token" type="password" placeholder="Cole o token aqui..." autocomplete="off">
-    <label>Pasta (folder_id &mdash; normalmente 1)</label>
-    <input class="setup-input" id="setup-folder" type="number" value="1" min="1" style="width:80px">
+    <p style="font-size:.68rem;color:var(--text3);margin-top:.3rem">Gere o token em <a href="https://www.discogs.com/settings/developers" target="_blank" style="color:var(--acc)">discogs.com/settings/developers</a></p>
     <div id="setup-status"></div>
     <div class="setup-actions">
-      <button class="setup-btn-connect" onclick="connectDiscogs()">Conectar</button>
+      <button class="setup-btn-connect" onclick="connectDiscogs()">Lembrar token</button>
       <button class="setup-btn-cancel" onclick="closeSetupModal()">Cancelar</button>
     </div>
   </div>
 </div>
 
 <header class="site-header">
-  <a class="logo-name logo-link" href="https://www.instagram.com/amsa2diop" target="_blank">Cole&#231;&#227;o do Amsa</a>
+  <a class="logo-name logo-link" href="https://www.instagram.com/amsa2diop" target="_blank">Discos do Amsa</a>
   <div class="header-sep"></div>
   <div class="site-stats">
     <span class="stat-item"><strong>{n_items}</strong> discos</span>
@@ -2704,7 +2727,7 @@ def generate_html(df):
         <option value="year-asc">Ano &#9652;</option>
         <option value="" selected>Artista A&#8594;Z</option>
       </select>
-      <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">&#9881; Filtros &#9662;</button>
+      <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">{_SVG_FILTER_LINES} Filtros &#9662;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
     </div>
@@ -2729,7 +2752,7 @@ def generate_html(df):
         <option value="bpm-asc" selected>BPM &#9652;</option>
         <option value="bpm-desc">BPM &#9662;</option>
       </select>
-      <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">&#9881; Filtros &#9662;</button>
+      <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">{_SVG_FILTER_LINES} Filtros &#9662;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
     </div>
