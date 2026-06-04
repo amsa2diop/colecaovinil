@@ -1282,6 +1282,66 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .ic-btn{width:27px;height:27px}
   .ic-btn svg{width:13px;height:13px}
 }
+
+/* ── EDIT MODE ──────────────────────────────────────────────────────────────── */
+/* Header edit button */
+.edit-mode-btn{display:inline-flex;align-items:center;gap:.28rem;padding:.22rem .6rem;
+  border-radius:6px;border:1px solid var(--bdr);background:transparent;
+  color:var(--text3);font-size:.72rem;cursor:pointer;transition:all .18s;
+  letter-spacing:.03em;flex-shrink:0}
+.edit-mode-btn:hover{border-color:var(--acc2);color:var(--acc)}
+.edit-mode-btn.active{background:#FFF8E1;border-color:#F9A825;color:#E65100;font-weight:600}
+/* Pencil button on cards — hidden until edit mode */
+.cef-edit-btn{position:absolute;top:.55rem;right:2.8rem;
+  width:26px;height:26px;border-radius:6px;border:1px solid rgba(0,0,0,.13);
+  background:rgba(255,255,255,.82);display:none;align-items:center;justify-content:center;
+  cursor:pointer;font-size:.8rem;z-index:3;transition:background .12s;padding:0;color:#555}
+.cef-edit-btn:hover{background:rgba(255,255,255,.97)}
+body.edit-mode .cef-edit-btn{display:flex}
+/* Inline edit form */
+.card-edit-form{display:none;padding:.6rem 1rem .8rem;border-top:1px solid var(--bdr2);
+  background:var(--bg2)}
+.card-edit-form.open{display:block}
+.cef-grid{display:grid;grid-template-columns:auto 1fr;gap:.28rem .65rem;
+  align-items:center;margin-bottom:.5rem}
+.cef-label{font-size:.65rem;font-weight:600;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.cef-input{background:var(--bg);border:1px solid var(--bdr);color:var(--text);
+  padding:.3rem .55rem;border-radius:6px;font-size:.8rem;outline:none;
+  transition:border-color .15s;font-family:inherit;width:100%}
+.cef-input:focus{border-color:var(--acc)}
+.cef-textarea{resize:vertical;min-height:46px}
+.cef-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.cef-status{font-size:.72rem;color:var(--text3);flex:1}
+.cef-btn{padding:.28rem .7rem;border-radius:6px;font-size:.74rem;cursor:pointer;
+  border:1px solid var(--bdr);transition:all .15s}
+.cef-save{background:#111;color:#fff;border-color:#111}
+.cef-save:hover{background:#333}
+.cef-cancel{background:transparent;color:var(--text3)}
+.cef-cancel:hover{border-color:var(--acc2);color:var(--acc)}
+/* Setup modal */
+.setup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:9000;display:none;align-items:center;justify-content:center}
+.setup-overlay.open{display:flex}
+.setup-box{background:var(--bg);border:1px solid var(--bdr);border-radius:12px;
+  padding:1.6rem;max-width:400px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+.setup-box h3{margin-bottom:1rem;font-size:.95rem}
+.setup-box label{display:block;font-size:.68rem;font-weight:600;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;margin-top:.6rem}
+.setup-box label:first-of-type{margin-top:0}
+.setup-box a{color:var(--acc);font-size:.7rem}
+.setup-input{width:100%;background:var(--bg2);border:1px solid var(--bdr);
+  color:var(--text);padding:.38rem .7rem;border-radius:7px;font-size:.84rem;
+  outline:none;box-sizing:border-box;font-family:inherit}
+.setup-input:focus{border-color:var(--acc)}
+#setup-status{font-size:.75rem;min-height:1.2rem;color:var(--text3);
+  margin:.55rem 0 .3rem}
+.setup-actions{display:flex;gap:.5rem;margin-top:.7rem}
+.setup-btn-connect{background:#111;color:#fff;border:none;padding:.4rem .9rem;
+  border-radius:7px;font-size:.8rem;cursor:pointer;flex:1}
+.setup-btn-connect:hover{background:#333}
+.setup-btn-cancel{background:transparent;border:1px solid var(--bdr);color:var(--text3);
+  padding:.4rem .9rem;border-radius:7px;font-size:.8rem;cursor:pointer}
 """
 
 JS = r"""
@@ -1632,6 +1692,133 @@ document.getElementById('cnt-faixas').textContent=document.querySelectorAll('#gr
   var lk=document.getElementById('incomplete-link');
   if(lk)lk.textContent=n+' incompletas';
 })();
+
+// ── DISCOGS EDIT MODE ─────────────────────────────────────────────────────────
+var editMode=false;
+function _dcfg(){try{return JSON.parse(localStorage.getItem('discogs_cfg')||'{}')}catch(e){return{}}}
+function _dSave(o){localStorage.setItem('discogs_cfg',JSON.stringify(o))}
+
+function toggleEditMode(){
+  var cfg=_dcfg();
+  if(!cfg.token||!cfg.username){openSetupModal();return;}
+  editMode=!editMode;
+  document.body.classList.toggle('edit-mode',editMode);
+  var btn=document.getElementById('edit-mode-btn');
+  if(btn)btn.classList.toggle('active',editMode);
+}
+
+function openSetupModal(){
+  var cfg=_dcfg();
+  var m=document.getElementById('setup-modal');
+  if(cfg.username)document.getElementById('setup-username').value=cfg.username;
+  if(cfg.token)   document.getElementById('setup-token').value=cfg.token;
+  if(cfg.folder)  document.getElementById('setup-folder').value=cfg.folder;
+  m.classList.add('open');
+}
+function closeSetupModal(){document.getElementById('setup-modal').classList.remove('open');}
+
+async function connectDiscogs(){
+  var username=document.getElementById('setup-username').value.trim();
+  var token=document.getElementById('setup-token').value.trim();
+  var folder=document.getElementById('setup-folder').value.trim()||'1';
+  var st=document.getElementById('setup-status');
+  if(!username||!token){st.textContent='Preencha usuário e token.';return;}
+  st.textContent='Conectando…';
+  var h={'Authorization':'Discogs token='+token,'User-Agent':'ColecaoDoAmsa/1.0'};
+  try{
+    var r=await fetch('https://api.discogs.com/users/'+username,{headers:h});
+    if(!r.ok)throw new Error('Token inválido ('+r.status+')');
+    var fr=await fetch('https://api.discogs.com/users/'+username+'/collection/fields',{headers:h});
+    if(!fr.ok)throw new Error('Erro campos ('+fr.status+')');
+    var fd=await fr.json();
+    var ids={};(fd.fields||[]).forEach(function(f){ids[f.name]=f.id;});
+    _dSave({username:username,token:token,folder:folder,fieldIds:ids});
+    st.innerHTML='<span style="color:#2a7a2a">✓ Conectado! Campos: '+Object.keys(ids).join(', ')+'</span>';
+    setTimeout(function(){
+      closeSetupModal();
+      editMode=true;
+      document.body.classList.add('edit-mode');
+      var btn=document.getElementById('edit-mode-btn');
+      if(btn)btn.classList.add('active');
+    },1200);
+  }catch(e){st.innerHTML='<span style="color:#c0392b">✗ '+e.message+'</span>';}
+}
+
+function openCardEdit(card){
+  document.querySelectorAll('.card-edit-form.open').forEach(function(f){
+    if(f.closest('.album-card')!==card)f.classList.remove('open');
+  });
+  var form=card.querySelector('.card-edit-form');
+  if(form){form.classList.toggle('open');form.querySelector('.cef-status').textContent='';}
+}
+function closeCardEdit(card){
+  var form=card.querySelector('.card-edit-form');
+  if(form){form.classList.remove('open');form.querySelector('.cef-status').textContent='';}
+}
+
+async function saveCardEdit(card){
+  var cfg=_dcfg();
+  if(!cfg.token||!cfg.username){alert('Configure o token primeiro.');return;}
+  var inst=card.dataset.instanceId;
+  var rid =card.dataset.releaseId;
+  var fld =cfg.folder||'1';
+  var form=card.querySelector('.card-edit-form');
+  var st  =form.querySelector('.cef-status');
+  if(!inst||!rid){st.textContent='Dados insuficientes (instance_id/release_id).';return;}
+  st.textContent='Salvando…';
+  var inputs=form.querySelectorAll('.cef-input');
+  var errs=[];
+  var btn=form.querySelector('.cef-save');
+  btn.disabled=true;
+  for(var i=0;i<inputs.length;i++){
+    var inp=inputs[i];
+    var fname=inp.dataset.field;
+    var fid=(cfg.fieldIds||{})[fname];
+    if(!fid){errs.push(fname+':sem ID');continue;}
+    var val=inp.tagName==='TEXTAREA'?inp.value:inp.value;
+    try{
+      var url='https://api.discogs.com/users/'+cfg.username+
+              '/collection/folders/'+fld+
+              '/releases/'+rid+
+              '/instances/'+inst+
+              '/fields/'+fid;
+      var res=await fetch(url,{
+        method:'POST',
+        headers:{'Authorization':'Discogs token='+cfg.token,
+                 'User-Agent':'ColecaoDoAmsa/1.0',
+                 'Content-Type':'application/json'},
+        body:JSON.stringify({value:val})
+      });
+      if(!res.ok&&res.status!==204)throw new Error('HTTP '+res.status);
+    }catch(e){errs.push(fname+': '+e.message);}
+  }
+  btn.disabled=false;
+  if(errs.length){
+    st.innerHTML='<span style="color:#c0392b">✗ '+errs.join(' · ')+'</span>';
+  }else{
+    st.innerHTML='<span style="color:#2a7a2a">✓ Salvo no Discogs!</span>';
+    // Refresh displayed fields in card
+    refreshCardDisplayedFields(card,form);
+    setTimeout(function(){closeCardEdit(card);},900);
+  }
+}
+
+function refreshCardDisplayedFields(card,form){
+  // Rebuild the fields-row HTML from the current form values
+  var vals={};
+  form.querySelectorAll('.cef-input').forEach(function(inp){vals[inp.dataset.field]=inp.value.trim();});
+  var row=card.querySelector('.fields-row');
+  if(!row)return;
+  var items=[];
+  if(vals['Origem'])  items.push('<span class="field-item"><strong>Loja:</strong> '+vals['Origem']+'</span>');
+  if(vals['DJ']&&vals['DJ']!=='Não') items.push('<span class="field-item"><strong>Discotecar:</strong> '+vals['DJ']+'</span>');
+  if(vals['PA']&&vals['PA']!=='Não') items.push('<span class="field-item"><strong>Trocar:</strong> '+vals['PA']+'</span>');
+  if(vals['$'])       items.push('<span class="field-item"><strong>$:</strong> '+vals['$']+'</span>');
+  if(vals['Recebido?']) items.push('<span class="field-item"><strong>Recebido:</strong> '+vals['Recebido?']+'</span>');
+  row.innerHTML=items.join('');
+  var notesEl=card.querySelector('.field-notes');
+  if(notesEl){notesEl.textContent=vals['Notas']||'';notesEl.style.display=vals['Notas']?'':'none';}
+}
 """
 
 
@@ -1779,8 +1966,9 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     year_s    = str(int(first["year"])) if safe_float(first.get("year")) else ""
     styles_s  = esc(first.get("styles") or "")
     genres_s  = esc(first.get("genres") or "")
-    release_id = first.get("release_id", "")
-    country_s  = esc(country or "")
+    release_id   = first.get("release_id", "")
+    instance_id  = (fields.get("instance_id") or "").strip()
+    country_s    = esc(country or "")
     fmt_label   = format_info.get("label", "") or ""
     fmt_size    = format_info.get("format_size", "") or ""
     is_compil_flag = "0"
@@ -1873,6 +2061,39 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     origem_val = (fields.get("Origem") or "").strip().lower()
     country_key = country.strip().lower()
 
+    # ── Inline edit form (only rendered when instance_id available) ─────────
+    def _sel(fname, options):
+        cur = (fields.get(fname) or "").strip()
+        opts = f'<option value="">—</option>' + "".join(
+            f'<option value="{o}"{" selected" if cur == o else ""}>{o}</option>'
+            for o in options
+        )
+        return f'<select class="cef-input" data-field="{fname}">{opts}</select>'
+
+    edit_form_html = ""
+    if instance_id:
+        edit_form_html = f'''<div class="card-edit-form">
+  <div class="cef-grid">
+    <span class="cef-label">Loja</span><input class="cef-input" data-field="Origem" type="text" value="{esc((fields.get('Origem') or '').strip())}" placeholder="ex: Rio Records">
+    <span class="cef-label">Discotecar</span>{_sel("DJ",["Sim","Parcial","Não"])}
+    <span class="cef-label">Trocar</span>{_sel("PA",["Sim","Em breve","Não"])}
+    <span class="cef-label">Recebido?</span>{_sel("Recebido?",["Sim","Não"])}
+    <span class="cef-label">Preço ($)</span><input class="cef-input" data-field="$" type="text" value="{esc((fields.get('$') or '').strip())}" placeholder="ex: 450">
+    <span class="cef-label">Notas</span><textarea class="cef-input cef-textarea" data-field="Notas" rows="2" placeholder="Notas livres...">{esc((fields.get('Notas') or '').strip())}</textarea>
+  </div>
+  <div class="cef-actions">
+    <span class="cef-status"></span>
+    <button class="cef-btn cef-save" onclick="event.stopPropagation();saveCardEdit(this.closest('.album-card'))">Salvar</button>
+    <button class="cef-btn cef-cancel" onclick="event.stopPropagation();closeCardEdit(this.closest('.album-card'))">Cancelar</button>
+  </div>
+</div>'''
+
+    edit_btn_html = (
+        f'<button class="cef-edit-btn" title="Editar campos" '
+        f'onclick="event.stopPropagation();openCardEdit(this.closest(\'.album-card\'))">&#9998;</button>'
+        if instance_id else ""
+    )
+
     return f'''<article class="album-card"{card_style}
   data-search="{search_str}"
   data-artist="{esc(first.get('album_artist',''))}"
@@ -1887,7 +2108,9 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
   data-pa="{esc((fields.get('PA') or '').strip())}"
   data-recebido="{esc((fields.get('Recebido?') or '').strip())}"
   data-bpm-list="{bpm_list_str}"
-  data-copies="{copy_count}">
+  data-copies="{copy_count}"
+  data-release-id="{release_id}"
+  data-instance-id="{instance_id}">
   {f'<div class="cover-blur" style="background-image:url(\'{cover}\')"></div>' if cover else ''}
   <header class="album-header" onclick="toggleAlbum(this)">
     <div class="cover-wrap">{img_tag}</div>
@@ -1899,8 +2122,10 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
       <div class="alb-tracks-info">{alb_tracks_info}</div>
     </div>
     {btn_group}
+    {edit_btn_html}
     <button class="toggle-btn" aria-label="expandir">&#8964;</button>
   </header>
+  {edit_form_html}
   <div class="tracks-list collapsed">{tracks_html}</div>
 </article>'''
 
@@ -2228,7 +2453,7 @@ def generate_html(df):
             ("all","Tudo"),("with","Com BPM"),
             ("sub70","70-"),("70-80","70-80"),("80-90","80-90"),
             ("90-100","90-100"),("100-110","100-110"),("110-120","110-120"),
-            ("120-130","120-130"),("130-140","130-140"),("140plus","140+"),
+            ("120-130","120-130"),("130-140","130-140"),
             ("nobpm","Sem BPM"),
         ]
     )
@@ -2319,15 +2544,46 @@ def generate_html(df):
         f'{SVG_SPOTIFY} Spotify</a>'
     )
 
+    _og_base = "https://amsa2diop.github.io/colecaovinil"
+    _og_desc = f"Biblioteca de vinis &#183; {n_items} discos &#183; {n_tracks} faixas"
+
     html = f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cole&#231;&#227;o do Amsa</title>
+<!-- Open Graph / WhatsApp preview -->
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="{_og_base}/">
+<meta property="og:title"       content="Cole&#231;&#227;o do Amsa">
+<meta property="og:description" content="{_og_desc}">
+<meta property="og:image"       content="{_og_base}/preview.jpg">
+<meta property="og:image:width" content="900">
+<meta property="og:image:height" content="1200">
+<meta name="twitter:card"       content="summary_large_image">
+<meta name="twitter:image"      content="{_og_base}/preview.jpg">
 <style>{CSS}</style>
 </head>
 <body>
+
+<!-- ═══ SETUP MODAL ═══ -->
+<div class="setup-overlay" id="setup-modal">
+  <div class="setup-box">
+    <h3>&#9998; Configurar edi&#231;&#227;o Discogs</h3>
+    <label>Usu&#225;rio Discogs</label>
+    <input class="setup-input" id="setup-username" type="text" placeholder="seu_usuario" autocomplete="off">
+    <label>Token pessoal &nbsp;<a href="https://www.discogs.com/settings/developers" target="_blank">(gerar aqui &#8599;)</a></label>
+    <input class="setup-input" id="setup-token" type="password" placeholder="token..." autocomplete="off">
+    <label>Pasta (folder_id &mdash; normalmente 1)</label>
+    <input class="setup-input" id="setup-folder" type="number" value="1" min="1" style="width:80px">
+    <div id="setup-status"></div>
+    <div class="setup-actions">
+      <button class="setup-btn-connect" onclick="connectDiscogs()">Conectar</button>
+      <button class="setup-btn-cancel" onclick="closeSetupModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
 
 <header class="site-header">
   <a class="logo-name logo-link" href="https://www.instagram.com/amsa2diop" target="_blank">Cole&#231;&#227;o do Amsa</a>
@@ -2340,6 +2596,8 @@ def generate_html(df):
   <div class="header-sep"></div>
   <a class="header-social-btn" href="https://www.discogs.com/pt_BR/user/amsa2diop/collection" target="_blank">{SVG_DISCOGS} Discogs</a>
   {spotify_social_btn}
+  <div class="header-sep"></div>
+  <button class="edit-mode-btn" id="edit-mode-btn" onclick="toggleEditMode()" title="Modo edição">&#9998; Editar</button>
   <div class="header-sep"></div>
   <div class="header-tabs">
     <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">Discos</button>
