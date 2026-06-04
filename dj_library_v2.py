@@ -1827,7 +1827,8 @@ async function saveCardEdit(card){
     var fname=inp.dataset.field;
     var fid=(cfg.fieldIds||{})[fname];
     if(!fid){errs.push(fname+':sem ID');continue;}
-    var val=inp.tagName==='TEXTAREA'?inp.value:inp.value;
+    var val=inp.value;
+    if(val.trim()==='')continue;
     try{
       var url='https://api.discogs.com/users/'+DISCOGS_OWNER+
               '/collection/folders/'+fld+
@@ -1884,22 +1885,29 @@ function applyLocalOverrides(){
 document.addEventListener('DOMContentLoaded',applyLocalOverrides);
 
 function refreshCardDisplayedFields(card,vals){
-  var row=card.querySelector('.fields-row');
-  if(!row)return;
-  var dateSpan=row.querySelector('.alb-date-added');
-  var dateHtml=dateSpan?dateSpan.outerHTML:'';
-  var items=[];
-  if(vals['Origem'])  items.push('<span class="field-item">'+vals['Origem']+'</span>');
-  if(vals['DJ']==='Sim') items.push('<span class="field-item">Para discotecar</span>');
-  else if(vals['DJ']==='Parcial') items.push('<span class="field-item">Discotecar parcialmente</span>');
-  if(vals['PA']==='Sim') items.push('<span class="field-item">Para trocar</span>');
-  else if(vals['PA']==='Em breve') items.push('<span class="field-item">Trocar em breve</span>');
-  if(vals['$'])       items.push('<span class="field-item"><strong>R$</strong> '+vals['$']+'</span>');
-  if(vals['Recebido?']==='Não') items.push('<span class="field-item">Não recebido</span>');
-  row.innerHTML=dateHtml+items.join('');
+  // Primary row (date, loja, dj, pa)
+  var pRow=card.querySelector('.fields-row:not(.fields-secondary)');
+  if(pRow){
+    var dateSpan=pRow.querySelector('.alb-date-added');
+    var dateHtml=dateSpan?dateSpan.outerHTML:'';
+    var pItems=[];
+    if(vals['Origem'])  pItems.push('<span class="field-item">'+vals['Origem']+'</span>');
+    if(vals['DJ']==='Sim') pItems.push('<span class="field-item">Para discotecar</span>');
+    else if(vals['DJ']==='Parcial') pItems.push('<span class="field-item">Discotecar parcialmente</span>');
+    if(vals['PA']==='Sim') pItems.push('<span class="field-item">Para trocar</span>');
+    else if(vals['PA']==='Em breve') pItems.push('<span class="field-item">Trocar em breve</span>');
+    pRow.innerHTML=dateHtml+pItems.join('');
+  }
+  // Secondary row (R$, recebido)
+  var sRow=card.querySelector('.fields-row.fields-secondary');
+  if(sRow){
+    var sItems=[];
+    if(vals['$'])          sItems.push('<span class="field-item"><strong>R$</strong> '+vals['$']+'</span>');
+    if(vals['Recebido?']==='Não') sItems.push('<span class="field-item">Não recebido</span>');
+    sRow.innerHTML=sItems.join('');
+  }
   var notesEl=card.querySelector('.field-notes');
   if(notesEl){notesEl.textContent=vals['Notas']||'';notesEl.style.display=vals['Notas']?'':'none';}
-  // Sync data-* attributes so filters work immediately after save
   if(vals['DJ']!==undefined)    card.dataset.dj=vals['DJ'];
   if(vals['PA']!==undefined)    card.dataset.pa=vals['PA'];
   if(vals['Recebido?']!==undefined) card.dataset.recebido=vals['Recebido?'];
@@ -2194,7 +2202,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
         loja_opt   = f'<option value="{cur_origem}" selected>{cur_origem}</option>' if cur_origem else ""
         edit_form_html = f'''<div class="card-edit-form">
   <div class="cef-grid">
-    <span class="cef-label">Loja</span><select class="cef-input" data-field="Origem" data-cur-val="{cur_origem}" size="5"><option value="">—</option>{loja_opt}</select>
+    <span class="cef-label">Loja</span><select class="cef-input" data-field="Origem" data-cur-val="{cur_origem}"><option value="">—</option>{loja_opt}</select>
     <span class="cef-label">Pre&#231;o (R$)</span><input class="cef-input" data-field="$" type="text" value="{esc((fields.get('$') or '').strip())}" placeholder="ex: 450">
     <span class="cef-label">Recebido?</span>{_sel("Recebido?",["Sim","Não"])}
     <span class="cef-label">Discotecar</span>{_sel("DJ",["Sim","Parcial","Não"])}
