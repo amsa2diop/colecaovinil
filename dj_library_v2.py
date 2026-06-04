@@ -1014,7 +1014,7 @@ def create_playlist(sp, df):
 # ==============================================================================
 CSS = """
 :root{
-  --bg:#FFFFFF;--bg2:#EBEBEB;--card:#FAF8F5;--card2:#F0EBE3;
+  --bg:#FFFFFF;--bg2:#F5F5F5;--card:#FAF8F5;--card2:#F0EBE3;
   --text:#111;--text2:#444;--text3:#777;
   --acc:#111;--acc2:#444;
   --bdr:#DDD;--bdr2:#E8E8E8;
@@ -1058,9 +1058,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .fields-row{display:flex;flex-wrap:wrap;gap:.25rem .7rem;margin-top:.45rem}
 .field-item{font-size:.65rem;color:var(--text3)}
 .field-item strong{color:var(--text2);font-weight:600}
-.field-notes{font-size:.68rem;color:var(--text2);font-style:italic;
-  margin-top:.3rem;padding:.28rem .5rem;background:var(--tracks-bg);
-  border-left:2px solid var(--bdr);border-radius:0 4px 4px 0}
+.field-notes{font-size:.65rem;color:var(--text3);font-style:italic;margin-top:.2rem}
 
 /* VIEW */
 .view{display:none}.view.active{display:block}
@@ -1071,16 +1069,16 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   border-bottom:1px solid var(--bdr);padding:.5rem 2.5rem;
   display:flex;flex-direction:column;gap:.38rem}
 /* back-to-top button inside controls row */
-.back-top-btn{margin-left:auto;width:30px;height:30px;border-radius:8px;
+.back-top-btn{margin-left:auto;width:34px;height:34px;border-radius:20px;
   border:1px solid var(--bdr);background:var(--bg2);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;color:var(--text3);font-size:.85rem;flex-shrink:0;
   transition:background .15s,color .15s}
 .back-top-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
 /* incomplete link in results-bar */
-.incomplete-link{font-size:.72rem;color:#bbb;text-decoration:none;
-  border-bottom:1px dashed #ccc;cursor:pointer;transition:color .15s,border-color .15s}
-.incomplete-link:hover{color:#555;border-color:#888}
+.incomplete-link{font-size:.72rem;color:#888;text-decoration:none;
+  border-bottom:1px dashed #aaa;cursor:pointer;transition:color .15s,border-color .15s}
+.incomplete-link:hover{color:#333;border-color:#555}
 .h-flag{font-size:.62rem;font-weight:700;border-radius:4px;padding:2px 6px;
   flex-shrink:0;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
 .f-bpm {background:#FFF3E0;color:#BF5700}
@@ -1096,7 +1094,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   flex:1;min-width:160px;transition:border-color .15s}
 .ctrl-input:focus{border-color:var(--acc)}
 .ctrl-sel{background:var(--bg2);border:1px solid var(--bdr);color:var(--text);
-  padding:.4rem .7rem;border-radius:8px;font-size:.79rem;outline:none;cursor:pointer}
+  padding:.4rem .8rem;border-radius:20px;font-size:.79rem;outline:none;cursor:pointer}
 .ctrl-btn{background:transparent;border:1px solid var(--bdr);color:var(--text2);
   padding:.36rem .8rem;border-radius:8px;font-size:.72rem;letter-spacing:.04em;
   text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all .18s}
@@ -1132,7 +1130,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 /* FILTER PANEL */
 .filter-toggle-btn{display:inline-flex;align-items:center;gap:.3rem;
   border:1px solid var(--bdr);background:var(--bg2);color:var(--text3);
-  padding:.4rem .8rem;border-radius:8px;font-size:.72rem;
+  padding:.4rem .8rem;border-radius:20px;font-size:.72rem;
   cursor:pointer;white-space:nowrap;transition:all .18s;flex-shrink:0}
 .filter-toggle-btn.open{border-color:var(--acc2);color:var(--acc)}
 .filter-panel{display:none;flex-direction:column;gap:.32rem;padding:.18rem 0}
@@ -1280,6 +1278,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   .cover-img,.cover-ph{width:68px;height:68px}
   /* Search bar fills full row 1; sort+buttons go to row 2 */
   .ctrl-input{flex:0 0 100%;order:-1;min-width:0}
+  .ctrl-sel{flex:1}
+  .filter-toggle-btn{flex:1;justify-content:center}
+  .back-top-btn{margin-left:0}
   /* Compact track rows */
   .track-row{padding:4px 8px;gap:7px}
   .c-ph,.c-thumb{width:36px;height:36px}
@@ -1290,7 +1291,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 
 /* ── EDIT MODE ──────────────────────────────────────────────────────────────── */
 /* Pencil toggle button — lives beside filter/back-top buttons in ctrl-row */
-.pencil-mode-btn{width:30px;height:30px;border-radius:8px;
+.pencil-mode-btn{width:34px;height:34px;border-radius:20px;
   border:1px solid var(--bdr);background:var(--bg2);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;font-size:.9rem;flex-shrink:0;
@@ -1882,8 +1883,8 @@ function refreshCardDisplayedFields(card,vals){
   if(vals['Origem'])  items.push('<span class="field-item"><strong>Loja:</strong> '+vals['Origem']+'</span>');
   if(vals['DJ']&&vals['DJ']!=='Não') items.push('<span class="field-item"><strong>Discotecar:</strong> '+vals['DJ']+'</span>');
   if(vals['PA']&&vals['PA']!=='Não') items.push('<span class="field-item"><strong>Trocar:</strong> '+vals['PA']+'</span>');
-  if(vals['$'])       items.push('<span class="field-item"><strong>$:</strong> '+vals['$']+'</span>');
-  if(vals['Recebido?']) items.push('<span class="field-item"><strong>Recebido:</strong> '+vals['Recebido?']+'</span>');
+  if(vals['$'])       items.push('<span class="field-item"><strong>R$</strong> '+vals['$']+'</span>');
+  if(vals['Recebido?']&&vals['Recebido?']==='Não') items.push('<span class="field-item">Não recebido</span>');
   row.innerHTML=dateHtml+items.join('');
   var notesEl=card.querySelector('.field-notes');
   if(notesEl){notesEl.textContent=vals['Notas']||'';notesEl.style.display=vals['Notas']?'':'none';}
@@ -2109,12 +2110,12 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     custom_html = ""
     field_items = []
     if date_added_display:
-        field_items.append(f'<span class="field-item alb-date-added">adicionado {date_added_display}</span>')
+        field_items.append(f'<span class="field-item alb-date-added">Adicionado em {date_added_display}</span>')
     if fields.get("Origem"):   field_items.append(f'<span class="field-item"><strong>Loja:</strong> {esc(fields["Origem"])}</span>')
     if fields.get("DJ") and fields["DJ"] != "Não":   field_items.append(f'<span class="field-item"><strong>Discotecar:</strong> {esc(fields["DJ"])}</span>')
     if fields.get("PA") and fields["PA"] != "Não":   field_items.append(f'<span class="field-item"><strong>Trocar:</strong> {esc(fields["PA"])}</span>')
-    if fields.get("$"):        field_items.append(f'<span class="field-item"><strong>$:</strong> {esc(fields["$"])}</span>')
-    if fields.get("Recebido?"): field_items.append(f'<span class="field-item"><strong>Recebido:</strong> {esc(fields["Recebido?"])}</span>')
+    if fields.get("$"):        field_items.append(f'<span class="field-item"><strong>R$</strong> {esc(fields["$"])}</span>')
+    if fields.get("Recebido?") == "Não": field_items.append(f'<span class="field-item">Não recebido</span>')
     mc = fields.get("Media Condition",""); sc = fields.get("Sleeve Condition","")
     if mc or sc:
         field_items.append(f'<span class="field-item"><strong>Cond:</strong> {esc(" / ".join(filter(None,[mc,sc])))}</span>')
@@ -2163,7 +2164,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
         edit_form_html = f'''<div class="card-edit-form">
   <div class="cef-grid">
     <span class="cef-label">Loja</span><select class="cef-input" data-field="Origem" data-cur-val="{cur_origem}" size="5"><option value="">—</option>{loja_opt}</select>
-    <span class="cef-label">Pre&#231;o ($)</span><input class="cef-input" data-field="$" type="text" value="{esc((fields.get('$') or '').strip())}" placeholder="ex: 450">
+    <span class="cef-label">Pre&#231;o (R$)</span><input class="cef-input" data-field="$" type="text" value="{esc((fields.get('$') or '').strip())}" placeholder="ex: 450">
     <span class="cef-label">Recebido?</span>{_sel("Recebido?",["Sim","Não"])}
     <span class="cef-label">Discotecar</span>{_sel("DJ",["Sim","Parcial","Não"])}
     <span class="cef-label">Trocar</span>{_sel("PA",["Sim","Em breve","Não"])}
@@ -2212,7 +2213,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
       <div class="alb-tracks-info">{alb_tracks_info}</div>
     </div>
     {btn_group}
-    <button class="toggle-btn" aria-label="expandir">&#8964;</button>
+    <button class="toggle-btn" aria-label="expandir">&#9662;</button>
   </header>
   {edit_form_html}
   <div class="tracks-list collapsed">{tracks_html}</div>
@@ -2642,6 +2643,7 @@ def generate_html(df):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cole&#231;&#227;o do Amsa</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128191;</text></svg>">
 <!-- Open Graph / WhatsApp preview -->
 <meta property="og:type"        content="website">
 <meta property="og:url"         content="{_og_base}/">
@@ -2696,10 +2698,10 @@ def generate_html(df):
     <div class="ctrl-row">
       <input class="ctrl-input" id="q-lp" type="search" placeholder="Buscar artista, &#225;lbum, ano, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-lp" onchange="filterLP()">
-        <option value="added-desc">Adicionado &#8595;</option>
-        <option value="added-asc">Adicionado &#8593;</option>
-        <option value="year-desc">Ano &#8595;</option>
-        <option value="year-asc">Ano &#8593;</option>
+        <option value="added-desc">Adicionado &#9662;</option>
+        <option value="added-asc">Adicionado &#9652;</option>
+        <option value="year-desc">Ano &#9662;</option>
+        <option value="year-asc">Ano &#9652;</option>
         <option value="" selected>Artista A&#8594;Z</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">&#9881; Filtros &#9662;</button>
@@ -2721,11 +2723,11 @@ def generate_html(df):
     <div class="ctrl-row">
       <input class="ctrl-input" id="q-faixas" type="search" placeholder="Buscar artista, &#225;lbum, ano, faixa, selo ou g&#234;nero...">
       <select class="ctrl-sel" id="sort-faixas" onchange="filterTracks()">
-        <option value="year-desc">Ano &#8595;</option>
-        <option value="year-asc">Ano &#8593;</option>
+        <option value="year-desc">Ano &#9662;</option>
+        <option value="year-asc">Ano &#9652;</option>
         <option value="az">Artista A&#8594;Z</option>
-        <option value="bpm-asc" selected>BPM crescente</option>
-        <option value="bpm-desc">BPM decrescente</option>
+        <option value="bpm-asc" selected>BPM &#9652;</option>
+        <option value="bpm-desc">BPM &#9662;</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">&#9881; Filtros &#9662;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
