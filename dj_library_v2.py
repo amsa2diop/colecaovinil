@@ -1818,6 +1818,8 @@ document.getElementById('cnt-faixas').textContent=document.querySelectorAll('#gr
 // ── DISCOGS EDIT MODE ─────────────────────────────────────────────────────────
 var editMode=false;
 function _dcfg(){try{return JSON.parse(localStorage.getItem('discogs_cfg')||'{}')}catch(e){return{}}}
+// Apaga overrides locais legados — Discogs é a fonte da verdade
+localStorage.removeItem('discogs_edits');
 function _dSave(o){localStorage.setItem('discogs_cfg',JSON.stringify(o))}
 
 var DISCOGS_OWNER='amsa2diop';
@@ -2020,12 +2022,7 @@ function switchEditCopy(form,instId,card){
   var insts=[];
   try{insts=JSON.parse(form.dataset.instances||'[]');}catch(e){}
   var inst=insts.find(function(x){return x.instance_id===instId;})||{};
-  var stored={};
-  try{
-    var all=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
-    stored=all[(card||form.closest('.album-card')).dataset.releaseId+'#'+instId]||{};
-  }catch(e){}
-  var vals=Object.assign({},inst,stored);
+  var vals=Object.assign({},inst);
   form.querySelectorAll('.cef-input').forEach(function(inp){
     var f=inp.dataset.field;
     if(!(f in vals))return;
@@ -2081,42 +2078,11 @@ async function saveCardEdit(card){
     var vals2={};
     form.querySelectorAll('.cef-input').forEach(function(inp){vals2[inp.dataset.field]=inp.value.trim();});
     refreshCardDisplayedFields(card,vals2,inst);
-    storeLocalOverride(rid,vals2,inst);
     setTimeout(function(){closeCardEdit(card);},900);
   }
 }
 
-function storeLocalOverride(rid,vals,instId){
-  var all=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
-  var key=instId?rid+'#'+instId:rid;
-  all[key]=Object.assign(all[key]||{},vals);
-  localStorage.setItem('discogs_edits',JSON.stringify(all));
-}
-
-function applyLocalOverrides(){
-  var all=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
-  Object.keys(all).forEach(function(key){
-    var parts=key.split('#');
-    var rid=parts[0]; var instId=parts[1]||null;
-    var card=document.querySelector('[data-release-id="'+rid+'"]');
-    if(!card)return;
-    var vals=all[key];
-    refreshCardDisplayedFields(card,vals,instId);
-    var form=card.querySelector('.card-edit-form');
-    if(form){
-      var formInst=form.dataset.editingInstance||card.dataset.instanceId;
-      if(!instId||instId===formInst){
-        Object.keys(vals).forEach(function(field){
-          var inp=form.querySelector('[data-field="'+field+'"]');
-          if(!inp)return;
-          inp.value=vals[field];
-          if(inp.tagName==='SELECT')inp.dataset.curVal=vals[field];
-        });
-      }
-    }
-  });
-}
-document.addEventListener('DOMContentLoaded',applyLocalOverrides);
+// localStorage overrides removed — edits go directly to Discogs, HTML is source of truth after sync
 
 function refreshCardDisplayedFields(card,vals,instId){
   // Find the right container: specific copy row, or the card itself
