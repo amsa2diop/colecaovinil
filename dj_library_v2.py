@@ -1157,18 +1157,12 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   cursor:pointer;opacity:.75;transition:opacity .15s;line-height:1;
   flex-shrink:0;padding:.2rem .1rem}
 .story-close:hover{opacity:1}
-/* Content area: fills remaining space, centers image */
+/* Content area: fills remaining space, click left/right to navigate */
 .story-content{flex:1;display:flex;align-items:center;justify-content:center;
-  gap:1rem;padding:0 8px 16px;min-height:0}
-.story-nav-btn{background:rgba(255,255,255,.14);backdrop-filter:blur(4px);
-  border:none;color:#fff;font-size:1.1rem;width:38px;height:38px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:background .15s;flex-shrink:0}
-.story-nav-btn:hover{background:rgba(255,255,255,.28)}
-.story-nav-btn:disabled{opacity:.12;pointer-events:none}
+  padding:0 0 16px;min-height:0;cursor:pointer;user-select:none}
 #story-media{display:flex;align-items:center;justify-content:center;
-  min-height:0;overflow:hidden}
-.story-media-el{max-height:calc(100vh - 80px);max-width:calc(100vw - 100px);
+  min-height:0;overflow:hidden;pointer-events:none}
+.story-media-el{max-height:calc(100vh - 80px);max-width:100vw;
   border-radius:12px;object-fit:contain;
   box-shadow:0 20px 60px rgba(0,0,0,.6);display:block}
 
@@ -2006,10 +2000,6 @@ function _showStory(idx){
     mediaWrap.appendChild(img);
   }
   overlay.classList.add('open');
-  var prev=document.getElementById('story-prev-btn');
-  var next=document.getElementById('story-next-btn');
-  if(prev)prev.disabled=(_storyIdx===0);
-  if(next)next.disabled=(_storyIdx===STORY_IMAGES.length-1);
   var barsEl=document.getElementById('story-bars');
   if(barsEl&&STORY_IMAGES.length>1){
     barsEl.innerHTML=STORY_IMAGES.map(function(_,i){
@@ -2027,6 +2017,10 @@ function _closeStory(){
   overlay.classList.remove('open');
   var mediaWrap=document.getElementById('story-media');
   if(mediaWrap)mediaWrap.innerHTML=''; // stop video playback
+}
+function _storyTapNav(e){
+  if(e.clientX<window.innerWidth/2)_showStory(_storyIdx-1);
+  else _showStory(_storyIdx+1);
 }
 document.addEventListener('keydown',function(e){
   var o=document.getElementById('story-overlay');
@@ -2818,8 +2812,12 @@ def generate_html(df):
     # ── Stories ───────────────────────────────────────────────────────────────
     stories_dir = WORK_DIR / "stories"
     _story_exts = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.mp4', '.webm', '.mov'}
+    def _story_sort_key(name):
+        m = re.search(r'(\d+)', name)
+        return (int(m.group(1)), name) if m else (99999, name)
     story_images = sorted(
-        [f"stories/{f.name}" for f in stories_dir.iterdir() if f.suffix.lower() in _story_exts]
+        [f"stories/{f.name}" for f in stories_dir.iterdir() if f.suffix.lower() in _story_exts],
+        key=lambda p: _story_sort_key(p)
     ) if stories_dir.exists() else []
     story_json = json.dumps(story_images)
 
@@ -2863,15 +2861,13 @@ def generate_html(df):
 </div>
 
 <!-- ═══ STORY LIGHTBOX ═══ -->
-<div class="story-overlay" id="story-overlay" onclick="if(event.target===this||event.target.id==='story-content')_closeStory()">
-  <div class="story-topbar">
+<div class="story-overlay" id="story-overlay" onclick="_closeStory()">
+  <div class="story-topbar" onclick="event.stopPropagation()">
     <div id="story-bars" class="story-bars"></div>
     <button class="story-close" onclick="_closeStory()">&#10005;</button>
   </div>
-  <div class="story-content" id="story-content">
-    <button class="story-nav-btn" id="story-prev-btn" onclick="_showStory(_storyIdx-1)">&#9664;</button>
+  <div class="story-content" id="story-content" onclick="event.stopPropagation();_storyTapNav(event)">
     <div id="story-media"></div>
-    <button class="story-nav-btn" id="story-next-btn" onclick="_showStory(_storyIdx+1)">&#9654;</button>
   </div>
 </div>
 
