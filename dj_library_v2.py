@@ -1137,29 +1137,40 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   background:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.18)}
 
 /* STORY LIGHTBOX */
-.story-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);
+.story-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);
   backdrop-filter:blur(14px);z-index:9500;
-  display:flex;align-items:center;justify-content:center;
+  display:flex;flex-direction:column;
   opacity:0;pointer-events:none;transition:opacity .25s}
 .story-overlay.open{opacity:1;pointer-events:all}
-.story-box{position:relative;display:flex;align-items:center;gap:1rem}
-.story-close{position:absolute;top:-42px;right:0;background:none;border:none;
-  color:#fff;font-size:1.5rem;cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1}
+/* Top bar: always fixed at top */
+.story-topbar{display:flex;align-items:center;gap:.5rem;
+  padding:14px 16px 10px;flex-shrink:0}
+.story-bars{flex:1;display:flex;gap:3px}
+.story-bar{height:3px;flex:1;background:rgba(255,255,255,.28);border-radius:2px;
+  overflow:hidden;cursor:pointer}
+.story-bar:hover{background:rgba(255,255,255,.45)}
+.story-bar-fill{height:100%;background:#fff;width:0;pointer-events:none}
+.story-bar-fill.done{width:100%}
+.story-bar-fill.playing{animation:sbf 5s linear forwards}
+@keyframes sbf{from{width:0}to{width:100%}}
+.story-close{background:none;border:none;color:#fff;font-size:1.4rem;
+  cursor:pointer;opacity:.75;transition:opacity .15s;line-height:1;
+  flex-shrink:0;padding:.2rem .1rem}
 .story-close:hover{opacity:1}
-.story-media-el{max-height:88vh;max-width:78vw;border-radius:12px;
-  object-fit:contain;box-shadow:0 20px 60px rgba(0,0,0,.6);display:block}
+/* Content area: fills remaining space, centers image */
+.story-content{flex:1;display:flex;align-items:center;justify-content:center;
+  gap:1rem;padding:0 8px 16px;min-height:0}
 .story-nav-btn{background:rgba(255,255,255,.14);backdrop-filter:blur(4px);
   border:none;color:#fff;font-size:1.1rem;width:38px;height:38px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;transition:background .15s;flex-shrink:0}
 .story-nav-btn:hover{background:rgba(255,255,255,.28)}
 .story-nav-btn:disabled{opacity:.12;pointer-events:none}
-.story-bars{position:absolute;top:-12px;left:0;right:0;display:flex;gap:3px}
-.story-bar{height:2px;flex:1;background:rgba(255,255,255,.28);border-radius:1px;overflow:hidden}
-.story-bar-fill{height:100%;background:#fff;width:0}
-.story-bar-fill.done{width:100%}
-.story-bar-fill.playing{animation:sbf 5s linear forwards}
-@keyframes sbf{from{width:0}to{width:100%}}
+#story-media{display:flex;align-items:center;justify-content:center;
+  min-height:0;overflow:hidden}
+.story-media-el{max-height:calc(100vh - 80px);max-width:calc(100vw - 100px);
+  border-radius:12px;object-fit:contain;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);display:block}
 
 /* CUSTOM LOJA DROPDOWN */
 .cef-sel-wrap{position:relative;width:100%}
@@ -1945,11 +1956,14 @@ function refreshCardDisplayedFields(card,vals){
     var dateSpan=pRow.querySelector('.alb-date-added');
     var dateHtml=dateSpan?dateSpan.outerHTML:'';
     var pItems=[];
-    if(vals['Origem'])  pItems.push('<span class="field-item">'+vals['Origem']+'</span>');
-    if(vals['DJ']==='Sim') pItems.push('<span class="field-item">Para discotecar</span>');
-    else if(vals['DJ']==='Parcial') pItems.push('<span class="field-item">Discotecar parcialmente</span>');
-    if(vals['PA']==='Sim') pItems.push('<span class="field-item">Para trocar</span>');
-    else if(vals['PA']==='Em breve') pItems.push('<span class="field-item">Trocar em breve</span>');
+    var _orig=('Origem' in vals)?vals['Origem']:(card.dataset.origem||'');
+    if(_orig) pItems.push('<span class="field-item">'+_orig+'</span>');
+    var _dj=('DJ' in vals)?vals['DJ']:card.dataset.dj||'';
+    if(_dj==='Sim') pItems.push('<span class="field-item">Para discotecar</span>');
+    else if(_dj==='Parcial') pItems.push('<span class="field-item">Discotecar parcialmente</span>');
+    var _pa=('PA' in vals)?vals['PA']:card.dataset.pa||'';
+    if(_pa==='Sim') pItems.push('<span class="field-item">Para trocar</span>');
+    else if(_pa==='Em breve') pItems.push('<span class="field-item">Trocar em breve</span>');
     pRow.innerHTML=dateHtml+pItems.join('');
   }
   // Secondary row (R$, recebido)
@@ -2000,7 +2014,7 @@ function _showStory(idx){
   if(barsEl&&STORY_IMAGES.length>1){
     barsEl.innerHTML=STORY_IMAGES.map(function(_,i){
       var cls=i<_storyIdx?'done':i===_storyIdx?'playing':'';
-      return '<div class="story-bar"><div class="story-bar-fill '+cls+'"></div></div>';
+      return '<div class="story-bar" onclick="event.stopPropagation();_showStory('+i+')"><div class="story-bar-fill '+cls+'"></div></div>';
     }).join('');
     if(_storyIdx<STORY_IMAGES.length-1&&!isVideo){
       _storyTmr=setTimeout(function(){_showStory(_storyIdx+1);},5000);
@@ -2313,7 +2327,7 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     if n_bpm > 0:  _tinfo.append(f"{n_bpm} com BPM")
     if n_preview > 0: _tinfo.append(f"{n_preview} com pr&#233;via")
     alb_tracks_info = " &middot; ".join(_tinfo)
-    origem_val = (fields.get("Origem") or "").strip().lower()
+    origem_val = (fields.get("Origem") or "").strip()
     country_key = country.strip().lower()
 
     # ── Inline edit form (only rendered when instance_id available) ─────────
@@ -2406,7 +2420,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     if any(kw in artist_lower for kw in ["various", "v.a.", "variados", "aa.vv."]):
         fmt_is_compil = "1"
     country_key = (country or "").strip().lower()
-    origem_val  = (origem or "").strip().lower()
+    origem_val  = (origem or "").strip()
     year_int    = int(row["year"]) if safe_float(row.get("year")) else 0
     decade_key  = _decade(year_int)
     genre_style_s = _genre_style(genres_s, styles_s, limit=4)
@@ -2849,10 +2863,12 @@ def generate_html(df):
 </div>
 
 <!-- ═══ STORY LIGHTBOX ═══ -->
-<div class="story-overlay" id="story-overlay" onclick="if(event.target===this)_closeStory()">
-  <div class="story-box">
-    <button class="story-close" onclick="_closeStory()">&#10005;</button>
+<div class="story-overlay" id="story-overlay" onclick="if(event.target===this||event.target.id==='story-content')_closeStory()">
+  <div class="story-topbar">
     <div id="story-bars" class="story-bars"></div>
+    <button class="story-close" onclick="_closeStory()">&#10005;</button>
+  </div>
+  <div class="story-content" id="story-content">
     <button class="story-nav-btn" id="story-prev-btn" onclick="_showStory(_storyIdx-1)">&#9664;</button>
     <div id="story-media"></div>
     <button class="story-nav-btn" id="story-next-btn" onclick="_showStory(_storyIdx+1)">&#9654;</button>
