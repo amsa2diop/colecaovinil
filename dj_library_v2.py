@@ -6,6 +6,7 @@ gera XLSX e HTML interativo com views por LP e por Faixas.
 """
 
 import sys, os, re, time, html as html_module, math, threading, webbrowser
+from datetime import datetime, timezone
 import http.server, urllib.parse
 from pathlib import Path
 
@@ -1380,6 +1381,10 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* Edit button on card + sync button — hidden until edit mode */
 body:not(.edit-mode) .cef-edit-btn{display:none}
+.cef-edit-btn{position:relative}
+.cef-edit-btn[data-pending]::after{content:'';display:block;width:7px;height:7px;
+  border-radius:50%;position:absolute;top:1px;right:1px;background:#3498db}
+.cef-edit-btn[data-pending="warn"]::after{background:#e67e22}
 body:not(.edit-mode) .sync-btn{display:none}
 /* Sync toast notifications */
 .sync-toasts-container{position:fixed;bottom:1.2rem;right:1.2rem;z-index:9999;
@@ -1818,8 +1823,6 @@ document.getElementById('cnt-faixas').textContent=document.querySelectorAll('#gr
 // ── DISCOGS EDIT MODE ─────────────────────────────────────────────────────────
 var editMode=false;
 function _dcfg(){try{return JSON.parse(localStorage.getItem('discogs_cfg')||'{}')}catch(e){return{}}}
-// Apaga overrides locais legados — Discogs é a fonte da verdade
-localStorage.removeItem('discogs_edits');
 function _dSave(o){localStorage.setItem('discogs_cfg',JSON.stringify(o))}
 
 var DISCOGS_OWNER='amsa2diop';
@@ -2022,7 +2025,11 @@ function switchEditCopy(form,instId,card){
   var insts=[];
   try{insts=JSON.parse(form.dataset.instances||'[]');}catch(e){}
   var inst=insts.find(function(x){return x.instance_id===instId;})||{};
-  var vals=Object.assign({},inst);
+  var stored={};
+  try{var _a=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
+      stored=_a[(card||form.closest('.album-card')).dataset.releaseId+'#'+instId]||{};}catch(e){}
+  delete stored._savedAt;
+  var vals=Object.assign({},inst,stored);
   form.querySelectorAll('.cef-input').forEach(function(inp){
     var f=inp.dataset.field;
     if(!(f in vals))return;
@@ -2078,11 +2085,58 @@ async function saveCardEdit(card){
     var vals2={};
     form.querySelectorAll('.cef-input').forEach(function(inp){vals2[inp.dataset.field]=inp.value.trim();});
     refreshCardDisplayedFields(card,vals2,inst);
+    storeLocalOverride(rid,vals2,inst);
     setTimeout(function(){closeCardEdit(card);},900);
   }
 }
 
-// localStorage overrides removed — edits go directly to Discogs, HTML is source of truth after sync
+function storeLocalOverride(rid,vals,instId){
+  var all=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
+  var key=instId?rid+'#'+instId:rid;
+  var entry=Object.assign({},vals,{_savedAt:Date.now()});
+  all[key]=entry;
+  localStorage.setItem('discogs_edits',JSON.stringify(all));
+}
+
+function applyLocalOverrides(){
+  var syncMeta=document.querySelector('meta[name="sync-time"]');
+  var syncTime=syncMeta?new Date(syncMeta.content).getTime():0;
+  var all=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
+  var changed=false;var discrepant=0;
+  Object.keys(all).forEach(function(key){
+    var parts=key.split('#');var rid=parts[0];var instId=parts[1]||null;
+    var card=document.querySelector('[data-release-id="'+rid+'"]');
+    if(!card){delete all[key];changed=true;return;}
+    var entry=all[key];var savedAt=entry._savedAt||0;
+    var vals=Object.assign({},entry);delete vals._savedAt;
+    // Compare with Discogs values baked into HTML (data-instances on the form)
+    var form=card.querySelector('.card-edit-form');
+    var insts=[];try{insts=JSON.parse((form&&form.dataset.instances)||'[]');}catch(e){}
+    var iid=instId||card.dataset.instanceId||'';
+    var discogsVals=insts.find(function(x){return x.instance_id===iid;})||insts[0]||{};
+    var diffFields=Object.keys(vals).filter(function(f){
+      return vals[f]!==(discogsVals[f]||'');
+    });
+    if(diffFields.length===0){
+      delete all[key];changed=true;return; // already synced — clear entry
+    }
+    // Apply override so user sees their pending edit
+    refreshCardDisplayedFields(card,vals,instId);
+    var editBtn=card.querySelector('.cef-edit-btn');
+    // Discrepancy: sync ran AFTER the edit was saved but value didn't appear in HTML
+    if(syncTime>0&&savedAt>0&&syncTime>savedAt){
+      discrepant++;
+      if(editBtn)editBtn.dataset.pending='warn';
+    }else{
+      if(editBtn)editBtn.dataset.pending='1';
+    }
+  });
+  if(changed)localStorage.setItem('discogs_edits',JSON.stringify(all));
+  if(discrepant>0){
+    showSyncToast('&#x26A0; '+discrepant+' edi&#231;&#227;o(&#245;es) n&#227;o confirmada(s) no Discogs ap&#243;s o &#250;ltimo sync &mdash; verifique','error');
+  }
+}
+document.addEventListener('DOMContentLoaded',applyLocalOverrides);
 
 function refreshCardDisplayedFields(card,vals,instId){
   // Find the right container: specific copy row, or the card itself
@@ -3061,6 +3115,7 @@ def generate_html(df):
 <meta property="og:image:height" content="1200">
 <meta name="twitter:card"       content="summary_large_image">
 <meta name="twitter:image"      content="{_og_base}/preview.jpg">
+<meta name="sync-time"          content="{datetime.now(timezone.utc).isoformat()}">
 <style>{CSS}</style>
 </head>
 <body>
