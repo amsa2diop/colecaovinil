@@ -1,4 +1,4 @@
-release_id,instance_id,date_added,album_title,album_artist,year,Origem,PA,DJ,$,Notas,Recebido?
+release_id,instance_id,date_added,album_title,album_artist,year,Origem,$,Recebido?,PA,DJ,Notas
 8270177,2025747891,2025-05-23T21:20:02-07:00,The Art Of Marvin Gaye,Marvin Gaye,1984,Outros,,,,,
 9567533,2025748909,2025-05-23T21:28:54-07:00,Quartetos de Cordas Nº 1 E 5,Quarteto Bessler-Reis,1980,,,,,,
 1164596,2026597244,2025-05-26T07:51:38-07:00,Bem-Vinda Amizade,Jorge Ben,1981,,,,,,
@@ -46,7 +46,7 @@ release_id,instance_id,date_added,album_title,album_artist,year,Origem,PA,DJ,$,N
 34512307,2043201537,2025-07-20T17:42:24-07:00,Arthur Verocai,Arthur Verocai,2025,,,,,,
 26284916,2043201666,2025-07-20T17:43:05-07:00,"Não Chore Mais = No Woman, No Cry",Gilberto Gil,1979,,,,,,
 34607353,2045616338,2025-07-28T13:17:55-07:00,Refazenda,Gilberto Gil,2025,,,,,,
-153378,2045998907,2025-07-29T18:24:07-07:00,The Anthology,A Tribe Called Quest,1999,,,,,,
+153378,2045998907,2025-07-29T18:24:07-07:00,The Anthology,A Tribe Called Quest,1999,Amazon,100,Sim,,,
 19239142,2047481059,2025-08-03T09:15:19-07:00,The Genius Of Love,Tom Tom Club,1981,,,,,,
 3547218,2047481404,2025-08-03T09:16:14-07:00,Dádiva,Jorge Ben,1983,,,,,,
 3201929,2047481556,2025-08-03T09:16:39-07:00,Bruno Maia,Bruno Maia,1990,,,,,,
@@ -102,17 +102,17 @@ release_id,instance_id,date_added,album_title,album_artist,year,Origem,PA,DJ,$,N
 10639232,2091106161,2025-12-19T06:10:40-08:00,Prelude,Eumir Deodato,1973,,,,,,
 3608764,2091106356,2025-12-19T06:11:31-08:00,Sentimento,MC Polmel,1993,,,,,,
 20706427,2091106497,2025-12-19T06:12:07-08:00,Funk Montagem,Various,1994,,,,,,
-8131475,2091106984,2025-12-19T06:14:07-08:00,The Best Of Sade,Sade,2016,Rio Records,Não,Sim,450,,
-497427,2091117085,2025-12-19T06:52:32-08:00,O Melhor De Tim Maia,Tim Maia,1985,Cristiano,Eventualmente,Parcial,,"Pulando
+8131475,2091106984,2025-12-19T06:14:07-08:00,The Best Of Sade,Sade,2016,Rio Records,450,,Não,Sim,
+497427,2091117085,2025-12-19T06:52:32-08:00,O Melhor De Tim Maia,Tim Maia,1985,Cristiano,,Sim,Eventualmente,Parcial,"Pulando
 
-DJ: 3, 5, 7, 8, 9",Sim
+DJ: 3, 5, 7, 8, 9"
 2250960,2106738390,2026-01-25T16:41:51-08:00,To The Extreme,Vanilla Ice,1990,,,,,,
 2216599,2106738559,2026-01-25T16:42:26-08:00,Lambateria Tropical 2,Various,1989,,,,,,
 1375560,2106738866,2026-01-25T16:43:48-08:00,A Secret Place,"Grover Washington, Jr.",1976,,,,,,
 8562151,2106739017,2026-01-25T16:44:21-08:00,Sounds ... And Stuff Like That!!,Quincy Jones,1978,,,,,,
 424481,2106739286,2026-01-25T16:45:29-08:00,Send Me Your Love,Kashif,1984,,,,,,
 7321156,2106739472,2026-01-25T16:46:15-08:00,Soul Grand Prix ,Various,1976,,,,,,
-5482558,2106739697,2026-01-25T16:47:06-08:00,A Taste Of Honey,A Taste Of Honey,1978,Rio Records,Em breve,Parcial,100,Teste,Sim
+5482558,2106739697,2026-01-25T16:47:06-08:00,A Taste Of Honey,A Taste Of Honey,1978,Rio Records,1006,Sim,Em breve,Parcial,Teste
 35814406,2106740118,2026-01-25T16:48:46-08:00,Travessia,Milton Nascimento,2025,,,,,,
 34768091,2106740570,2026-01-25T16:50:31-08:00,Síntese Do Lance,João Donato,2025,,,,,,
 35700658,2106740767,2026-01-25T16:51:16-08:00,Robson Jorge & Lincoln Olivetti,Lincoln Olivetti & Robson Jorge,2025,,,,,,
@@ -237,10 +237,10 @@ DJ: 3, 5, 7, 8, 9",Sim
 5476808,2141534927,2026-05-02T19:12:24-07:00,Volume 9 ,Los Tropicanos,1973,,,,,,
 2659170,2141535265,2026-05-02T19:14:14-07:00,Non-Stop,Julio Iglesias,1988,,,,,,
 37197222,2141535576,2026-05-02T19:15:56-07:00,Deekapz Fm,Deekapz,2025,Outros,,,,,
-1883192,2141535751,2026-05-02T19:16:59-07:00,Mais Que Um Momento,Emilio Santiago,1983,Outros,,,,Pandoja,
+1883192,2141535751,2026-05-02T19:16:59-07:00,Mais Que Um Momento,Emilio Santiago,1983,Outros,,,,,Pandoja
 739777,2141536628,2026-05-02T19:21:54-07:00,Breezin',George Benson,1976,,,,,,
 3632878,2141536798,2026-05-02T19:22:53-07:00,Disco De Ouro,Ivan Lins,1977,,,,,,
-11514999,2141537012,2026-05-02T19:23:55-07:00,Back On The Block,Quincy Jones,1989,,,,,Jungle,
+11514999,2141537012,2026-05-02T19:23:55-07:00,Back On The Block,Quincy Jones,1989,,,,,,Jungle
 5620693,2141537355,2026-05-02T19:25:39-07:00,Fool On The Hill,Sérgio Mendes & Brasil '66,1968,,,,,,
 16414551,2141541131,2026-05-02T19:46:58-07:00,Greatest Hits,Diana Ross,0,Magrinho,,,,,
 557964,2141541215,2026-05-02T19:47:25-07:00,The Best Of Commodores,Commodores,1985,,,,,,

@@ -2153,7 +2153,7 @@ def render_track_lp(row):
     sp_btn = ""
     if uri and uri != "nan" and "spotify" in uri:
         sp_tid = uri.split(":")[-1]
-        sp_btn = f'<a class="trk-btn" href="spotify:track:{sp_tid}">Spotify</a>'
+        sp_btn = f'<a class="trk-btn" href="spotify:track:{sp_tid}" style="display:inline-flex;align-items:center;gap:.3rem">{_SVG_SPOTIFY_IC} Spotify</a>'
 
     # Ouvir button (embed trigger)
     ouvir_btn = ""
