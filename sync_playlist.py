@@ -13,7 +13,7 @@ import os, json, sys, time
 from datetime import datetime
 
 WORK_DIR      = Path(__file__).parent
-SP_CLIENT_ID  = "e7d3f94ea0654c199f69e67df2a98c62"
+SP_CLIENT_ID  = "1ab6d898c52d42a19b737f451ce31e2a"
 SP_CLIENT_SEC = "3c8b2f47049b44e2af6937ea835e1f2f"
 PLAYLIST_NAME = "Discos do Amsa"
 PLAYLIST_NAME_OLD = "Meu Discogs — por BPM"  # nome anterior, para migrar automaticamente
