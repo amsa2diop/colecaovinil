@@ -1060,10 +1060,13 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .field-item strong{color:var(--text2);font-weight:600}
 .field-notes{font-size:.65rem;color:var(--text2);font-weight:600;margin-top:.2rem}
 /* Multi-copy rows */
-.copies-meta{display:flex;flex-direction:column;gap:.2rem;margin-top:.4rem}
-.copy-row .fields-row{margin-top:.2rem}
-.copy-label{font-size:.58rem;color:var(--text3);font-weight:700;text-transform:uppercase;
+.copies-meta{display:flex;flex-direction:column;gap:.3rem;margin-top:.45rem}
+.copy-row{padding:.3rem .45rem;border-radius:6px;background:rgba(0,0,0,.03)}
+.copy-row .fields-row{margin-top:.18rem}
+.copy-label{font-size:.58rem;color:var(--text2);font-weight:700;text-transform:uppercase;
   letter-spacing:.06em;white-space:nowrap}
+.copy-row .field-item{font-size:.65rem;color:var(--text3)}
+.copy-row .alb-date-added{opacity:1;font-size:.65rem;color:var(--text3)}
 /* Edit form copy picker */
 .cef-copy-sel{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;padding-bottom:.4rem;border-bottom:1px solid var(--bdr2)}
 .cef-copy-pick{background:var(--cef-inp-bg,#e9e5de);border:1px solid var(--bdr);
@@ -1226,7 +1229,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .cover-ph{width:90px;height:90px;border-radius:var(--r-sm);background:var(--bg2);
   display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:1.8rem}
 .album-info{flex:1;min-width:0}
-.alb-artist{font-weight:600;font-size:.94rem;color:var(--text)}
+.alb-artist{font-weight:600;font-size:.94rem;color:var(--text);display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
 .alb-title{color:var(--text2);font-size:.81rem;margin-top:.1rem;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .alb-meta{font-size:.67rem;color:var(--text3);margin-top:.3rem;
@@ -1378,6 +1381,24 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 /* Edit button on card + sync button — hidden until edit mode */
 body:not(.edit-mode) .cef-edit-btn{display:none}
 body:not(.edit-mode) .sync-btn{display:none}
+/* Sync toast notifications */
+.sync-toasts-container{position:fixed;bottom:1.2rem;right:1.2rem;z-index:9999;
+  display:flex;flex-direction:column;gap:.5rem;max-width:290px;pointer-events:none}
+.sync-toast{background:var(--bg,#fff);border:1px solid var(--bdr,#ddd);border-radius:10px;
+  padding:.6rem .75rem .6rem .85rem;font-size:.72rem;color:var(--text,#111);
+  display:flex;align-items:flex-start;gap:.5rem;
+  box-shadow:0 4px 16px rgba(0,0,0,.15);pointer-events:auto;
+  animation:toast-in .22s ease}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.sync-toast.success{border-left:3px solid #2a7a2a}
+.sync-toast.error{border-left:3px solid #c0392b}
+.sync-toast.info{border-left:3px solid var(--acc,#666)}
+.sync-toast-msg{flex:1;line-height:1.45}
+.sync-toast-time{font-size:.62rem;color:var(--text3,#999);display:block;margin-top:.15rem}
+.sync-toast-close{background:none;border:none;cursor:pointer;color:var(--text3,#999);
+  font-size:.85rem;padding:0 .1rem;line-height:1;margin-left:.1rem;flex-shrink:0;
+  transition:color .15s}
+.sync-toast-close:hover{color:var(--text,#111)}
 /* Inline edit form */
 .card-edit-form{display:none;padding:.6rem 1rem .8rem;border-top:1px solid var(--bdr2);
   background:var(--tracks-bg,rgba(245,242,237,.92));color:var(--text,#111)}
@@ -1874,6 +1895,26 @@ async function connectDiscogs(){
   }catch(e){st.innerHTML='<span style="color:#c0392b">✗ '+e.message+'</span>';}
 }
 
+function showSyncToast(msg,type){
+  var container=document.getElementById('sync-toasts');
+  if(!container){
+    container=document.createElement('div');
+    container.id='sync-toasts';
+    container.className='sync-toasts-container';
+    document.body.appendChild(container);
+  }
+  var now=new Date();
+  var timeStr=now.toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',
+    hour:'2-digit',minute:'2-digit'}).replace(',','');
+  var toast=document.createElement('div');
+  toast.className='sync-toast'+(type?' '+type:'');
+  toast.innerHTML='<span class="sync-toast-msg">'+msg
+    +'<span class="sync-toast-time">'+timeStr+'</span></span>'
+    +'<button class="sync-toast-close" onclick="this.closest(\'.sync-toast\').remove()" '
+    +'title="Fechar">&#x2715;</button>';
+  container.appendChild(toast);
+}
+
 async function triggerSync(btn){
   var cfg=_dcfg();
   if(!cfg.ghToken){
@@ -1891,14 +1932,13 @@ async function triggerSync(btn){
                 'Content-Type':'application/json'},
        body:JSON.stringify({ref:'master'})});
     if(res.status===204||res.ok){
-      btn.style.color='#2a7a2a';btn.title='Sync iniciado! (~2 min)';
+      showSyncToast('&#8635; Sync iniciado — atualiza&#231;&#227;o em ~2 min','info');
     }else{
       var err=await res.json().catch(function(){return{};});
-      btn.style.color='#c0392b';btn.title='Erro: '+(err.message||res.status);
+      showSyncToast('&#x26A0; Erro ao sincronizar: '+(err.message||'status '+res.status),'error');
     }
-  }catch(e){btn.style.color='#c0392b';btn.title='Erro: '+e.message;}
+  }catch(e){showSyncToast('&#x26A0; Erro: '+e.message,'error');}
   btn.classList.remove('syncing');btn.disabled=false;
-  setTimeout(function(){btn.style.color='';btn.title='Sincronizar agora';},5000);
 }
 
 function openCardEdit(card){
