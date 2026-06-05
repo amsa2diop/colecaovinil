@@ -1,9 +1,9 @@
-name: Sync semanal Discogs → GitHub Pages
+name: Sync diário Discogs → GitHub Pages
 
 on:
   schedule:
-    # Toda segunda-feira às 06:00 UTC (03:00 BRT)
-    - cron: '0 6 * * 1'
+    # Diariamente às 06:00 UTC (03:00 BRT)
+    - cron: '0 6 * * *'
   workflow_dispatch:   # permite rodar manualmente pela aba Actions
 
 jobs:
@@ -24,10 +24,17 @@ jobs:
 
       - name: Instalar dependências
         run: |
-          pip install requests pandas openpyxl thefuzz python-Levenshtein unidecode
+          pip install requests pandas openpyxl thefuzz python-Levenshtein unidecode spotipy
 
       - name: Atualizar campos da coleção Discogs
         run: python fetch_discogs_fields.py
+
+      - name: Sincronizar playlist Spotify
+        if: ${{ secrets.SPOTIFY_REFRESH_TOKEN != '' }}
+        env:
+          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+        run: python sync_playlist.py
+        continue-on-error: true
 
       - name: Regenerar HTML + XLSX
         run: python regen_html.py
@@ -36,7 +43,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html MinhaColecao_DJ.html MinhaColecao_DJ.xlsx backup_collection_fields.csv
+          git add index.html MinhaColecao_DJ.html MinhaColecao_DJ.xlsx backup_collection_fields.csv backup_playlist.txt
           git diff --cached --quiet && echo "Nada mudou." || \
-            git commit -m "chore: sync automático Discogs $(date +'%Y-%m-%d')"
+            git commit -m "chore: sync automático $(date +'%Y-%m-%d')"
           git push

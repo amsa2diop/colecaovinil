@@ -1004,9 +1004,9 @@ def create_playlist(sp, df):
         sp.playlist_add_items(pid, chunk); time.sleep(0.3)
         print(f"\r  Lote {i+1}/{len(chunks)}", end="", flush=True)
     print(f"\n✓ Playlist criada com {len(uris)} faixas")
-    pl_url = f"https://open.spotify.com/playlist/{pid}"
-    (WORK_DIR / "backup_playlist.txt").write_text(pl_url, encoding="utf-8")
-    print(f"  {pl_url}")
+    pl_uri = f"spotify:playlist:{pid}"
+    (WORK_DIR / "backup_playlist.txt").write_text(pl_uri, encoding="utf-8")
+    print(f"  {pl_uri}")
 
 
 # ==============================================================================
@@ -1357,6 +1357,14 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   transition:background .15s,color .15s,border-color .15s;color:var(--text3)}
 .pencil-mode-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
 .pencil-mode-btn.active{background:#e2e2e2;border-color:#999;color:#333;font-weight:600}
+.sync-btn{width:34px;height:34px;border-radius:20px;
+  border:1px solid var(--bdr);background:var(--bg2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1rem;flex-shrink:0;
+  transition:background .15s,color .15s,border-color .15s;color:var(--text3)}
+.sync-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+.sync-btn.syncing{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 /* Edit button on card — styled same as Discogs/Spotify btn-card, hidden until edit mode */
 body:not(.edit-mode) .cef-edit-btn{display:none}
 /* Inline edit form */
@@ -1405,6 +1413,12 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
 .setup-btn-connect:hover{background:#333}
 .setup-btn-cancel{background:transparent;border:1px solid var(--bdr);color:var(--text3);
   padding:.4rem .9rem;border-radius:7px;font-size:.8rem;cursor:pointer}
+.setup-divider{border:none;border-top:1px solid var(--bdr2);margin:1rem 0 .4rem}
+/* Site credits footer */
+.site-credits{text-align:center;padding:.8rem 1rem 1.2rem;font-size:.6rem;
+  color:var(--text3);border-top:1px solid var(--bdr2);margin-top:1.5rem}
+.site-credits a{color:var(--text3);text-decoration:none}
+.site-credits a:hover{color:var(--acc)}
 """
 
 JS = r"""
@@ -1801,15 +1815,23 @@ function openSetupModal(){
   var cfg=_dcfg();
   var m=document.getElementById('setup-modal');
   if(cfg.token) document.getElementById('setup-token').value=cfg.token;
+  if(cfg.ghToken) document.getElementById('setup-ghtoken').value=cfg.ghToken;
   m.classList.add('open');
 }
 function closeSetupModal(){document.getElementById('setup-modal').classList.remove('open');}
 
 async function connectDiscogs(){
   var token=document.getElementById('setup-token').value.trim();
+  var ghToken=document.getElementById('setup-ghtoken').value.trim();
   var folder='1';
   var st=document.getElementById('setup-status');
-  if(!token){st.textContent='Insira o token pessoal do Discogs.';return;}
+  var cfg=_dcfg();
+  if(ghToken) cfg.ghToken=ghToken;
+  if(!token){
+    if(ghToken){_dSave(cfg);st.innerHTML='<span style="color:#2a7a2a">✓ Token GitHub salvo.</span>';setTimeout(closeSetupModal,900);}
+    else{st.textContent='Insira o token pessoal do Discogs.';}
+    return;
+  }
   st.textContent='Verificando token…';
   var h={'Authorization':'Discogs token='+token,'User-Agent':'ColecaoDoAmsa/1.0'};
   try{
@@ -1825,7 +1847,8 @@ async function connectDiscogs(){
         fieldOptions[f.name]=f.options.map(function(o){return typeof o==='string'?o:(o.value||String(o));});
       }
     });
-    _dSave({token:token,folder:folder,fieldIds:ids,fieldOptions:fieldOptions});
+    cfg.token=token;cfg.folder=folder;cfg.fieldIds=ids;cfg.fieldOptions=fieldOptions;
+    _dSave(cfg);
     st.innerHTML='<span style="color:#2a7a2a">✓ Token válido! Campos: '+Object.keys(ids).join(', ')+'</span>';
     setTimeout(function(){
       closeSetupModal();
@@ -1834,6 +1857,33 @@ async function connectDiscogs(){
       document.querySelectorAll('.pencil-mode-btn').forEach(function(b){b.classList.add('active');});
     },1200);
   }catch(e){st.innerHTML='<span style="color:#c0392b">✗ '+e.message+'</span>';}
+}
+
+async function triggerSync(btn){
+  var cfg=_dcfg();
+  if(!cfg.ghToken){
+    openSetupModal();
+    document.getElementById('setup-status').textContent='Insira o token GitHub para usar o sync.';
+    return;
+  }
+  btn.classList.add('syncing');btn.disabled=true;
+  try{
+    var res=await fetch(
+      'https://api.github.com/repos/amsa2diop/colecaovinil/actions/workflows/weekly_sync.yml/dispatches',
+      {method:'POST',
+       headers:{'Authorization':'Bearer '+cfg.ghToken,
+                'Accept':'application/vnd.github+json',
+                'Content-Type':'application/json'},
+       body:JSON.stringify({ref:'master'})});
+    if(res.status===204||res.ok){
+      btn.style.color='#2a7a2a';btn.title='Sync iniciado! (~2 min)';
+    }else{
+      var err=await res.json().catch(function(){return{};});
+      btn.style.color='#c0392b';btn.title='Erro: '+(err.message||res.status);
+    }
+  }catch(e){btn.style.color='#c0392b';btn.title='Erro: '+e.message;}
+  btn.classList.remove('syncing');btn.disabled=false;
+  setTimeout(function(){btn.style.color='';btn.title='Sincronizar agora';},5000);
 }
 
 function openCardEdit(card){
@@ -2852,13 +2902,17 @@ def generate_html(df):
 <!-- ═══ SETUP MODAL ═══ -->
 <div class="setup-overlay" id="setup-modal">
   <div class="setup-box">
-    <h3>&#9998; Modo de edi&#231;&#227;o</h3>
+    <h3>&#9998; Configura&#231;&#245;es</h3>
     <label>Token pessoal Discogs</label>
     <input class="setup-input" id="setup-token" type="password" placeholder="Cole o token aqui..." autocomplete="off">
     <p style="font-size:.68rem;color:var(--text3);margin-top:.3rem">Lembre o token em <a href="https://www.discogs.com/settings/developers" target="_blank" style="color:var(--acc)">discogs.com/settings/developers</a></p>
+    <hr class="setup-divider">
+    <label>Token GitHub <span style="font-weight:400;opacity:.7">(para bot&#227;o de sync)</span></label>
+    <input class="setup-input" id="setup-ghtoken" type="password" placeholder="ghp_..." autocomplete="off">
+    <p style="font-size:.68rem;color:var(--text3);margin-top:.3rem">Gere em <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--acc)">github.com/settings/tokens</a> com permiss&#227;o <strong>workflow</strong></p>
     <div id="setup-status"></div>
     <div class="setup-actions">
-      <button class="setup-btn-connect" onclick="connectDiscogs()">Conectar</button>
+      <button class="setup-btn-connect" onclick="connectDiscogs()">Salvar</button>
       <button class="setup-btn-cancel" onclick="closeSetupModal()">Cancelar</button>
     </div>
   </div>
@@ -2913,6 +2967,7 @@ def generate_html(df):
       </select>
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">{_SVG_FILTER_LINES} Filtros &#9662;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
+      <button class="sync-btn" onclick="triggerSync(this)" title="Sincronizar agora">&#8635;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
     </div>
     {fp_lp}
@@ -2938,6 +2993,7 @@ def generate_html(df):
       </select>
       <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">{_SVG_FILTER_LINES} Filtros &#9662;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
+      <button class="sync-btn" onclick="triggerSync(this)" title="Sincronizar agora">&#8635;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
     </div>
     {fp_faixas}
@@ -2952,6 +3008,7 @@ def generate_html(df):
   </main>
 </div>
 
+<footer class="site-credits">BPM data by <a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM</a></footer>
 <script>var STORY_IMAGES={story_json};</script>
 <script>{JS}</script>
 </body>
