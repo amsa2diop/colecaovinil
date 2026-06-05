@@ -1159,12 +1159,26 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .story-close:hover{opacity:1}
 /* Content area: fills remaining space, click left/right to navigate */
 .story-content{flex:1;display:flex;align-items:center;justify-content:center;
-  padding:0 0 16px;min-height:0;cursor:pointer;user-select:none}
+  padding:0 0 16px;min-height:0;cursor:pointer;user-select:none;position:relative}
 #story-media{display:flex;align-items:center;justify-content:center;
   min-height:0;overflow:hidden;pointer-events:none}
 .story-media-el{max-height:calc(100vh - 80px);max-width:100vw;
   border-radius:12px;object-fit:contain;
   box-shadow:0 20px 60px rgba(0,0,0,.6);display:block}
+/* Nav arrows: hidden on touch/mobile, shown on desktop */
+.story-nav-btn{position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);
+  color:#fff;width:40px;height:40px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .2s,border-color .2s;
+  backdrop-filter:blur(6px);z-index:2}
+#story-prev-btn{left:16px}
+#story-next-btn{right:16px}
+@media(hover:hover) and (pointer:fine){
+  .story-nav-btn{display:flex}
+  .story-nav-btn:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.45)}
+  .story-nav-btn:disabled{opacity:0;pointer-events:none}
+}
 
 /* CUSTOM LOJA DROPDOWN */
 .cef-sel-wrap{position:relative;width:100%}
@@ -2000,6 +2014,10 @@ function _showStory(idx){
     mediaWrap.appendChild(img);
   }
   overlay.classList.add('open');
+  var prev=document.getElementById('story-prev-btn');
+  var next=document.getElementById('story-next-btn');
+  if(prev)prev.disabled=(_storyIdx===0);
+  if(next)next.disabled=(_storyIdx===STORY_IMAGES.length-1);
   var barsEl=document.getElementById('story-bars');
   if(barsEl&&STORY_IMAGES.length>1){
     barsEl.innerHTML=STORY_IMAGES.map(function(_,i){
@@ -2867,7 +2885,9 @@ def generate_html(df):
     <button class="story-close" onclick="_closeStory()">&#10005;</button>
   </div>
   <div class="story-content" id="story-content" onclick="event.stopPropagation();_storyTapNav(event)">
+    <button class="story-nav-btn" id="story-prev-btn" onclick="event.stopPropagation();_showStory(_storyIdx-1)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
     <div id="story-media"></div>
+    <button class="story-nav-btn" id="story-next-btn" onclick="event.stopPropagation();_showStory(_storyIdx+1)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></button>
   </div>
 </div>
 
