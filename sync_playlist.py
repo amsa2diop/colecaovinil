@@ -1,5 +1,5 @@
 """
-Atualiza (ou cria) a playlist Spotify "Meu Discogs — por BPM" a partir dos CSVs de backup.
+Atualiza (ou cria) a playlist Spotify "Discos do Amsa" a partir dos CSVs de backup.
 Funciona localmente e no GitHub Actions via SPOTIFY_REFRESH_TOKEN como variável de ambiente.
 
 Uso local:
@@ -15,7 +15,8 @@ from datetime import datetime
 WORK_DIR      = Path(__file__).parent
 SP_CLIENT_ID  = "e7d3f94ea0654c199f69e67df2a98c62"
 SP_CLIENT_SEC = "3c8b2f47049b44e2af6937ea835e1f2f"
-PLAYLIST_NAME = "Meu Discogs — por BPM"
+PLAYLIST_NAME = "Discos do Amsa"
+PLAYLIST_NAME_OLD = "Meu Discogs — por BPM"  # nome anterior, para migrar automaticamente
 
 
 def _ensure_spotipy():
@@ -92,14 +93,17 @@ def load_uris_sorted_by_bpm():
 
 
 def find_playlist(sp, uid):
-    """Retorna o ID da playlist 'Meu Discogs — por BPM' se existir, ou None."""
+    """Procura playlist pelo nome novo ou antigo (migração automática)."""
+    found_old = None
     playlists = sp.user_playlists(uid)
     while playlists:
         for pl in playlists["items"]:
             if pl["name"] == PLAYLIST_NAME:
-                return pl["id"]
+                return pl["id"], False          # encontrou com nome novo
+            if pl["name"] == PLAYLIST_NAME_OLD:
+                found_old = pl["id"]
         playlists = sp.next(playlists) if playlists.get("next") else None
-    return None
+    return found_old, True                       # retorna antiga (ou None) + flag de renomear
 
 
 def replace_tracks(sp, pid, uris):
@@ -123,8 +127,14 @@ def sync():
     sp = get_sp()
     uid = sp.current_user()["id"]
 
-    pid = find_playlist(sp, uid)
+    desc = f"Ordenado por BPM | {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    pid, needs_rename = find_playlist(sp, uid)
     if pid:
+        if needs_rename:
+            print(f"Renomeando playlist antiga para '{PLAYLIST_NAME}'...")
+            sp.playlist_change_details(pid, name=PLAYLIST_NAME, description=desc)
+        else:
+            sp.playlist_change_details(pid, description=desc)
         print(f"Playlist existente ({pid}). Substituindo faixas...")
         replace_tracks(sp, pid, uris)
         print(f"✓ Playlist atualizada com {len(uris)} faixas")
@@ -132,7 +142,7 @@ def sync():
         print("Criando nova playlist...")
         pl = sp.user_playlist_create(
             user=uid, name=PLAYLIST_NAME, public=False,
-            description=f"Vinil ordenado por BPM | {datetime.now().strftime('%d/%m/%Y')}",
+            description=desc,
         )
         pid = pl["id"]
         replace_tracks(sp, pid, uris)
