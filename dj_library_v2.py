@@ -1059,6 +1059,17 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .field-item{font-size:.65rem;color:var(--text3)}
 .field-item strong{color:var(--text2);font-weight:600}
 .field-notes{font-size:.65rem;color:var(--text2);font-weight:600;margin-top:.2rem}
+/* Multi-copy rows */
+.copies-meta{display:flex;flex-direction:column;gap:.35rem;margin-top:.4rem}
+.copy-row{border-left:2px solid var(--bdr2);padding-left:.55rem}
+.copy-row .fields-row{margin-top:.15rem}
+.copy-label{font-size:.58rem;color:var(--text3);font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;display:block}
+/* Edit form copy picker */
+.cef-copy-sel{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;padding-bottom:.4rem;border-bottom:1px solid var(--bdr2)}
+.cef-copy-pick{background:var(--cef-inp-bg,#e9e5de);border:1px solid var(--bdr);
+  color:var(--cef-inp-tc,#1a1a1a);padding:.25rem .5rem;border-radius:6px;font-size:.78rem;
+  cursor:pointer;font-family:inherit}
 
 /* VIEW */
 .view{display:none}.view.active{display:block}
@@ -1365,8 +1376,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .sync-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
 .sync-btn.syncing{animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* Edit button on card — styled same as Discogs/Spotify btn-card, hidden until edit mode */
+/* Edit button on card + sync button — hidden until edit mode */
 body:not(.edit-mode) .cef-edit-btn{display:none}
+body:not(.edit-mode) .sync-btn{display:none}
 /* Inline edit form */
 .card-edit-form{display:none;padding:.6rem 1rem .8rem;border-top:1px solid var(--bdr2);
   background:var(--tracks-bg,rgba(245,242,237,.92));color:var(--text,#111)}
@@ -1586,15 +1598,19 @@ function filterLP(){
   var vis=0;
   cards.forEach(function(c){
     var qOk=!q||c.dataset.search.includes(q);
-    var origOk=origemFilter.size===0||origemFilter.has((c.dataset.origem||'').toLowerCase());
+    var _origVals=(c.dataset.origem||'').toLowerCase().split('|');
+    var origOk=origemFilter.size===0||_origVals.some(function(v){return origemFilter.has(v);});
     var isBrazil=c.dataset.country==='brazil';
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(c.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&c.dataset.compilation==='1')||(compilFilter==='nocomp'&&c.dataset.compilation!=='1');
-    var djOk=djFilter==='all'||(djFilter==='yes'&&['Sim','Parcial'].indexOf(c.dataset.dj)!==-1);
-    var paOk=paFilter==='all'||(paFilter==='yes'&&['Sim','Em breve'].indexOf(c.dataset.pa)!==-1);
+    var _djVals=(c.dataset.dj||'').split('|');
+    var djOk=djFilter==='all'||(djFilter==='yes'&&_djVals.some(function(v){return v==='Sim'||v==='Parcial';}));
+    var _paVals=(c.dataset.pa||'').split('|');
+    var paOk=paFilter==='all'||(paFilter==='yes'&&_paVals.some(function(v){return v==='Sim'||v==='Em breve';}));
     var dupOk=dupFilter==='all'||(dupFilter==='dup'&&+c.dataset.copies>1);
-    var recOk=recebidoFilter==='all'||(recebidoFilter==='sim'&&c.dataset.recebido==='Sim')||(recebidoFilter==='nao'&&c.dataset.recebido!=='Sim');
+    var _recVals=(c.dataset.recebido||'').split('|');
+    var recOk=recebidoFilter==='all'||(recebidoFilter==='sim'&&_recVals.some(function(v){return v==='Sim';}))||(recebidoFilter==='nao'&&_recVals.some(function(v){return v!=='Sim';}));
     var bpmOk=albumBpmOk(c,activeBpmFilter);
     var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&djOk&&paOk&&dupOk&&recOk&&bpmOk;
     c.classList.toggle('hidden',!ok);if(ok)vis++;
@@ -1916,13 +1932,34 @@ function closeCardEdit(card){
   if(form){form.classList.remove('open');form.querySelector('.cef-status').textContent='';}
 }
 
+function switchEditCopy(form,instId,card){
+  form.dataset.editingInstance=instId;
+  var insts=[];
+  try{insts=JSON.parse(form.dataset.instances||'[]');}catch(e){}
+  var inst=insts.find(function(x){return x.instance_id===instId;})||{};
+  var stored={};
+  try{
+    var all=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
+    stored=all[(card||form.closest('.album-card')).dataset.releaseId+'#'+instId]||{};
+  }catch(e){}
+  var vals=Object.assign({},inst,stored);
+  form.querySelectorAll('.cef-input').forEach(function(inp){
+    var f=inp.dataset.field;
+    if(!(f in vals))return;
+    inp.value=vals[f];
+    if(inp.closest('.cef-sel-wrap')){
+      inp.closest('.cef-sel-wrap').querySelector('.cef-sel-cur').textContent=vals[f]||'—';
+    }
+  });
+}
+
 async function saveCardEdit(card){
   var cfg=_dcfg();
   if(!cfg.token){alert('Configure o token primeiro.');return;}
-  var inst=card.dataset.instanceId;
+  var form=card.querySelector('.card-edit-form');
+  var inst=form.dataset.editingInstance||card.dataset.instanceId;
   var rid =card.dataset.releaseId;
   var fld =cfg.folder||'1';
-  var form=card.querySelector('.card-edit-form');
   var st  =form.querySelector('.cef-status');
   if(!inst||!rid){st.textContent='Dados insuficientes (instance_id/release_id).';return;}
   st.textContent='Salvando…';
@@ -1960,65 +1997,78 @@ async function saveCardEdit(card){
     st.innerHTML='<span style="color:#2a7a2a">✓ Salvo no Discogs!</span>';
     var vals2={};
     form.querySelectorAll('.cef-input').forEach(function(inp){vals2[inp.dataset.field]=inp.value.trim();});
-    refreshCardDisplayedFields(card,vals2);
-    storeLocalOverride(rid,vals2);
+    refreshCardDisplayedFields(card,vals2,inst);
+    storeLocalOverride(rid,vals2,inst);
     setTimeout(function(){closeCardEdit(card);},900);
   }
 }
 
-function storeLocalOverride(rid,vals){
+function storeLocalOverride(rid,vals,instId){
   var all=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
-  all[rid]=Object.assign(all[rid]||{},vals);
+  var key=instId?rid+'#'+instId:rid;
+  all[key]=Object.assign(all[key]||{},vals);
   localStorage.setItem('discogs_edits',JSON.stringify(all));
 }
 
 function applyLocalOverrides(){
   var all=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
-  Object.keys(all).forEach(function(rid){
+  Object.keys(all).forEach(function(key){
+    var parts=key.split('#');
+    var rid=parts[0]; var instId=parts[1]||null;
     var card=document.querySelector('[data-release-id="'+rid+'"]');
     if(!card)return;
-    var vals=all[rid];
-    refreshCardDisplayedFields(card,vals);
+    var vals=all[key];
+    refreshCardDisplayedFields(card,vals,instId);
     var form=card.querySelector('.card-edit-form');
     if(form){
-      Object.keys(vals).forEach(function(field){
-        var inp=form.querySelector('[data-field="'+field+'"]');
-        if(!inp)return;
-        inp.value=vals[field];
-        if(inp.tagName==='SELECT')inp.dataset.curVal=vals[field];
-      });
+      var formInst=form.dataset.editingInstance||card.dataset.instanceId;
+      if(!instId||instId===formInst){
+        Object.keys(vals).forEach(function(field){
+          var inp=form.querySelector('[data-field="'+field+'"]');
+          if(!inp)return;
+          inp.value=vals[field];
+          if(inp.tagName==='SELECT')inp.dataset.curVal=vals[field];
+        });
+      }
     }
   });
 }
 document.addEventListener('DOMContentLoaded',applyLocalOverrides);
 
-function refreshCardDisplayedFields(card,vals){
-  // Primary row (date, loja, dj, pa)
-  var pRow=card.querySelector('.fields-row:not(.fields-secondary)');
+function refreshCardDisplayedFields(card,vals,instId){
+  // Find the right container: specific copy row, or the card itself
+  var root=card;
+  if(instId){
+    var copyRow=card.querySelector('.copy-row[data-instance-id="'+instId+'"]')||card;
+    root=copyRow;
+  }
+  var pRow=root.querySelector('.fields-row:not(.fields-secondary)');
+  if(!pRow&&root!==card) pRow=card.querySelector('.fields-row:not(.fields-secondary)');
   if(pRow){
     var dateSpan=pRow.querySelector('.alb-date-added');
     var dateHtml=dateSpan?dateSpan.outerHTML:'';
     var pItems=[];
-    var _orig=vals['Origem']||card.dataset.origem||'';
+    var _orig=('Origem' in vals)?vals['Origem']:(root.dataset.origem||card.dataset.origem||'').split('|')[0]||'';
     if(_orig) pItems.push('<span class="field-item">'+_orig+'</span>');
-    var _dj=vals['DJ']||card.dataset.dj||'';
+    var _dj=('DJ' in vals)?vals['DJ']:card.dataset.dj.split('|')[0]||'';
     if(_dj==='Sim') pItems.push('<span class="field-item">Para discotecar</span>');
     else if(_dj==='Parcial') pItems.push('<span class="field-item">Discotecar parcialmente</span>');
-    var _pa=vals['PA']||card.dataset.pa||'';
+    var _pa=('PA' in vals)?vals['PA']:card.dataset.pa.split('|')[0]||'';
     if(_pa==='Sim') pItems.push('<span class="field-item">Para trocar</span>');
     else if(_pa==='Em breve') pItems.push('<span class="field-item">Trocar em breve</span>');
     pRow.innerHTML=dateHtml+pItems.join('');
   }
-  // Secondary row (R$, recebido)
-  var sRow=card.querySelector('.fields-row.fields-secondary');
+  var sRow=root.querySelector('.fields-row.fields-secondary');
+  if(!sRow&&root!==card) sRow=card.querySelector('.fields-row.fields-secondary');
   if(sRow){
     var sItems=[];
     if(vals['$'])          sItems.push('<span class="field-item"><strong>R$</strong> '+vals['$']+'</span>');
     if(vals['Recebido?']==='Não') sItems.push('<span class="field-item">Não recebido</span>');
     sRow.innerHTML=sItems.join('');
   }
-  var notesEl=card.querySelector('.field-notes');
+  var notesEl=root.querySelector('.field-notes')||card.querySelector('.field-notes');
   if(notesEl){notesEl.textContent=vals['Notas']||'';notesEl.style.display=vals['Notas']?'':'none';}
+  // Update card-level filter attributes (join all copy values)
   if(vals['DJ']!==undefined)    card.dataset.dj=vals['DJ'];
   if(vals['PA']!==undefined)    card.dataset.pa=vals['PA'];
   if(vals['Recebido?']!==undefined) card.dataset.recebido=vals['Recebido?'];
@@ -2242,42 +2292,48 @@ def render_track_lp(row):
 </div>'''
 
 
-def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="", format_data=None):
+def render_album_lp(group, copy_count=1, fields=None, instances=None, country="", color_pastel="", format_data=None):
     """Renderiza um card de álbum (LP view)."""
-    fields    = fields or {}
     format_info = format_data or {}
-    first     = group.iloc[0]
-    cover     = esc(first.get("cover_url") or "")
-    bpm_vals  = group["bpm"].apply(safe_float).dropna()
-    min_bpm   = int(bpm_vals.min()) if len(bpm_vals) else 999
+
+    # Deduplicate tracks up front — group may be expanded when release has multiple copies
+    group_dedup = group.drop_duplicates(subset=["position"])
+    first = group_dedup.iloc[0]
+
+    # Build instances list (one dict per copy)
+    if instances is None:
+        instances = [fields] if fields else [{}]
+    elif not instances:
+        instances = [{}]
+    fields = instances[0]  # first copy drives album-level attributes
+
+    cover    = esc(first.get("cover_url") or "")
+    bpm_vals = group_dedup["bpm"].apply(safe_float).dropna()
+    min_bpm  = int(bpm_vals.min()) if len(bpm_vals) else 999
     bpm_list_str = ",".join(str(int(v)) for v in bpm_vals)
     if len(bpm_vals):
         bmin, bmax = int(bpm_vals.min()), int(bpm_vals.max())
         bpm_range = f"{bmin} BPM" if bmin == bmax else f"{bmin}–{bmax} BPM"
     else:
         bpm_range = ""
-    n_ok      = (group["status"] == "ACEITO").sum()
-    year_s    = str(int(first["year"])) if safe_float(first.get("year")) else ""
-    styles_s  = esc(first.get("styles") or "")
-    genres_s  = esc(first.get("genres") or "")
+    n_ok = (group_dedup["status"] == "ACEITO").sum()
+
+    year_s       = str(int(first["year"])) if safe_float(first.get("year")) else ""
+    styles_s     = esc(first.get("styles") or "")
+    genres_s     = esc(first.get("genres") or "")
     release_id   = first.get("release_id", "")
-    instance_id  = (fields.get("instance_id") or "").strip()
     country_s    = esc(country or "")
-    fmt_label   = format_info.get("label", "") or ""
-    fmt_size    = format_info.get("format_size", "") or ""
+    fmt_label    = format_info.get("label", "") or ""
+    fmt_size     = format_info.get("format_size", "") or ""
     is_compil_flag = "0"
-    artist_lower   = (first.get("album_artist") or "").lower()
+    artist_lower = (first.get("album_artist") or "").lower()
     if any(kw in artist_lower for kw in ["various", "v.a.", "variados", "aa.vv."]):
         is_compil_flag = "1"
 
-    # Genre + Style unificados
     genre_style_s = _genre_style(genres_s, styles_s)
-
-    # Decade key para filtro JS
     year_int  = int(first["year"]) if safe_float(first.get("year")) else 0
     decade_key = _decade(year_int)
 
-    # Cor do card (Gradiente F: EE→55)
     card_style = ""
     if color_pastel and len(color_pastel) == 7:
         _, cvars = card_colors(color_pastel)
@@ -2290,29 +2346,88 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
                if cover else '<div class="cover-ph">&#9836;</div>')
 
     meta_parts = []
-    if year_s:       meta_parts.append(year_s)
-    if country_s:    meta_parts.append(country_s)
+    if year_s:        meta_parts.append(year_s)
+    if country_s:     meta_parts.append(country_s)
     if fmt_size and fmt_size not in ("LP","Other"): meta_parts.append(esc(fmt_size))
     if genre_style_s: meta_parts.append(genre_style_s[:60])
-    if bpm_range:    meta_parts.append(bpm_range)
-    if fmt_label:    meta_parts.append(esc(fmt_label[:28]))
+    if bpm_range:     meta_parts.append(bpm_range)
+    if fmt_label:     meta_parts.append(esc(fmt_label[:28]))
     tags = " · ".join(meta_parts)
 
     _months = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"]
-    date_added_raw = (fields.get("date_added") or "").strip()
-    date_added_display = ""
-    if date_added_raw:
+
+    def _fmt_date(raw):
+        raw = (raw or "").strip()
+        if not raw: return ""
         try:
-            _d = date_added_raw[:10].split("-")
-            date_added_display = f"{int(_d[2])} {_months[int(_d[1])-1]} {_d[0]}"
+            _d = raw[:10].split("-")
+            return f"{int(_d[2])} {_months[int(_d[1])-1]} {_d[0]}"
         except Exception:
-            pass
+            return ""
+
+    def _inst_meta_html(inst):
+        pri, sec = [], []
+        date_disp = _fmt_date(inst.get("date_added", ""))
+        if date_disp:
+            pri.append(f'<span class="field-item alb-date-added">Adicionado em {date_disp}</span>')
+        if inst.get("Origem"):
+            pri.append(f'<span class="field-item">{esc(inst["Origem"])}</span>')
+        _dj = inst.get("DJ", "")
+        if _dj == "Sim":      pri.append('<span class="field-item">Para discotecar</span>')
+        elif _dj == "Parcial": pri.append('<span class="field-item">Discotecar parcialmente</span>')
+        _pa = inst.get("PA", "")
+        if _pa == "Sim":        pri.append('<span class="field-item">Para trocar</span>')
+        elif _pa == "Em breve": pri.append('<span class="field-item">Trocar em breve</span>')
+        if inst.get("$"):
+            sec.append(f'<span class="field-item"><strong>R$</strong> {esc(inst["$"])}</span>')
+        if inst.get("Recebido?") == "Não":
+            sec.append('<span class="field-item">Não recebido</span>')
+        mc = inst.get("Media Condition",""); sc = inst.get("Sleeve Condition","")
+        if mc or sc:
+            sec.append(f'<span class="field-item"><strong>Cond:</strong> {esc(" / ".join(filter(None,[mc,sc])))}</span>')
+        html = ""
+        if pri: html += f'<div class="fields-row">{"".join(pri)}</div>'
+        if sec: html += f'<div class="fields-row fields-secondary">{"".join(sec)}</div>'
+        if inst.get("Notas"):
+            html += f'<div class="field-notes fields-secondary">{esc(inst["Notas"])}</div>'
+        return html
+
+    # Per-copy meta rows
+    if len(instances) == 1:
+        custom_html = _inst_meta_html(instances[0])
+    else:
+        rows = []
+        for i, inst in enumerate(instances):
+            _iid = esc((inst.get("instance_id") or "").strip())
+            rows.append(
+                f'<div class="copy-row" data-instance-id="{_iid}">'
+                f'<span class="copy-label">C&#243;pia {i+1}</span>'
+                f'{_inst_meta_html(inst)}'
+                f'</div>'
+            )
+        custom_html = f'<div class="copies-meta">{"".join(rows)}</div>'
+
+    # Filtering data-attributes: join unique non-empty values from all copies
+    def _join_vals(key):
+        seen, out = set(), []
+        for inst in instances:
+            v = (inst.get(key) or "").strip()
+            if v and v not in seen:
+                seen.add(v); out.append(v)
+        return "|".join(out)
+
+    all_orig = _join_vals("Origem")
+    all_dj   = _join_vals("DJ")
+    all_pa   = _join_vals("PA")
+    all_rec  = _join_vals("Recebido?")
+    # Sort for date-added: use most recent among copies
+    all_dates = [inst.get("date_added","") for inst in instances if inst.get("date_added","")]
+    date_added_raw = max(all_dates) if all_dates else ""
 
     copy_badge = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
 
     discogs_url = f"https://www.discogs.com/release/{release_id}"
-    # Spotify link: primeiro track ACEITO do álbum
-    _sp_ids = group[group["status"] == "ACEITO"]["track_id"].dropna()
+    _sp_ids = group_dedup[group_dedup["status"] == "ACEITO"]["track_id"].dropna()
     _sp_tid = str(_sp_ids.iloc[0]) if len(_sp_ids) > 0 else ""
     _sp_tid = "" if _sp_tid in ("nan", "None", "") else _sp_tid
     sp_album_link = f"spotify:track:{_sp_tid}" if _sp_tid else ""
@@ -2324,44 +2439,16 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
         f'onclick="event.stopPropagation()">'
         f'{_SVG_SPOTIFY_SM} Spotify</a>'
     ) if sp_album_link else ""
-    # edit_btn_html defined below (after instance_id is computed from edit_form_html section)
-    # btn_group will be assembled after edit_btn_html is ready
 
-    custom_html = ""
-    primary_items = []
-    secondary_items = []
-    if date_added_display:
-        primary_items.append(f'<span class="field-item alb-date-added">Adicionado em {date_added_display}</span>')
-    if fields.get("Origem"):
-        primary_items.append(f'<span class="field-item">{esc(fields["Origem"])}</span>')
-    _dj = fields.get("DJ","")
-    if _dj == "Sim":     primary_items.append('<span class="field-item">Para discotecar</span>')
-    elif _dj == "Parcial": primary_items.append('<span class="field-item">Discotecar parcialmente</span>')
-    _pa = fields.get("PA","")
-    if _pa == "Sim":       primary_items.append('<span class="field-item">Para trocar</span>')
-    elif _pa == "Em breve": primary_items.append('<span class="field-item">Trocar em breve</span>')
-    if fields.get("$"):
-        secondary_items.append(f'<span class="field-item"><strong>R$</strong> {esc(fields["$"])}</span>')
-    if fields.get("Recebido?") == "Não":
-        secondary_items.append('<span class="field-item">Não recebido</span>')
-    mc = fields.get("Media Condition",""); sc = fields.get("Sleeve Condition","")
-    if mc or sc:
-        secondary_items.append(f'<span class="field-item"><strong>Cond:</strong> {esc(" / ".join(filter(None,[mc,sc])))}</span>')
-    if primary_items:
-        custom_html += f'<div class="fields-row">{"".join(primary_items)}</div>'
-    if secondary_items:
-        custom_html += f'<div class="fields-row fields-secondary">{"".join(secondary_items)}</div>'
-    if fields.get("Notas"):
-        custom_html += f'<div class="field-notes fields-secondary">{esc(fields["Notas"])}</div>'
-
-    track_titles = " ".join(str(r.get("track_title","")) for _, r in group.iterrows())
+    all_orig_search = " ".join(inst.get("Origem","") for inst in instances)
+    all_notas_search = " ".join(inst.get("Notas","") for inst in instances)
+    track_titles = " ".join(str(r.get("track_title","")) for _, r in group_dedup.iterrows())
     search_str = html_module.escape(
         f'{first.get("album_artist","")} {first.get("album_title","")} '
         f'{styles_s} {genres_s} {year_s} {country} {track_titles} '
-        f'{fmt_label} {fields.get("Origem","")} {fields.get("Notas","")}'.lower()
+        f'{fmt_label} {all_orig_search} {all_notas_search}'.lower()
     )
 
-    group_dedup = group.drop_duplicates(subset=["position"])
     tracks_html = "\n".join(render_track_lp(r) for _, r in group_dedup.iterrows())
     n_bpm = int(group_dedup["bpm"].apply(safe_float).notna().sum())
     n_preview = 0
@@ -2372,32 +2459,60 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
         if (_uri and "spotify" in _uri and str(_r.get("status", "")) == "ACEITO") or _did:
             n_preview += 1
     _tinfo = [f"{n_ok} de {len(group_dedup)} faixas"]
-    if n_bpm > 0:  _tinfo.append(f"{n_bpm} com BPM")
+    if n_bpm > 0:   _tinfo.append(f"{n_bpm} com BPM")
     if n_preview > 0: _tinfo.append(f"{n_preview} com pr&#233;via")
     alb_tracks_info = " &middot; ".join(_tinfo)
-    origem_val = (fields.get("Origem") or "").strip()
     country_key = country.strip().lower()
 
-    # ── Inline edit form (only rendered when instance_id available) ─────────
-    def _sel(fname, options):
-        cur = (fields.get(fname) or "").strip()
-        opts = f'<option value="">—</option>' + "".join(
+    # ── Inline edit form ────────────────────────────────────────────────────────
+    # Collect instances with valid instance_id (needed for Discogs API)
+    valid_insts = [(i, inst) for i, inst in enumerate(instances)
+                   if (inst.get("instance_id") or "").strip()]
+    instance_id = valid_insts[0][1].get("instance_id","").strip() if valid_insts else ""
+
+    def _sel(fname, options, inst_fields):
+        cur = (inst_fields.get(fname) or "").strip()
+        opts = '<option value="">—</option>' + "".join(
             f'<option value="{o}"{" selected" if cur == o else ""}>{o}</option>'
             for o in options
         )
         return f'<select class="cef-input" data-field="{fname}">{opts}</select>'
 
     edit_form_html = ""
-    if instance_id:
-        cur_origem = esc((fields.get("Origem") or "").strip())
-        edit_form_html = f'''<div class="card-edit-form">
+    if valid_insts:
+        cur_inst = valid_insts[0][1]
+        cur_origem = esc((cur_inst.get("Origem") or "").strip())
+
+        copy_sel_html = ""
+        if len(valid_insts) > 1:
+            opts = "".join(
+                f'<option value="{esc(inst.get("instance_id","").strip())}">C&#243;pia {i+1}</option>'
+                for i, inst in valid_insts
+            )
+            copy_sel_html = (
+                f'<div class="cef-copy-sel">'
+                f'<span class="cef-label">Editando</span>'
+                f'<select class="cef-copy-pick" '
+                f'onchange="switchEditCopy(this.closest(\'.card-edit-form\'),this.value,this.closest(\'.album-card\'))">'
+                f'{opts}</select></div>'
+            )
+
+        inst_data_json = json.dumps(
+            [{k: inst.get(k,"") for k in
+              ["instance_id","Origem","DJ","PA","$","Recebido?","Notas","Media Condition","Sleeve Condition"]}
+             for inst in instances],
+            ensure_ascii=False
+        )
+
+        edit_form_html = f'''<div class="card-edit-form" data-editing-instance="{esc(instance_id)}" data-instances="{esc(inst_data_json)}">
+  {copy_sel_html}
   <div class="cef-grid">
     <span class="cef-label">Loja</span><div class="cef-sel-wrap" data-field-wrap="Origem" onclick="event.stopPropagation()"><div class="cef-sel-trigger" onclick="toggleCefSel(this)"><span class="cef-sel-cur">{cur_origem or "—"}</span><span class="cef-sel-arrow">&#9662;</span></div><div class="cef-sel-drop"></div><input type="hidden" class="cef-input" data-field="Origem" value="{cur_origem}"></div>
-    <span class="cef-label">Pre&#231;o (R$)</span><input class="cef-input" data-field="$" type="text" value="{esc((fields.get('$') or '').strip())}" placeholder="ex: 450">
-    <span class="cef-label">Recebido?</span>{_sel("Recebido?",["Sim","Não"])}
-    <span class="cef-label">Discotecar</span>{_sel("DJ",["Sim","Parcial","Não"])}
-    <span class="cef-label">Trocar</span>{_sel("PA",["Sim","Em breve","Não"])}
-    <span class="cef-label">Notas</span><textarea class="cef-input cef-textarea" data-field="Notas" rows="2" placeholder="Notas livres...">{esc((fields.get('Notas') or '').strip())}</textarea>
+    <span class="cef-label">Pre&#231;o (R$)</span><input class="cef-input" data-field="$" type="text" value="{esc((cur_inst.get('$') or '').strip())}" placeholder="ex: 450">
+    <span class="cef-label">Recebido?</span>{_sel("Recebido?",["Sim","Não"],cur_inst)}
+    <span class="cef-label">Discotecar</span>{_sel("DJ",["Sim","Parcial","Não"],cur_inst)}
+    <span class="cef-label">Trocar</span>{_sel("PA",["Sim","Em breve","Não"],cur_inst)}
+    <span class="cef-label">Notas</span><textarea class="cef-input cef-textarea" data-field="Notas" rows="2" placeholder="Notas livres...">{esc((cur_inst.get('Notas') or '').strip())}</textarea>
   </div>
   <div class="cef-actions">
     <span class="cef-status"></span>
@@ -2418,14 +2533,14 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
   data-artist="{esc(first.get('album_artist',''))}"
   data-year="{year_s}"
   data-min-bpm="{min_bpm}"
-  data-origem="{esc(origem_val)}"
+  data-origem="{esc(all_orig)}"
   data-country="{esc(country_key)}"
   data-decade="{decade_key}"
   data-compilation="{is_compil_flag}"
   data-format="{esc(fmt_size)}"
-  data-dj="{esc((fields.get('DJ') or '').strip())}"
-  data-pa="{esc((fields.get('PA') or '').strip())}"
-  data-recebido="{esc((fields.get('Recebido?') or '').strip())}"
+  data-dj="{esc(all_dj)}"
+  data-pa="{esc(all_pa)}"
+  data-recebido="{esc(all_rec)}"
   data-bpm-list="{bpm_list_str}"
   data-copies="{copy_count}"
   data-date-added="{esc(date_added_raw)}"
@@ -2586,30 +2701,25 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
 
 def load_collection_fields():
     """
-    Carrega backup_collection_fields.csv (gerado por fetch_discogs_fields.py).
+    Carrega backup_collection_fields.csv.
     Retorna:
-      - fields_map: {release_id: {campo: valor}} com os campos da primeira instância
-      - copy_counts: {release_id: n_cópias}
+      - instances_map: {release_id: [lista de dicts por instância, em ordem do CSV]}
+      - copy_counts:   {release_id: n_cópias}
     """
     path = WORK_DIR / "backup_collection_fields.csv"
     if not path.exists():
         return {}, {}
 
-    import pandas as pd
     cf = pd.read_csv(path, dtype=str).fillna("")
-    fields_map  = {}
-    copy_counts = {}
+    instances_map = {}
+    copy_counts   = {}
 
     for rid, group in cf.groupby("release_id"):
-        copy_counts[str(rid)] = len(group)
-        # Agrega campos: usa a primeira linha, mas mescla Notas de múltiplas instâncias
-        row = group.iloc[0].to_dict()
-        notas_all = " | ".join(r for r in group.get("Notas", pd.Series([])).tolist() if r.strip())
-        if notas_all:
-            row["Notas"] = notas_all
-        fields_map[str(rid)] = row
+        rows = [row.to_dict() for _, row in group.iterrows()]
+        copy_counts[str(rid)] = len(rows)
+        instances_map[str(rid)] = rows
 
-    return fields_map, copy_counts
+    return instances_map, copy_counts
 
 
 def load_country_map():
@@ -2655,7 +2765,7 @@ def generate_html(df):
     path = WORK_DIR / "MinhaColecao_DJ.html"
 
     # Carrega campos, country, cores, formato e playlist
-    fields_map, copy_counts = load_collection_fields()
+    instances_map, copy_counts = load_collection_fields()
     country_map  = load_country_map()
     colors_map   = load_cover_colors()
     format_map   = load_format_map()
@@ -2677,7 +2787,7 @@ def generate_html(df):
         render_album_lp(
             g,
             copy_count   = copy_counts.get(str(rid), 1),
-            fields       = fields_map.get(str(rid), {}),
+            instances    = instances_map.get(str(rid), []),
             country      = country_map.get(str(rid), ""),
             color_pastel = colors_map.get(str(rid), ""),
             format_data  = format_map.get(str(rid), {}),
@@ -2697,11 +2807,11 @@ def generate_html(df):
             country      = country_map.get(str(r.get("release_id","")), ""),
             color_pastel = colors_map.get(str(r.get("release_id","")), ""),
             format_data  = format_map.get(str(r.get("release_id","")), {}),
-            origem       = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Origem", ""),
-            dj           = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("DJ", ""),
-            recebido     = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Recebido?", ""),
-            pa           = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("PA", ""),
-            notas        = (fields_map.get(str(r.get("release_id","")), {}) or {}).get("Notas", ""),
+            origem       = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("Origem", ""),
+            dj           = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("DJ", ""),
+            recebido     = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("Recebido?", ""),
+            pa           = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("PA", ""),
+            notas        = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("Notas", ""),
         )
         for _, r in df_tracks.iterrows()
     )
@@ -2745,11 +2855,12 @@ def generate_html(df):
         ' onclick="setCompilFilter(\'nocomp\',this)">Simples</button>'
     )
 
-    # Origem values
+    # Origem values (all copies, all instances)
     origem_vals = sorted(set(
-        (v.get("Origem") or "").strip()
-        for v in fields_map.values()
-        if (v.get("Origem") or "").strip()
+        (inst.get("Origem") or "").strip()
+        for insts in instances_map.values()
+        for inst in insts
+        if (inst.get("Origem") or "").strip()
     ))
     origem_inner = ""
     if origem_vals:
@@ -2778,20 +2889,21 @@ def generate_html(df):
     )
 
     # DJ / PA / Duplicados filter chips
-    has_dj_data = any((v.get("DJ") or "").strip() for v in fields_map.values())
+    _all_insts = [inst for insts in instances_map.values() for inst in insts]
+    has_dj_data = any((v.get("DJ") or "").strip() for v in _all_insts)
     dj_inner = (
         '<button class="chip dj-chip active" data-val="all" onclick="setDjFilter(\'all\',this)">Tudo</button>'
         '<button class="chip dj-chip" data-val="yes" onclick="setDjFilter(\'yes\',this)">Para DJ</button>'
     ) if has_dj_data else ''
 
-    has_recebido_data = any((v.get("Recebido?") or "").strip() for v in fields_map.values())
+    has_recebido_data = any((v.get("Recebido?") or "").strip() for v in _all_insts)
     recebido_inner = (
         '<button class="chip recebido-chip active" data-val="all" onclick="setRecebidoFilter(\'all\',this)">Tudo</button>'
         '<button class="chip recebido-chip" data-val="sim" onclick="setRecebidoFilter(\'sim\',this)">Sim</button>'
         '<button class="chip recebido-chip" data-val="nao" onclick="setRecebidoFilter(\'nao\',this)">N&#227;o</button>'
     ) if has_recebido_data else ''
 
-    has_pa_data = any((v.get("PA") or "").strip() for v in fields_map.values())
+    has_pa_data = any((v.get("PA") or "").strip() for v in _all_insts)
     pa_inner = (
         '<button class="chip pa-chip active" data-val="all" onclick="setPaFilter(\'all\',this)">Tudo</button>'
         '<button class="chip pa-chip" data-val="yes" onclick="setPaFilter(\'yes\',this)">Para trocar</button>'
