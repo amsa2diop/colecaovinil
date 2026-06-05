@@ -3,21 +3,22 @@ Atualiza (ou cria) as playlists Spotify a partir dos CSVs de backup:
   • "Discos do Amsa"      — todos os discos aceitos, ordenados por BPM
   • "Discos do Amsa (DJ)" — só discos com DJ=Sim ou Parcial, ordenados por BPM
 
+Estratégia:
+  1. Se backup_playlist.txt contém um ID válido, atualiza essa playlist diretamente.
+  2. Se não existe mais (deletada), busca por nome.
+  3. Se não encontrar por nome, cria uma nova.
+  Após atualizar/criar, faz upload de playlist_cover.jpg se disponível.
+
 Funciona localmente e no GitHub Actions via SPOTIFY_REFRESH_TOKEN como variável de ambiente.
-
-Uso local:
-  python sync_playlist.py        # usa .spotify_cache gerado pelo spotify_auth.py
-
-Uso CI:
-  SPOTIFY_REFRESH_TOKEN=xxx python sync_playlist.py
 """
 from pathlib import Path
-import os, json, sys, time
+import base64, os, json, sys, time
 from datetime import datetime
 
 WORK_DIR      = Path(__file__).parent
 SP_CLIENT_ID  = "1ab6d898c52d42a19b737f451ce31e2a"
 SP_CLIENT_SEC = "3c8b2f47049b44e2af6937ea835e1f2f"
+COVER_PATH    = WORK_DIR / "playlist_cover.jpg"
 
 # Playlist principal
 PLAYLIST_NAME     = "Discos do Amsa"
@@ -51,7 +52,7 @@ def get_sp():
             "token_type": "Bearer",
             "expires_in": 3600,
             "refresh_token": refresh_token,
-            "scope": "playlist-modify-public playlist-modify-private",
+            "scope": "playlist-modify-public playlist-modify-private ugc-image-upload",
             "expires_at": 0,
         }
         Path(cache_path).write_text(json.dumps(cache_data), encoding="utf-8")
@@ -60,7 +61,7 @@ def get_sp():
         client_id=SP_CLIENT_ID,
         client_secret=SP_CLIENT_SEC,
         redirect_uri="http://127.0.0.1:1410/",
-        scope="playlist-modify-public playlist-modify-private",
+        scope="playlist-modify-public playlist-modify-private ugc-image-upload",
         cache_path=cache_path,
         open_browser=False,
     )
@@ -129,6 +130,25 @@ def load_uris_dj_sorted_by_bpm():
     return _extract_uris(_merge_bpm(df))
 
 
+def _pid_from_file(txt_path: Path):
+    """Lê playlist ID do arquivo de backup. Aceita URI ou ID puro."""
+    if not txt_path.exists():
+        return None
+    val = txt_path.read_text(encoding="utf-8").strip()
+    if not val:
+        return None
+    return val.split(":")[-1]  # 'spotify:playlist:ID' → 'ID'
+
+
+def _playlist_exists(sp, pid: str) -> bool:
+    """Verifica se a playlist com esse ID ainda existe."""
+    try:
+        pl = sp.playlist(pid, fields="id")
+        return bool(pl.get("id"))
+    except Exception:
+        return False
+
+
 def find_playlist_by_name(sp, uid, name, old_name=None):
     """Procura playlist por nome (e nome antigo para migração). Retorna (id, needs_rename)."""
     found_old = None
@@ -153,31 +173,68 @@ def replace_tracks(sp, pid, uris):
     print()
 
 
+def _upload_cover(sp, pid: str):
+    """Faz upload de playlist_cover.jpg como capa. Falha silenciosamente."""
+    if not COVER_PATH.exists():
+        return
+    try:
+        b64 = base64.b64encode(COVER_PATH.read_bytes()).decode()
+        sp.playlist_upload_cover_image(pid, b64)
+        print(f"  ✓ Capa enviada ({COVER_PATH.stat().st_size // 1024} KB)")
+    except Exception as e:
+        print(f"  ⚠ Capa não enviada: {e}")
+
+
 def sync_one(sp, uid, name, uris, uri_file, old_name=None, description=""):
-    """Cria ou atualiza uma playlist e salva a URI no arquivo de backup."""
+    """Atualiza playlist existente (por ID ou nome) ou cria nova. Mantém a playlist nas pastas do usuário."""
     if not uris:
         print(f"  Sem faixas para '{name}' — pulando."); return
 
-    pid, needs_rename = find_playlist_by_name(sp, uid, name, old_name)
-    if pid:
-        if needs_rename:
-            print(f"  Renomeando '{old_name}' → '{name}'...")
+    txt_path = WORK_DIR / uri_file
+    known_pid = _pid_from_file(txt_path)
+
+    pid = None
+
+    # 1. Tenta pelo ID conhecido (preserva pasta/posição da playlist)
+    if known_pid and _playlist_exists(sp, known_pid):
+        pid = known_pid
+        # Garante nome e descrição corretos
+        pl_info = sp.playlist(pid, fields="name")
+        if pl_info.get("name") != name:
+            print(f"  Renomeando para '{name}'...")
             sp.playlist_change_details(pid, name=name, description=description)
         else:
             sp.playlist_change_details(pid, description=description)
-        print(f"  Playlist existente ({pid}). Substituindo {len(uris)} faixas...")
-        replace_tracks(sp, pid, uris)
-        print(f"  ✓ Atualizada com {len(uris)} faixas")
-    else:
+        print(f"  Playlist existente por ID ({pid}). Substituindo {len(uris)} faixas...")
+
+    # 2. Fallback: busca por nome (caso a playlist tenha sido deletada e recriada)
+    if pid is None:
+        pid, needs_rename = find_playlist_by_name(sp, uid, name, old_name)
+        if pid:
+            if needs_rename:
+                print(f"  Renomeando '{old_name}' → '{name}'...")
+                sp.playlist_change_details(pid, name=name, description=description)
+            else:
+                sp.playlist_change_details(pid, description=description)
+            print(f"  Playlist encontrada por nome ({pid}). Substituindo {len(uris)} faixas...")
+
+    # 3. Cria nova se não encontrou
+    if pid is None:
         print(f"  Criando nova playlist '{name}'...")
         pl = sp.user_playlist_create(user=uid, name=name, public=False, description=description)
         pid = pl["id"]
-        replace_tracks(sp, pid, uris)
-        print(f"  ✓ Criada com {len(uris)} faixas")
+        print(f"  ✓ Criada ({pid})")
 
+    replace_tracks(sp, pid, uris)
+    print(f"  ✓ {len(uris)} faixas")
+
+    # Salva URI atualizada
     pl_uri = f"spotify:playlist:{pid}"
-    (WORK_DIR / uri_file).write_text(pl_uri, encoding="utf-8")
+    txt_path.write_text(pl_uri, encoding="utf-8")
     print(f"  URI: {pl_uri}")
+
+    # Upload da capa
+    _upload_cover(sp, pid)
 
 
 def sync():

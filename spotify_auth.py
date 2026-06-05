@@ -12,7 +12,7 @@ import requests
 CLIENT_ID    = "1ab6d898c52d42a19b737f451ce31e2a"
 CLIENT_SEC   = "3c8b2f47049b44e2af6937ea835e1f2f"
 REDIRECT_URI = "http://127.0.0.1:1410/"
-SCOPE        = "playlist-modify-public playlist-modify-private"
+SCOPE        = "playlist-modify-public playlist-modify-private ugc-image-upload"
 CACHE_PATH   = Path(__file__).parent / ".spotify_cache"
 
 auth_code_holder = [None]
@@ -72,4 +72,4 @@ token["expires_at"] = 0  # força refresh na primeira chamada
 CACHE_PATH.write_text(json.dumps(token), encoding="utf-8")
 print(f"\n✓ Token salvo em {CACHE_PATH.name}")
 print(f"  Refresh token: {token.get('refresh_token','N/A')[:24]}...")
-print("\nAgora rode:  python sync_playlist.py")
+print("\nAgora rode:  python upload_playlist_covers.py")
