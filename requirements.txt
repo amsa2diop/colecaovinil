@@ -1,0 +1,7 @@
+requests
+pandas
+openpyxl
+thefuzz
+python-Levenshtein
+unidecode
+spotipy
