@@ -1060,11 +1060,10 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .field-item strong{color:var(--text2);font-weight:600}
 .field-notes{font-size:.65rem;color:var(--text2);font-weight:600;margin-top:.2rem}
 /* Multi-copy rows */
-.copies-meta{display:flex;flex-direction:column;gap:.35rem;margin-top:.4rem}
-.copy-row{border-left:2px solid var(--bdr2);padding-left:.55rem}
-.copy-row .fields-row{margin-top:.15rem}
+.copies-meta{display:flex;flex-direction:column;gap:.2rem;margin-top:.4rem}
+.copy-row .fields-row{margin-top:.2rem}
 .copy-label{font-size:.58rem;color:var(--text3);font-weight:700;text-transform:uppercase;
-  letter-spacing:.06em;display:block}
+  letter-spacing:.06em;white-space:nowrap}
 /* Edit form copy picker */
 .cef-copy-sel{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;padding-bottom:.4rem;border-bottom:1px solid var(--bdr2)}
 .cef-copy-pick{background:var(--cef-inp-bg,#e9e5de);border:1px solid var(--bdr);
@@ -2365,8 +2364,10 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
         except Exception:
             return ""
 
-    def _inst_meta_html(inst):
+    def _inst_meta_html(inst, label=""):
         pri, sec = [], []
+        if label:
+            pri.append(f'<span class="copy-label">{label}</span>')
         date_disp = _fmt_date(inst.get("date_added", ""))
         if date_disp:
             pri.append(f'<span class="field-item alb-date-added">Adicionado em {date_disp}</span>')
@@ -2401,8 +2402,7 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
             _iid = esc((inst.get("instance_id") or "").strip())
             rows.append(
                 f'<div class="copy-row" data-instance-id="{_iid}">'
-                f'<span class="copy-label">C&#243;pia {i+1}</span>'
-                f'{_inst_meta_html(inst)}'
+                f'{_inst_meta_html(inst, label=f"C&#243;pia {i+1}:")}'
                 f'</div>'
             )
         custom_html = f'<div class="copies-meta">{"".join(rows)}</div>'
