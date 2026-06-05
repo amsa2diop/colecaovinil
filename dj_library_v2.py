@@ -1398,6 +1398,8 @@ body:not(.edit-mode) .sync-btn{display:none}
   font-size:.85rem;padding:0 .1rem;line-height:1;margin-left:.1rem;flex-shrink:0;
   transition:color .15s}
 .sync-toast-close:hover{color:var(--text,#111)}
+.toast-link{color:var(--acc,#555);text-decoration:underline;font-weight:600}
+.toast-link:hover{color:var(--text,#111)}
 /* Inline edit form */
 .card-edit-form{display:none;padding:.6rem 1rem .8rem;border-top:1px solid var(--bdr2);
   background:var(--tracks-bg,rgba(245,242,237,.92));color:var(--text,#111)}
@@ -1944,7 +1946,7 @@ async function pollSyncCompletion(toast,ghToken,triggeredAt){
         if(run.conclusion==='success'){
           updateToast(toast,'&#10003; Sync conclu&#237;do &mdash; site, Discogs e Spotify atualizados','success');
         }else{
-          updateToast(toast,'&#x26A0; Sync finalizado com erros &mdash; verifique Actions','error');
+          updateToast(toast,'&#x26A0; Sync finalizado com erros &mdash; <a class="toast-link" href="https://github.com/amsa2diop/colecaovinil/actions" target="_blank" rel="noopener">ver Actions &#8599;</a>','error');
         }
       }else{
         updateToast(toast,'&#8635; Em andamento&hellip; aguarde','info');
