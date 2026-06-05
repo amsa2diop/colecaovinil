@@ -1146,7 +1146,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .story-close{position:absolute;top:-42px;right:0;background:none;border:none;
   color:#fff;font-size:1.5rem;cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1}
 .story-close:hover{opacity:1}
-.story-img{max-height:88vh;max-width:78vw;border-radius:12px;
+.story-media-el{max-height:88vh;max-width:78vw;border-radius:12px;
   object-fit:contain;box-shadow:0 20px 60px rgba(0,0,0,.6);display:block}
 .story-nav-btn{background:rgba(255,255,255,.14);backdrop-filter:blur(4px);
   border:none;color:#fff;font-size:1.1rem;width:38px;height:38px;border-radius:50%;
@@ -1160,6 +1160,24 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .story-bar-fill.done{width:100%}
 .story-bar-fill.playing{animation:sbf 5s linear forwards}
 @keyframes sbf{from{width:0}to{width:100%}}
+
+/* CUSTOM LOJA DROPDOWN */
+.cef-sel-wrap{position:relative;width:100%}
+.cef-sel-trigger{background:var(--cef-inp-bg,#e9e5de);border:1px solid var(--bdr);
+  color:var(--cef-inp-tc,#1a1a1a);padding:.3rem .55rem;border-radius:6px;font-size:.8rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:space-between;
+  user-select:none;transition:border-color .15s}
+.cef-sel-trigger:hover{border-color:var(--acc,#7A5C2C)}
+.cef-sel-arrow{opacity:.55;font-size:.65rem;transition:transform .15s;flex-shrink:0;margin-left:.3rem}
+.cef-sel-wrap.open .cef-sel-arrow{transform:rotate(180deg)}
+.cef-sel-drop{display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;
+  background:var(--cef-inp-bg,#e9e5de);border:1px solid var(--bdr);border-radius:6px;
+  z-index:300;max-height:168px;overflow-y:auto;
+  box-shadow:0 4px 12px rgba(0,0,0,.22)}
+.cef-sel-wrap.open .cef-sel-drop{display:block}
+.cef-sel-item{padding:.28rem .55rem;font-size:.8rem;color:var(--cef-inp-tc,#1a1a1a);cursor:pointer}
+.cef-sel-item:hover{background:rgba(0,0,0,.1)}
+.cef-sel-item.active{font-weight:600}
 
 /* FILTER PANEL */
 .filter-toggle-btn{display:inline-flex;align-items:center;gap:.3rem;
@@ -1550,7 +1568,7 @@ function filterLP(){
   var vis=0;
   cards.forEach(function(c){
     var qOk=!q||c.dataset.search.includes(q);
-    var origOk=origemFilter.size===0||origemFilter.has(c.dataset.origem||'');
+    var origOk=origemFilter.size===0||origemFilter.has((c.dataset.origem||'').toLowerCase());
     var isBrazil=c.dataset.country==='brazil';
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(c.dataset.decade);
@@ -1628,7 +1646,7 @@ function filterTracks(){
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(r.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&r.dataset.compilation==='1')||(compilFilter==='nocomp'&&r.dataset.compilation!=='1');
-    var origOk=origemFilter.size===0||origemFilter.has(r.dataset.origem||'');
+    var origOk=origemFilter.size===0||origemFilter.has((r.dataset.origem||'').toLowerCase());
     var djOk=djFilter==='all'||(djFilter==='yes'&&['Sim','Parcial'].indexOf(r.dataset.dj)!==-1);
     var paOk=paFilter==='all'||(paFilter==='yes'&&['Sim','Em breve'].indexOf(r.dataset.pa)!==-1);
     var recOk=recebidoFilter==='all'||(recebidoFilter==='sim'&&r.dataset.recebido==='Sim')||(recebidoFilter==='nao'&&r.dataset.recebido!=='Sim');
@@ -1692,15 +1710,21 @@ function toggleDetails(row){
 function _doEmbed(el,iframe){
   var trackRow=el.closest('.track-row');
   var trackLp=el.closest('.track');
+  // Toggle: if embed already present in same context, remove it
+  if(trackRow){
+    var existing=trackRow.querySelector('.embed-below');
+    if(existing){existing.remove();return;}
+  }else if(trackLp){
+    var sib=trackLp.nextSibling;
+    if(sib&&sib.classList&&sib.classList.contains('embed-below')){sib.remove();return;}
+  }
   var w=document.createElement('div');w.className='embed-below';
   w.appendChild(iframe);
   if(trackRow){
-    // Faixas compact: embed goes inside .c-details (opens it)
     var details=trackRow.querySelector('.c-details');
     if(details){details.classList.add('open');details.appendChild(w);}
     else{trackRow.appendChild(w);}
   }else if(trackLp){
-    // LP accordion: insert below the track row within tracks-list
     trackLp.parentNode.insertBefore(w,trackLp.nextSibling);
   }else{
     el.parentNode.replaceChild(iframe,el);return;
@@ -1816,18 +1840,21 @@ function openCardEdit(card){
   if(!form)return;
   form.classList.toggle('open');
   form.querySelector('.cef-status').textContent='';
-  // Populate Loja select from Discogs field options stored in localStorage
+  // Populate custom Loja dropdown from Discogs field options stored in localStorage
   var cfg=_dcfg();
   var lojaOpts=(cfg.fieldOptions||{})['Origem']||[];
-  var lojaSel=form.querySelector('select[data-field="Origem"]');
-  if(lojaSel&&lojaOpts.length){
-    var curVal=lojaSel.dataset.curVal||lojaSel.value||'';
+  var lojaWrap=form.querySelector('.cef-sel-wrap[data-field-wrap="Origem"]');
+  if(lojaWrap&&lojaOpts.length){
+    var lojaInp=lojaWrap.querySelector('.cef-input[data-field="Origem"]');
+    var curVal=(lojaInp?lojaInp.value:'')||'';
     var sortedOpts=lojaOpts.slice().sort(function(a,b){return a.localeCompare(b,'pt');});
-    lojaSel.innerHTML='<option value="">—</option>'+
+    var drop=lojaWrap.querySelector('.cef-sel-drop');
+    drop.innerHTML='<div class="cef-sel-item" data-val="" onclick="cefSelPick(this)">—</div>'+
       sortedOpts.map(function(o){
-        return '<option value="'+o+'"'+(o===curVal?' selected':'')+'>'+o+'</option>';
+        return '<div class="cef-sel-item'+(o===curVal?' active':'')+'" data-val="'+o+'" onclick="cefSelPick(this)">'+o+'</div>';
       }).join('');
-    lojaSel.value=curVal;
+    var curEl=lojaWrap.querySelector('.cef-sel-cur');
+    if(curEl)curEl.textContent=curVal||'—';
   }
 }
 function closeCardEdit(card){
@@ -1950,31 +1977,42 @@ function _showStory(idx){
   clearTimeout(_storyTmr);
   _storyIdx=Math.max(0,Math.min(idx,STORY_IMAGES.length-1));
   var overlay=document.getElementById('story-overlay');
-  var img=document.getElementById('story-img');
-  img.src=STORY_IMAGES[_storyIdx];
+  var mediaWrap=document.getElementById('story-media');
+  var src=STORY_IMAGES[_storyIdx];
+  var ext=(src.split('.').pop()||'').toLowerCase();
+  var isVideo=(ext==='mp4'||ext==='webm'||ext==='mov');
+  mediaWrap.innerHTML='';
+  if(isVideo){
+    var vid=document.createElement('video');
+    vid.src=src;vid.controls=true;vid.autoplay=true;vid.className='story-media-el';
+    mediaWrap.appendChild(vid);
+  }else{
+    var img=document.createElement('img');
+    img.src=src;img.alt='';img.className='story-media-el';
+    mediaWrap.appendChild(img);
+  }
   overlay.classList.add('open');
-  // nav buttons
   var prev=document.getElementById('story-prev-btn');
   var next=document.getElementById('story-next-btn');
   if(prev)prev.disabled=(_storyIdx===0);
   if(next)next.disabled=(_storyIdx===STORY_IMAGES.length-1);
-  // progress bars
   var barsEl=document.getElementById('story-bars');
   if(barsEl&&STORY_IMAGES.length>1){
     barsEl.innerHTML=STORY_IMAGES.map(function(_,i){
       var cls=i<_storyIdx?'done':i===_storyIdx?'playing':'';
       return '<div class="story-bar"><div class="story-bar-fill '+cls+'"></div></div>';
     }).join('');
-    if(_storyIdx<STORY_IMAGES.length-1){
+    if(_storyIdx<STORY_IMAGES.length-1&&!isVideo){
       _storyTmr=setTimeout(function(){_showStory(_storyIdx+1);},5000);
     }
-  } else if(barsEl){
-    barsEl.innerHTML='';
-  }
+  }else if(barsEl){barsEl.innerHTML='';}
 }
 function _closeStory(){
   clearTimeout(_storyTmr);
-  document.getElementById('story-overlay').classList.remove('open');
+  var overlay=document.getElementById('story-overlay');
+  overlay.classList.remove('open');
+  var mediaWrap=document.getElementById('story-media');
+  if(mediaWrap)mediaWrap.innerHTML=''; // stop video playback
 }
 document.addEventListener('keydown',function(e){
   var o=document.getElementById('story-overlay');
@@ -1982,6 +2020,29 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape')_closeStory();
   if(e.key==='ArrowRight')_showStory(_storyIdx+1);
   if(e.key==='ArrowLeft') _showStory(_storyIdx-1);
+});
+
+/* ── CUSTOM LOJA DROPDOWN ── */
+function toggleCefSel(trigger){
+  var wrap=trigger.closest('.cef-sel-wrap');
+  var isOpen=wrap.classList.contains('open');
+  document.querySelectorAll('.cef-sel-wrap.open').forEach(function(w){w.classList.remove('open');});
+  if(!isOpen)wrap.classList.add('open');
+}
+function cefSelPick(item){
+  var wrap=item.closest('.cef-sel-wrap');
+  var val=item.dataset.val;
+  var inp=wrap.querySelector('.cef-input[data-field]');
+  var cur=wrap.querySelector('.cef-sel-cur');
+  if(inp)inp.value=val;
+  if(cur)cur.textContent=val||'—';
+  wrap.querySelectorAll('.cef-sel-item').forEach(function(i){i.classList.remove('active');});
+  item.classList.add('active');
+  wrap.classList.remove('open');
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.cef-sel-wrap'))
+    document.querySelectorAll('.cef-sel-wrap.open').forEach(function(w){w.classList.remove('open');});
 });
 """
 
@@ -2085,11 +2146,8 @@ def render_track_lp(row):
     bpm_txt = f"{bpm_f:.0f}" if bpm_f else "—"
     dot_cls = {"ACEITO":"s-ok","REVISAR":"s-rev"}.get(status,"s-rej")
 
-    # Discogs button
+    # Discogs button only on album card, not on track rows
     discogs_btn = ""
-    if release_id:
-        d_url = f"https://www.discogs.com/release/{release_id}"
-        discogs_btn = f'<a class="trk-btn" href="{d_url}" target="_blank">Discogs</a>'
 
     # Spotify button
     sp_btn = ""
@@ -2270,10 +2328,9 @@ def render_album_lp(group, copy_count=1, fields=None, country="", color_pastel="
     edit_form_html = ""
     if instance_id:
         cur_origem = esc((fields.get("Origem") or "").strip())
-        loja_opt   = f'<option value="{cur_origem}" selected>{cur_origem}</option>' if cur_origem else ""
         edit_form_html = f'''<div class="card-edit-form">
   <div class="cef-grid">
-    <span class="cef-label">Loja</span><select class="cef-input" data-field="Origem" data-cur-val="{cur_origem}"><option value="">—</option>{loja_opt}</select>
+    <span class="cef-label">Loja</span><div class="cef-sel-wrap" data-field-wrap="Origem" onclick="event.stopPropagation()"><div class="cef-sel-trigger" onclick="toggleCefSel(this)"><span class="cef-sel-cur">{cur_origem or "—"}</span><span class="cef-sel-arrow">&#9662;</span></div><div class="cef-sel-drop"></div><input type="hidden" class="cef-input" data-field="Origem" value="{cur_origem}"></div>
     <span class="cef-label">Pre&#231;o (R$)</span><input class="cef-input" data-field="$" type="text" value="{esc((fields.get('$') or '').strip())}" placeholder="ex: 450">
     <span class="cef-label">Recebido?</span>{_sel("Recebido?",["Sim","Não"])}
     <span class="cef-label">Discotecar</span>{_sel("DJ",["Sim","Parcial","Não"])}
@@ -2746,7 +2803,7 @@ def generate_html(df):
 
     # ── Stories ───────────────────────────────────────────────────────────────
     stories_dir = WORK_DIR / "stories"
-    _story_exts = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+    _story_exts = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.mp4', '.webm', '.mov'}
     story_images = sorted(
         [f"stories/{f.name}" for f in stories_dir.iterdir() if f.suffix.lower() in _story_exts]
     ) if stories_dir.exists() else []
@@ -2782,10 +2839,10 @@ def generate_html(df):
     <h3>&#9998; Modo de edi&#231;&#227;o</h3>
     <label>Token pessoal Discogs</label>
     <input class="setup-input" id="setup-token" type="password" placeholder="Cole o token aqui..." autocomplete="off">
-    <p style="font-size:.68rem;color:var(--text3);margin-top:.3rem">Gere o token em <a href="https://www.discogs.com/settings/developers" target="_blank" style="color:var(--acc)">discogs.com/settings/developers</a></p>
+    <p style="font-size:.68rem;color:var(--text3);margin-top:.3rem">Lembre o token em <a href="https://www.discogs.com/settings/developers" target="_blank" style="color:var(--acc)">discogs.com/settings/developers</a></p>
     <div id="setup-status"></div>
     <div class="setup-actions">
-      <button class="setup-btn-connect" onclick="connectDiscogs()">Lembrar token</button>
+      <button class="setup-btn-connect" onclick="connectDiscogs()">Conectar</button>
       <button class="setup-btn-cancel" onclick="closeSetupModal()">Cancelar</button>
     </div>
   </div>
@@ -2797,7 +2854,7 @@ def generate_html(df):
     <button class="story-close" onclick="_closeStory()">&#10005;</button>
     <div id="story-bars" class="story-bars"></div>
     <button class="story-nav-btn" id="story-prev-btn" onclick="_showStory(_storyIdx-1)">&#9664;</button>
-    <img class="story-img" id="story-img" src="" alt="">
+    <div id="story-media"></div>
     <button class="story-nav-btn" id="story-next-btn" onclick="_showStory(_storyIdx+1)">&#9654;</button>
   </div>
 </div>
