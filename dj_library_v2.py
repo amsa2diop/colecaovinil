@@ -2861,11 +2861,17 @@ def load_format_map():
 
 
 def load_playlist_url():
-    """Retorna URL da playlist Spotify salva, ou string vazia."""
+    """Retorna URI spotify: da playlist (converte HTTPS se necessário), ou string vazia."""
     path = WORK_DIR / "backup_playlist.txt"
-    if path.exists():
-        return path.read_text(encoding="utf-8").strip()
-    return ""
+    if not path.exists():
+        return ""
+    val = path.read_text(encoding="utf-8").strip()
+    # Converte https://open.spotify.com/playlist/ID → spotify:playlist:ID
+    import re as _re
+    m = _re.search(r'open\.spotify\.com/playlist/([A-Za-z0-9]+)', val)
+    if m:
+        val = f"spotify:playlist:{m.group(1)}"
+    return val
 
 
 def generate_html(df):
