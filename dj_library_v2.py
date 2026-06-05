@@ -2612,6 +2612,10 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
     )
     btn_group = f'<div class="rg-col-center">{edit_btn_html}{discogs_card_btn}{spotify_card_btn}</div>'
 
+    cover_blur_html = (
+        f'<div class="cover-blur" style="background-image:url(\'{cover}\')"></div>'
+        if cover else ''
+    )
     return f'''<article class="album-card"{card_style}
   data-search="{search_str}"
   data-artist="{esc(first.get('album_artist',''))}"
@@ -2630,7 +2634,7 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
   data-date-added="{esc(date_added_raw)}"
   data-release-id="{release_id}"
   data-instance-id="{instance_id}">
-  {f'<div class="cover-blur" style="background-image:url(\'{cover}\')"></div>' if cover else ''}
+  {cover_blur_html}
   <header class="album-header" onclick="toggleAlbum(this)">
     <div class="cover-wrap">{img_tag}</div>
     <div class="album-info">
