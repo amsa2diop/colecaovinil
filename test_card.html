@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Card — DJ Amsa</title>
+<style>
+:root{
+  --acc:#6B1A0D;--acc2:#8B2A1D;
+  --text:#1A1A1A;--text2:#333;--text3:#555;
+  --card:#FAF8F5;--bg:#EEEAE5;
+  --bdr:#D8D2CC;--bdr2:rgba(0,0,0,.06);
+  --shadow:0 1px 5px rgba(0,0,0,.08);
+  --r:9px;--r-sm:5px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:system-ui,-apple-system,sans-serif;
+     padding:2rem;max-width:920px;margin:0 auto;color:var(--text)}
+h2{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:#888;
+   margin:2.5rem 0 .25rem;padding-bottom:.38rem;border-bottom:1px solid #D8D2CC}
+h2:first-of-type{margin-top:0}
+.sub{font-size:.63rem;color:#999;margin:.15rem 0 .65rem;font-family:monospace}
+.grid{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.3rem}
+
+/* ── CARD (Opção F, fator 0.28) ── */
+.album-card{border:1px solid var(--bdr);border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--shadow);position:relative}
+.album-header{display:flex;align-items:center;gap:.95rem;
+  padding:.88rem 1.05rem;position:relative;z-index:1}
+.cover-img{width:88px;height:88px;object-fit:cover;border-radius:var(--r-sm);
+  display:block;box-shadow:0 2px 8px rgba(0,0,0,.22);flex-shrink:0}
+.album-info{flex:1;min-width:0}
+.alb-artist{font-weight:700;font-size:.95rem;color:var(--text)}
+.alb-title{font-size:.82rem;margin-top:.07rem;color:var(--text2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alb-meta{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.42rem;align-items:center}
+.alb-tracks-info{font-size:.63rem;color:var(--text2);margin-top:.28rem}
+
+/* ── TAGS — branco + preto sempre ── */
+.tag,.tag-acc{
+  padding:.12rem .44rem;border-radius:5px;font-size:.58rem;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(255,255,255,.90);color:#222;
+  border:1px solid rgba(0,0,0,.10);flex-shrink:0;white-space:nowrap;line-height:1.4
+}
+
+/* ── BOTÃO BASE (posição 2) ── */
+.btn-card{
+  display:inline-flex;align-items:center;justify-content:center;gap:.3rem;
+  font-size:.67rem;font-weight:600;
+  color:#1A1A1A;background:rgba(255,255,255,.93);
+  border:1px solid rgba(0,0,0,.16);border-radius:6px;
+  padding:.26rem .68rem;text-decoration:none;flex-shrink:0;cursor:pointer;
+  white-space:nowrap;transition:border-color .15s,color .15s;
+  align-self:center;
+}
+.btn-card:hover{color:var(--acc);border-color:var(--acc2)}
+
+/* variante menor */
+.btn-card-sm{
+  display:inline-flex;align-items:center;gap:.26rem;
+  font-size:.61rem;font-weight:600;
+  color:#1A1A1A;background:rgba(255,255,255,.93);
+  border:1px solid rgba(0,0,0,.14);border-radius:5px;
+  padding:.18rem .52rem;text-decoration:none;flex-shrink:0;cursor:pointer;
+  white-space:nowrap;transition:border-color .15s,color .15s;
+  align-self:center;
+}
+.btn-card-sm:hover{color:var(--acc);border-color:var(--acc2)}
+
+/* ── TOGGLE ── */
+.toggle-btn{
+  background:none;border:none;color:var(--text3);cursor:pointer;
+  padding:.3rem .5rem;font-size:.88rem;flex-shrink:0;align-self:center;
+}
+
+/* ── GRUPOS DE BOTÕES À DIREITA ── */
+.rg-row{display:flex;flex-direction:row;align-items:center;gap:.38rem;flex-shrink:0}
+.rg-col{display:flex;flex-direction:column;align-items:stretch;gap:.3rem;flex-shrink:0}
+.rg-col-center{display:flex;flex-direction:column;align-items:center;gap:.3rem;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- SVGs reutilizados (inline templates) — mesmos do header do site -->
+
+<!-- ══════════════════════════════════════════════════
+  REFERÊNCIA: Posição 2 — Discogs só com logo (como no header)
+  ══════════════════════════════════════════════════ -->
+<h2>Ref — Discogs com logo (igual ao header)</h2>
+<div class="sub">[info] [⊙ Discogs com SVG] [∨]</div>
+<div class="grid">
+
+  <div class="album-card" style="background:linear-gradient(105deg,#666877EE 0%,#66687755 100%);
+    --text:#F2F2F2;--text2:#E5E5E5;--text3:#CCCCCC;--bdr2:rgba(255,255,255,.13)">
+    <div class="album-header">
+      <img class="cover-img" src="https://placehold.co/88x88/2B2D42/FFFFFF?text=ATQ" alt="">
+      <div class="album-info">
+        <div class="alb-artist">A Tribe Called Quest</div>
+        <div class="alb-title">The Anthology</div>
+        <div class="alb-meta">
+          <span class="tag">1999</span><span class="tag">US</span>
+          <span class="tag tag-acc">HIP HOP · CONSCIOUS</span>
+          <span class="tag">86-105 BPM</span><span class="tag">SELO: JIVE</span>
+        </div>
+        <div class="alb-tracks-info">19 de 19 faixas · 19 com BPM · 12 com prévia</div>
+      </div>
+      <a class="btn-card" href="#">
+        <svg viewBox="0 0 100 100" width="15" height="15" fill="currentColor" style="flex-shrink:0"><circle cx="50" cy="50" r="50"/><circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="13" fill="white"/><circle cx="50" cy="50" r="4" fill="currentColor"/><polygon points="72,3 85,17 28,97 15,83" fill="white"/></svg>
+        Discogs
+      </a>
+      <button class="toggle-btn">∨</button>
+    </div>
+  </div>
+
+  <div class="album-card" style="background:linear-gradient(105deg,#E0A97DEE 0%,#E0A97D55 100%)">
+    <div class="album-header">
+      <img class="cover-img" src="https://placehold.co/88x88/D4874A/FFFFFF?text=BBR" alt="">
+      <div class="album-info">
+        <div class="alb-artist">Banda Black Rio</div>
+        <div class="alb-title">Saci Pererê</div>
+        <div class="alb-meta">
+          <span class="tag">2025</span><span class="tag">BRAZIL</span>
+          <span class="tag tag-acc">JAZZ · FUNK · SAMBA</span>
+          <span class="tag">73-136 BPM</span><span class="tag">SELO: TRÊS SELOS</span>
+        </div>
+        <div class="alb-tracks-info">10 de 10 faixas · 10 com BPM · 8 com prévia</div>
+      </div>
+      <a class="btn-card" href="#">
+        <svg viewBox="0 0 100 100" width="15" height="15" fill="currentColor" style="flex-shrink:0"><circle cx="50" cy="50" r="50"/><circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="13" fill="white"/><circle cx="50" cy="50" r="4" fill="currentColor"/><polygon points="72,3 85,17 28,97 15,83" fill="white"/></svg>
+        Discogs
+      </a>
+      <button class="toggle-btn">∨</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+  V1 — Spotify + Discogs LADO A LADO (mesma altura)
+  ══════════════════════════════════════════════════ -->
+<h2>V1 — Spotify + Discogs lado a lado, mesma altura</h2>
+<div class="sub">[info] [♫ Spotify] [⊙ Discogs] [∨]</div>
+<div class="grid">
+
+  <div class="album-card" style="background:linear-gradient(105deg,#666877EE 0%,#66687755 100%);
+    --text:#F2F2F2;--text2:#E5E5E5;--text3:#CCCCCC;--bdr2:rgba(255,255,255,.13)">
+    <div class="album-header">
+      <img class="cover-img" src="https://placehold.co/88x88/2B2D42/FFFFFF?text=ATQ" alt="">
+      <div class="album-info">
+        <div class="alb-artist">A Tribe Called Quest</div>
+        <div class="alb-title">The Anthology</div>
+        <div class="alb-meta">
+          <span class="tag">1999</span><span class="tag">US</span>
+          <span class="tag tag-acc">HIP HOP · CONSCIOUS</span>
+          <span class="tag">86-105 BPM</span><span class="tag">SELO: JIVE</span>
+        </div>
+        <div class="alb-tracks-info">19 de 19 faixas · 19 com BPM · 12 com prévia</div>
+      </div>
+      <div class="rg-row">
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="flex-shrink:0"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+          Spotify
+        </a>
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 100 100" width="15" height="15" fill="currentColor" style="flex-shrink:0"><circle cx="50" cy="50" r="50"/><circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="13" fill="white"/><circle cx="50" cy="50" r="4" fill="currentColor"/><polygon points="72,3 85,17 28,97 15,83" fill="white"/></svg>
+          Discogs
+        </a>
+      </div>
+      <button class="toggle-btn">∨</button>
+    </div>
+  </div>
+
+  <div class="album-card" style="background:linear-gradient(105deg,#E0A97DEE 0%,#E0A97D55 100%)">
+    <div class="album-header">
+      <img class="cover-img" src="https://placehold.co/88x88/D4874A/FFFFFF?text=BBR" alt="">
+      <div class="album-info">
+        <div class="alb-artist">Banda Black Rio</div>
+        <div class="alb-title">Saci Pererê</div>
+        <div class="alb-meta">
+          <span class="tag">2025</span><span class="tag">BRAZIL</span>
+          <span class="tag tag-acc">JAZZ · FUNK · SAMBA</span>
+          <span class="tag">73-136 BPM</span><span class="tag">SELO: TRÊS SELOS</span>
+        </div>
+        <div class="alb-tracks-info">10 de 10 faixas · 10 com BPM · 8 com prévia</div>
+      </div>
+      <div class="rg-row">
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="flex-shrink:0"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+          Spotify
+        </a>
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 100 100" width="15" height="15" fill="currentColor" style="flex-shrink:0"><circle cx="50" cy="50" r="50"/><circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="13" fill="white"/><circle cx="50" cy="50" r="4" fill="currentColor"/><polygon points="72,3 85,17 28,97 15,83" fill="white"/></svg>
+          Discogs
+        </a>
+      </div>
+      <button class="toggle-btn">∨</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+  V2 — Discogs em cima, Spotify embaixo (coluna)
+  ══════════════════════════════════════════════════ -->
+<h2>V2 — Discogs acima · Spotify abaixo (coluna)</h2>
+<div class="sub">[info] [col: ⊙ Discogs / ♫ Spotify] [∨]</div>
+<div class="grid">
+
+  <div class="album-card" style="background:linear-gradient(105deg,#666877EE 0%,#66687755 100%);
+    --text:#F2F2F2;--text2:#E5E5E5;--text3:#CCCCCC;--bdr2:rgba(255,255,255,.13)">
+    <div class="album-header">
+      <img class="cover-img" src="https://placehold.co/88x88/2B2D42/FFFFFF?text=ATQ" alt="">
+      <div class="album-info">
+        <div class="alb-artist">A Tribe Called Quest</div>
+        <div class="alb-title">The Anthology</div>
+        <div class="alb-meta">
+          <span class="tag">1999</span><span class="tag">US</span>
+          <span class="tag tag-acc">HIP HOP · CONSCIOUS</span>
+          <span class="tag">86-105 BPM</span><span class="tag">SELO: JIVE</span>
+        </div>
+        <div class="alb-tracks-info">19 de 19 faixas · 19 com BPM · 12 com prévia</div>
+      </div>
+      <div class="rg-col-center">
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 100 100" width="14" height="14" fill="currentColor" style="flex-shrink:0"><circle cx="50" cy="50" r="50"/><circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="13" fill="white"/><circle cx="50" cy="50" r="4" fill="currentColor"/><polygon points="72,3 85,17 28,97 15,83" fill="white"/></svg>
+          Discogs
+        </a>
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+          Spotify
+        </a>
+      </div>
+      <button class="toggle-btn">∨</button>
+    </div>
+  </div>
+
+  <div class="album-card" style="background:linear-gradient(105deg,#E0A97DEE 0%,#E0A97D55 100%)">
+    <div class="album-header">
+      <img class="cover-img" src="https://placehold.co/88x88/D4874A/FFFFFF?text=BBR" alt="">
+      <div class="album-info">
+        <div class="alb-artist">Banda Black Rio</div>
+        <div class="alb-title">Saci Pererê</div>
+        <div class="alb-meta">
+          <span class="tag">2025</span><span class="tag">BRAZIL</span>
+          <span class="tag tag-acc">JAZZ · FUNK · SAMBA</span>
+          <span class="tag">73-136 BPM</span><span class="tag">SELO: TRÊS SELOS</span>
+        </div>
+        <div class="alb-tracks-info">10 de 10 faixas · 10 com BPM · 8 com prévia</div>
+      </div>
+      <div class="rg-col-center">
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 100 100" width="14" height="14" fill="currentColor" style="flex-shrink:0"><circle cx="50" cy="50" r="50"/><circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="13" fill="white"/><circle cx="50" cy="50" r="4" fill="currentColor"/><polygon points="72,3 85,17 28,97 15,83" fill="white"/></svg>
+          Discogs
+        </a>
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+          Spotify
+        </a>
+      </div>
+      <button class="toggle-btn">∨</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+  V3 — Spotify acima, Discogs abaixo (coluna invertida)
+  ══════════════════════════════════════════════════ -->
+<h2>V3 — Spotify acima · Discogs abaixo (coluna invertida)</h2>
+<div class="sub">[info] [col: ♫ Spotify / ⊙ Discogs] [∨]</div>
+<div class="grid">
+
+  <div class="album-card" style="background:linear-gradient(105deg,#666877EE 0%,#66687755 100%);
+    --text:#F2F2F2;--text2:#E5E5E5;--text3:#CCCCCC;--bdr2:rgba(255,255,255,.13)">
+    <div class="album-header">
+      <img class="cover-img" src="https://placehold.co/88x88/2B2D42/FFFFFF?text=ATQ" alt="">
+      <div class="album-info">
+        <div class="alb-artist">A Tribe Called Quest</div>
+        <div class="alb-title">The Anthology</div>
+        <div class="alb-meta">
+          <span class="tag">1999</span><span class="tag">US</span>
+          <span class="tag tag-acc">HIP HOP · CONSCIOUS</span>
+          <span class="tag">86-105 BPM</span><span class="tag">SELO: JIVE</span>
+        </div>
+        <div class="alb-tracks-info">19 de 19 faixas · 19 com BPM · 12 com prévia</div>
+      </div>
+      <div class="rg-col-center">
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+          Spotify
+        </a>
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 100 100" width="14" height="14" fill="currentColor" style="flex-shrink:0"><circle cx="50" cy="50" r="50"/><circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="13" fill="white"/><circle cx="50" cy="50" r="4" fill="currentColor"/><polygon points="72,3 85,17 28,97 15,83" fill="white"/></svg>
+          Discogs
+        </a>
+      </div>
+      <button class="toggle-btn">∨</button>
+    </div>
+  </div>
+
+  <div class="album-card" style="background:linear-gradient(105deg,#E0A97DEE 0%,#E0A97D55 100%)">
+    <div class="album-header">
+      <img class="cover-img" src="https://placehold.co/88x88/D4874A/FFFFFF?text=BBR" alt="">
+      <div class="album-info">
+        <div class="alb-artist">Banda Black Rio</div>
+        <div class="alb-title">Saci Pererê</div>
+        <div class="alb-meta">
+          <span class="tag">2025</span><span class="tag">BRAZIL</span>
+          <span class="tag tag-acc">JAZZ · FUNK · SAMBA</span>
+          <span class="tag">73-136 BPM</span><span class="tag">SELO: TRÊS SELOS</span>
+        </div>
+        <div class="alb-tracks-info">10 de 10 faixas · 10 com BPM · 8 com prévia</div>
+      </div>
+      <div class="rg-col-center">
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+          Spotify
+        </a>
+        <a class="btn-card" href="#">
+          <svg viewBox="0 0 100 100" width="14" height="14" fill="currentColor" style="flex-shrink:0"><circle cx="50" cy="50" r="50"/><circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="3.5"/><circle cx="50" cy="50" r="13" fill="white"/><circle cx="50" cy="50" r="4" fill="currentColor"/><polygon points="72,3 85,17 28,97 15,83" fill="white"/></svg>
+          Discogs
+        </a>
+      </div>
+      <button class="toggle-btn">∨</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+  V4 — Compacto: ícones lado a lado sem texto
+  ══════════════════════════════════════════════════ -->
+<h2>V4 — Ícones lado a lado, sem texto (compacto)</h2>
+<div class="sub">[info] [♫ ⊙ lado a lado, sem rótulo] [∨] — minimalista</div>
+<div class="grid">
+
+  <div class="album-card" style="background:linear-gradient(105deg,#666877EE 0%,#66687755 100%);
+    --text:#F2F2F2;--text2:#E5E5E5;--text3:#CCCCCC;--bdr2:rgba(255,255,255,.13)">
+    <div class="album-header">
+      <img class="cover-img" src="https://placehold.co/88x88/2B2D42/FFFFFF?text=ATQ" alt="">
+      <div class="album-info">
+        <div class="alb-artist">A Tribe Called Quest</div>
+        <div class="alb-title">The Anthology</div>
+        <div class="alb-meta">
+          <span class="tag">1999</span><span class="tag">US</span>
+          <span class="tag tag-acc">HIP HOP · CONSCIOUS</span>
+          <span class="tag">86-105 BPM</span><span class="tag">SELO: JIVE</span>
+        </div>
+        <div class="alb-tracks-info">19 de 19 faixas · 19 com BPM · 12 com prévia</div>
+      </div>
+      <div class="rg-row">
+        <a href="#" title="Spotify" style="display:inline-flex;align-items:center;justify-content:center;
+          width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.93);
+          border:1px solid rgba(0,0,0,.14);color:#1A1A1A;text-decoration:none;
+          transition:border-color .15s,color .15s;flex-shrink:0">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        </a>
+        <a href="#" title="Discogs" style="display:inline-flex;align-items:center;justify-content:center;
+          width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.93);
+          border:1px solid rgba(0,0,0,.14);color:#1A1A1A;text-decoration:none;
+          transition:border-color .15s,color .15s;flex-shrink:0">
+          <svg viewBox="0 0 100 100" width="17" height="17" fill="currentColor"><circle cx="50" cy="50" r="50"/><circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="4"/><circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="4"/><circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="4"/><circle cx="50" cy="50" r="13" fill="white"/><circle cx="50" cy="50" r="4.5" fill="currentColor"/><polygon points="72,3 85,17 28,97 15,83" fill="white"/></svg>
+        </a>
+      </div>
+      <button class="toggle-btn">∨</button>
+    </div>
+  </div>
+
+  <div class="album-card" style="background:linear-gradient(105deg,#E0A97DEE 0%,#E0A97D55 100%)">
+    <div class="album-header">
+      <img class="cover-img" src="https://placehold.co/88x88/D4874A/FFFFFF?text=BBR" alt="">
+      <div class="album-info">
+        <div class="alb-artist">Banda Black Rio</div>
+        <div class="alb-title">Saci Pererê</div>
+        <div class="alb-meta">
+          <span class="tag">2025</span><span class="tag">BRAZIL</span>
+          <span class="tag tag-acc">JAZZ · FUNK · SAMBA</span>
+          <span class="tag">73-136 BPM</span><span class="tag">SELO: TRÊS SELOS</span>
+        </div>
+        <div class="alb-tracks-info">10 de 10 faixas · 10 com BPM · 8 com prévia</div>
+      </div>
+      <div class="rg-row">
+        <a href="#" title="Spotify" style="display:inline-flex;align-items:center;justify-content:center;
+          width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.93);
+          border:1px solid rgba(0,0,0,.14);color:#1A1A1A;text-decoration:none;flex-shrink:0">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        </a>
+        <a href="#" title="Discogs" style="display:inline-flex;align-items:center;justify-content:center;
+          width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.93);
+          border:1px solid rgba(0,0,0,.14);color:#1A1A1A;text-decoration:none;flex-shrink:0">
+          <svg viewBox="0 0 100 100" width="17" height="17" fill="currentColor"><circle cx="50" cy="50" r="50"/><circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="4"/><circle cx="50" cy="50" r="31" fill="none" stroke="white" stroke-width="4"/><circle cx="50" cy="50" r="21" fill="none" stroke="white" stroke-width="4"/><circle cx="50" cy="50" r="13" fill="white"/><circle cx="50" cy="50" r="4.5" fill="currentColor"/><polygon points="72,3 85,17 28,97 15,83" fill="white"/></svg>
+        </a>
+      </div>
+      <button class="toggle-btn">∨</button>
+    </div>
+  </div>
+</div>
+
+<p style="font-size:.61rem;color:#AAA;margin-top:2rem;line-height:1.65;
+  border-top:1px solid #D8D2CC;padding-top:.7rem">
+  <strong>Base:</strong> Gradiente F (EE→55, fator 0.28) · texto preto/branco por luminância ·
+  tags sempre branco+preto · Ref = Discogs sozinho (Posição 2 aprovada)
+</p>
+</body>
+</html>

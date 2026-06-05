@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teste — Logo no Header</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#f0f0f0;padding:2rem;color:#111}
+  h2{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:#888;margin:2rem 0 .6rem}
+  .header-demo{
+    background:#fff;border-bottom:1px solid #DDD;
+    display:flex;align-items:center;gap:1.2rem;padding:0 2rem;
+    height:54px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.07);
+    margin-bottom:1.5rem
+  }
+  .logo-name{font-family:Georgia,serif;font-weight:normal;font-size:1.4rem;letter-spacing:.04em;text-decoration:none;color:#111}
+  .sep{width:1px;height:22px;background:#DDD}
+  .stats{font-size:.74rem;color:#666}
+
+  /* ── Option 1: Small square thumbnail ── */
+  .logo-thumb-sq{
+    width:34px;height:34px;object-fit:cover;border-radius:4px;
+    flex-shrink:0
+  }
+
+  /* ── Option 2: Rounded corners (8px) ── */
+  .logo-thumb-r8{
+    width:34px;height:34px;object-fit:cover;border-radius:8px;
+    flex-shrink:0
+  }
+
+  /* ── Option 3: Circular ── */
+  .logo-thumb-circle{
+    width:36px;height:36px;object-fit:cover;border-radius:50%;
+    flex-shrink:0
+  }
+
+  /* ── Option 4: Circular, larger (42px) ── */
+  .logo-thumb-circle-lg{
+    width:42px;height:42px;object-fit:cover;border-radius:50%;
+    flex-shrink:0
+  }
+
+  /* ── Option 5: Vinyl record — circular with hole using clip/mask ── */
+  .logo-vinyl-wrap{
+    position:relative;width:40px;height:40px;flex-shrink:0
+  }
+  .logo-vinyl-img{
+    width:40px;height:40px;object-fit:cover;border-radius:50%;display:block
+  }
+  .logo-vinyl-hole{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none
+  }
+  .logo-vinyl-hole::after{
+    content:'';width:10px;height:10px;border-radius:50%;
+    background:#fff;border:1.5px solid rgba(255,255,255,.5);
+    box-shadow:0 0 0 1.5px rgba(0,0,0,.18)
+  }
+
+  /* ── Option 6: Vinyl larger (46px) ── */
+  .logo-vinyl-wrap-lg{
+    position:relative;width:46px;height:46px;flex-shrink:0
+  }
+  .logo-vinyl-img-lg{
+    width:46px;height:46px;object-fit:cover;border-radius:50%;display:block
+  }
+  .logo-vinyl-hole-lg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none
+  }
+  .logo-vinyl-hole-lg::after{
+    content:'';width:13px;height:13px;border-radius:50%;
+    background:#fff;border:1.5px solid rgba(255,255,255,.5);
+    box-shadow:0 0 0 1.5px rgba(0,0,0,.18)
+  }
+
+  /* ── Option 7: Rounded square vinyl (with hole) ── */
+  .logo-vinyl-sq-wrap{
+    position:relative;width:38px;height:38px;flex-shrink:0
+  }
+  .logo-vinyl-sq-img{
+    width:38px;height:38px;object-fit:cover;border-radius:9px;display:block
+  }
+  .logo-vinyl-sq-hole{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none
+  }
+  .logo-vinyl-sq-hole::after{
+    content:'';width:10px;height:10px;border-radius:50%;
+    background:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.18)
+  }
+
+  /* ── Option 8: full portrait preview.jpg, taller header ── */
+  .header-tall{height:70px}
+  .logo-thumb-tall{
+    height:56px;width:auto;border-radius:6px;
+    object-fit:cover;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.15)
+  }
+
+  /* ── Option 9: square, with thin border ring ── */
+  .logo-thumb-ring{
+    width:36px;height:36px;object-fit:cover;border-radius:50%;
+    flex-shrink:0;
+    outline:2px solid #DDD;outline-offset:2px
+  }
+
+  /* ── Option 10: portrait original, blurred bg strip ── */
+  .logo-banner-wrap{
+    position:relative;height:54px;overflow:hidden;flex-shrink:0;
+    display:flex;align-items:center;border-radius:8px
+  }
+  .logo-banner-bg{
+    position:absolute;inset:-10px;
+    background-size:cover;background-position:center;
+    filter:blur(8px) brightness(.6);transform:scale(1.3)
+  }
+  .logo-banner-img{
+    position:relative;z-index:1;height:44px;width:auto;border-radius:5px;
+    box-shadow:0 2px 8px rgba(0,0,0,.3)
+  }
+
+  .label{font-size:.67rem;color:#999;margin-top:-.9rem;margin-bottom:1.5rem;padding-left:.2rem}
+</style>
+</head>
+<body>
+
+<h2>Opção 1 — Quadrado pequeno (34px)</h2>
+<div class="header-demo">
+  <img class="logo-thumb-sq" src="preview_squared.jpg" alt="">
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview_squared.jpg · border-radius 4px</p>
+
+<h2>Opção 2 — Quadrado arredondado (8px)</h2>
+<div class="header-demo">
+  <img class="logo-thumb-r8" src="preview_squared.jpg" alt="">
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview_squared.jpg · border-radius 8px</p>
+
+<h2>Opção 3 — Circular (36px)</h2>
+<div class="header-demo">
+  <img class="logo-thumb-circle" src="preview_squared.jpg" alt="">
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview_squared.jpg · border-radius 50%</p>
+
+<h2>Opção 4 — Circular maior (42px)</h2>
+<div class="header-demo">
+  <img class="logo-thumb-circle-lg" src="preview_squared.jpg" alt="">
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview_squared.jpg · circular 42px</p>
+
+<h2>Opção 5 — Vinil circular com buraco (40px)</h2>
+<div class="header-demo">
+  <div class="logo-vinyl-wrap">
+    <img class="logo-vinyl-img" src="preview_squared.jpg" alt="">
+    <div class="logo-vinyl-hole"></div>
+  </div>
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview_squared.jpg · vinil 40px · buraco 10px</p>
+
+<h2>Opção 6 — Vinil circular maior (46px)</h2>
+<div class="header-demo">
+  <div class="logo-vinyl-wrap-lg">
+    <img class="logo-vinyl-img-lg" src="preview_squared.jpg" alt="">
+    <div class="logo-vinyl-hole-lg"></div>
+  </div>
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview_squared.jpg · vinil 46px · buraco 13px</p>
+
+<h2>Opção 7 — Quadrado arredondado com buraco central</h2>
+<div class="header-demo">
+  <div class="logo-vinyl-sq-wrap">
+    <img class="logo-vinyl-sq-img" src="preview_squared.jpg" alt="">
+    <div class="logo-vinyl-sq-hole"></div>
+  </div>
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview_squared.jpg · quadrado arredondado 38px · buraco 10px</p>
+
+<h2>Opção 8 — Circular com anel externo</h2>
+<div class="header-demo">
+  <img class="logo-thumb-ring" src="preview_squared.jpg" alt="">
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview_squared.jpg · circular com outline ring</p>
+
+<h2>Opção 9 — Preview original (retrato), header mais alto (70px)</h2>
+<div class="header-demo header-tall">
+  <img class="logo-thumb-tall" src="preview.jpg" alt="">
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview.jpg (retrato) · altura automática · header 70px</p>
+
+<h2>Opção 10 — Preview original com faixa desfocada</h2>
+<div class="header-demo" style="padding:0 1.5rem">
+  <div class="logo-banner-wrap">
+    <div class="logo-banner-bg" style="background-image:url('preview.jpg')"></div>
+    <img class="logo-banner-img" src="preview.jpg" alt="">
+  </div>
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview.jpg · blur bg + imagem nítida na frente</p>
+
+<h2>Opção 11 — Vinil com preview original (retrato, cortado ao centro)</h2>
+<div class="header-demo">
+  <div class="logo-vinyl-wrap-lg" style="width:46px;height:46px">
+    <img class="logo-vinyl-img-lg" src="preview.jpg" alt="" style="width:46px;height:46px;object-fit:cover;object-position:center top">
+    <div class="logo-vinyl-hole-lg"></div>
+  </div>
+  <a class="logo-name" href="#">Discos do Amsa</a>
+  <div class="sep"></div>
+  <span class="stats">245 discos · 2 847 faixas</span>
+</div>
+<p class="label">preview.jpg (cortado ao topo) · vinil com buraco</p>
+
+</body>
+</html>

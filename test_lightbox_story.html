@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teste — Lightbox & Story</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f0f0f0;padding:2rem;color:#111}
+h2{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:#888;margin:2.5rem 0 .8rem}
+.note{font-size:.7rem;color:#999;margin-top:-.4rem;margin-bottom:1.2rem}
+
+/* ── Fake header to show each variant in context ── */
+.header-demo{
+  background:#fff;border-bottom:1px solid #DDD;
+  display:flex;align-items:center;gap:1.2rem;padding:0 1.5rem;
+  height:54px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.07);
+  margin-bottom:.5rem
+}
+.logo-name{font-family:Georgia,serif;font-weight:normal;font-size:1.4rem;letter-spacing:.04em;color:#111}
+
+/* ── Base vinyl logo ── */
+.vinyl-wrap{position:relative;flex-shrink:0;cursor:pointer}
+.vinyl-img{object-fit:cover;border-radius:50%;display:block}
+.vinyl-hole{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.vinyl-hole::after{content:'';border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.18)}
+
+/* sizes */
+.sz-38 .vinyl-img{width:38px;height:38px} .sz-38 .vinyl-hole::after{width:10px;height:10px}
+.sz-44 .vinyl-img{width:44px;height:44px} .sz-44 .vinyl-hole::after{width:12px;height:12px}
+.sz-48 .vinyl-img{width:48px;height:48px} .sz-48 .vinyl-hole::after{width:13px;height:13px}
+
+/* ── Variant A: Static gradient ring (Instagram style — new story) ── */
+.ring-static .vinyl-img{
+  outline:3px solid transparent;
+  box-shadow:0 0 0 3px #fff, 0 0 0 5.5px transparent;
+}
+.ring-static-wrap{
+  background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);
+  padding:2.5px;border-radius:50%
+}
+.ring-static-wrap .vinyl-img{outline:2px solid #fff;outline-offset:1px}
+
+/* ── Variant B: Animated spinning gradient ring ── */
+@keyframes spin-ring{to{transform:rotate(360deg)}}
+.ring-anim-outer{
+  position:relative;width:46px;height:46px;flex-shrink:0;cursor:pointer
+}
+.ring-anim-bg{
+  position:absolute;inset:-3px;border-radius:50%;
+  background:conic-gradient(#f09433,#e6683c,#dc2743,#cc2366,#bc1888,#f09433);
+  animation:spin-ring 3s linear infinite
+}
+.ring-anim-mask{
+  position:absolute;inset:0;border-radius:50%;
+  background:#fff;margin:2.5px
+}
+.ring-anim-img{
+  position:absolute;inset:2.5px;border-radius:50%;object-fit:cover
+}
+.ring-anim-hole{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none
+}
+.ring-anim-hole::after{content:'';width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.18)}
+
+/* ── Variant C: Multicolor dashed ring (seen story) ── */
+.ring-seen-wrap{
+  background:linear-gradient(#fff,#fff) padding-box,
+             linear-gradient(45deg,#ccc,#ccc) border-box;
+  border:3px solid transparent;border-radius:50%;padding:1px;cursor:pointer;flex-shrink:0
+}
+.ring-seen-wrap .vinyl-img{outline:none}
+
+/* ── Variant D: Pulsing glow (no gradient, warm glow) ── */
+@keyframes pulse-glow{
+  0%,100%{box-shadow:0 0 0 3px rgba(240,148,51,.7),0 0 14px rgba(220,39,67,.4)}
+  50%{box-shadow:0 0 0 4px rgba(240,148,51,.4),0 0 22px rgba(220,39,67,.25)}
+}
+.ring-pulse .vinyl-img{
+  animation:pulse-glow 2s ease-in-out infinite
+}
+
+/* ════════════════════════════════════════════════════
+   LIGHTBOX OVERLAY
+   ════════════════════════════════════════════════════ */
+.lightbox-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.82);backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9000;opacity:0;pointer-events:none;
+  transition:opacity .25s
+}
+.lightbox-overlay.open{opacity:1;pointer-events:all}
+
+/* close on click outside */
+.lightbox-overlay{cursor:pointer}
+.lightbox-inner{cursor:default;position:relative;display:flex;align-items:center;gap:1rem}
+
+/* X button */
+.lightbox-close{
+  position:absolute;top:-40px;right:0;
+  background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;
+  opacity:.8;transition:opacity .15s;line-height:1
+}
+.lightbox-close:hover{opacity:1}
+
+/* Main image */
+.lightbox-img{
+  max-height:85vh;max-width:80vw;
+  border-radius:12px;object-fit:contain;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  display:block
+}
+
+/* Story nav arrows */
+.story-nav{
+  background:rgba(255,255,255,.18);backdrop-filter:blur(4px);
+  border:none;color:#fff;font-size:1.4rem;
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .15s;flex-shrink:0
+}
+.story-nav:hover{background:rgba(255,255,255,.32)}
+.story-nav:disabled{opacity:.2;pointer-events:none}
+
+/* Story dots */
+.story-dots{
+  position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);
+  display:flex;gap:5px
+}
+.story-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);transition:background .2s}
+.story-dot.active{background:#fff}
+
+/* Story progress bar */
+.story-progress{
+  position:absolute;top:-10px;left:0;right:0;
+  display:flex;gap:3px
+}
+.story-seg{height:2px;flex:1;background:rgba(255,255,255,.3);border-radius:1px;overflow:hidden}
+.story-seg-fill{height:100%;background:#fff;width:0;transition:none}
+.story-seg-fill.done{width:100%}
+.story-seg-fill.playing{animation:story-fill 4s linear forwards}
+@keyframes story-fill{from{width:0}to{width:100%}}
+
+/* Caption below image */
+.lightbox-caption{
+  position:absolute;bottom:-36px;left:0;right:0;
+  text-align:center;color:rgba(255,255,255,.7);font-size:.75rem;letter-spacing:.04em
+}
+</style>
+</head>
+<body>
+
+<!-- ════ LIGHTBOX (shared) ════ -->
+<div class="lightbox-overlay" id="lightbox" onclick="lbBgClick(event)">
+  <div class="lightbox-inner" id="lb-inner">
+    <button class="lightbox-close" onclick="closeLightbox()" title="Fechar">&#10005;</button>
+    <div class="story-progress" id="story-progress"></div>
+
+    <button class="story-nav" id="story-prev" onclick="storyNav(-1)">&#9664;</button>
+    <div style="position:relative">
+      <img class="lightbox-img" id="lb-img" src="" alt="">
+      <div class="story-dots" id="story-dots"></div>
+      <div class="lightbox-caption" id="lb-caption"></div>
+    </div>
+    <button class="story-nav" id="story-next" onclick="storyNav(1)">&#9654;</button>
+  </div>
+</div>
+
+<!-- ════ OPTIONS ════ -->
+
+<h2>Opção A — Anel gradiente estático (Instagram "novo story")</h2>
+<div class="header-demo">
+  <div class="ring-static-wrap sz-38 vinyl-wrap" onclick="openLightbox(0)">
+    <img class="vinyl-img" src="preview_squared.jpg" alt="">
+    <div class="vinyl-hole"></div>
+  </div>
+  <span class="logo-name">Discos do Amsa</span>
+</div>
+<p class="note">Anel gradiente laranja→rosa. Clique para abrir o lightbox.</p>
+
+<h2>Opção B — Anel gradiente animado (spinning)</h2>
+<div class="header-demo">
+  <div class="ring-anim-outer" onclick="openLightbox(0)">
+    <div class="ring-anim-bg"></div>
+    <div class="ring-anim-mask"></div>
+    <img class="ring-anim-img" src="preview_squared.jpg" alt="">
+    <div class="ring-anim-hole"></div>
+  </div>
+  <span class="logo-name">Discos do Amsa</span>
+</div>
+<p class="note">Anel girando continuamente. Mais dinâmico, pode distrair.</p>
+
+<h2>Opção C — Anel cinza (story já visto)</h2>
+<div class="header-demo">
+  <div class="ring-seen-wrap vinyl-wrap sz-38" onclick="openLightbox(0)">
+    <img class="vinyl-img" src="preview_squared.jpg" alt="">
+    <div class="vinyl-hole"></div>
+  </div>
+  <span class="logo-name">Discos do Amsa</span>
+</div>
+<p class="note">Anel cinza, estilo Instagram story já visto. Sutil.</p>
+
+<h2>Opção D — Glow pulsante</h2>
+<div class="header-demo">
+  <div class="vinyl-wrap sz-38 ring-pulse" onclick="openLightbox(0)">
+    <img class="vinyl-img" src="preview_squared.jpg" alt="">
+    <div class="vinyl-hole"></div>
+  </div>
+  <span class="logo-name">Discos do Amsa</span>
+</div>
+<p class="note">Brilho quente pulsando em torno do vinil. Sem anel sólido.</p>
+
+<h2>Opção E — Anel gradiente estático, tamanho maior (48px)</h2>
+<div class="header-demo">
+  <div class="ring-static-wrap sz-48 vinyl-wrap" onclick="openLightbox(0)">
+    <img class="vinyl-img" src="preview_squared.jpg" alt="">
+    <div class="vinyl-hole"></div>
+  </div>
+  <span class="logo-name">Discos do Amsa</span>
+</div>
+<p class="note">Mesmo anel da opção A, logo 48px — mais presença no header.</p>
+
+<hr style="margin:2rem 0;border:none;border-top:1px solid #ddd">
+<h2>Lightbox: modos de exibição</h2>
+<p class="note" style="margin-bottom:1rem">Clique em qualquer vinil acima para testar. A seguir os modos disponíveis:</p>
+
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem">
+  <button onclick="openLightbox(0)" style="padding:.5rem 1rem;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:.8rem">
+    ▶ Modo 1: só preview.jpg
+  </button>
+  <button onclick="openStory()" style="padding:.5rem 1rem;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:.8rem">
+    ▶ Modo 2: sequência story (preview + squared)
+  </button>
+</div>
+
+<script>
+// ── Story images ──────────────────────────────────────────────────────────────
+var STORY_SINGLE = [
+  {src:'preview.jpg', caption:''}
+];
+var STORY_MULTI = [
+  {src:'preview.jpg',         caption:'preview.jpg'},
+  {src:'preview_squared.jpg', caption:'preview_squared.jpg'}
+];
+
+var storyImages = STORY_SINGLE;
+var storyIdx    = 0;
+var storyTimer  = null;
+
+function openLightbox(idx){
+  storyImages = STORY_SINGLE;
+  showStory(idx||0);
+}
+function openStory(){
+  storyImages = STORY_MULTI;
+  showStory(0);
+}
+
+function showStory(idx){
+  storyIdx = Math.max(0, Math.min(idx, storyImages.length-1));
+  var lb = document.getElementById('lightbox');
+  var img= document.getElementById('lb-img');
+  var cap= document.getElementById('lb-caption');
+  img.src = storyImages[storyIdx].src;
+  cap.textContent = storyImages[storyIdx].caption;
+  lb.classList.add('open');
+
+  // nav arrows
+  document.getElementById('story-prev').disabled = (storyIdx===0);
+  document.getElementById('story-next').disabled = (storyIdx===storyImages.length-1);
+
+  // dots
+  var dots = document.getElementById('story-dots');
+  if(storyImages.length>1){
+    dots.innerHTML = storyImages.map(function(_,i){
+      return '<div class="story-dot'+(i===storyIdx?' active':'')+'"></div>';
+    }).join('');
+  } else {
+    dots.innerHTML='';
+  }
+
+  // progress bars
+  var prog = document.getElementById('story-progress');
+  if(storyImages.length>1){
+    prog.innerHTML = storyImages.map(function(_,i){
+      var fillClass = i<storyIdx?'done':i===storyIdx?'playing':'';
+      return '<div class="story-seg"><div class="story-seg-fill '+fillClass+'"></div></div>';
+    }).join('');
+    clearTimeout(storyTimer);
+    if(storyIdx < storyImages.length-1){
+      storyTimer = setTimeout(function(){storyNav(1);}, 4000);
+    }
+  } else {
+    prog.innerHTML='';
+    clearTimeout(storyTimer);
+  }
+}
+
+function storyNav(dir){
+  clearTimeout(storyTimer);
+  var next = storyIdx + dir;
+  if(next >= 0 && next < storyImages.length) showStory(next);
+}
+
+function closeLightbox(){
+  clearTimeout(storyTimer);
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+function lbBgClick(e){
+  if(e.target===document.getElementById('lightbox')) closeLightbox();
+}
+
+document.addEventListener('keydown',function(e){
+  if(!document.getElementById('lightbox').classList.contains('open'))return;
+  if(e.key==='Escape') closeLightbox();
+  if(e.key==='ArrowRight') storyNav(1);
+  if(e.key==='ArrowLeft')  storyNav(-1);
+});
+</script>
+</body>
+</html>

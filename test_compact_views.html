@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype — Compact View v2</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  background: #F5F1EB;
+  color: #111;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: #fff;
+  border-bottom: 1px solid #E0DDD8;
+  padding: 0 14px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.site-title { font-size: .95rem; font-weight: 700; letter-spacing: -.02em; }
+.site-stats  { font-size: .78rem; color: #999; }
+
+/* ── TABS ── */
+.tabs-bar {
+  background: #fff;
+  border-bottom: 1px solid #E8E4DE;
+  padding: 8px 12px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  position: sticky;
+  top: 52px;
+  z-index: 19;
+}
+.tab-btn {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #DDD;
+  background: #fff;
+  color: #666;
+  transition: all .15s;
+}
+.tab-btn.active { background: #111; color: #fff; border-color: #111; }
+.tab-btn.secret { border-style: dashed; color: #aaa; border-color: #ccc; }
+.tab-btn.secret.active { background: #555; border-style: solid; color: #fff; border-color: #555; }
+
+/* ── VIEWS ── */
+.view { display: none; }
+.view.active { display: block; }
+.view-placeholder {
+  padding: 60px 20px;
+  text-align: center;
+  color: #bbb;
+  font-size: .82rem;
+}
+
+/* ── COMPACT SUBHEADER ── */
+.c-subhead {
+  font-size: .72rem;
+  color: #BBB;
+  padding: 7px 12px;
+  background: #FAF8F5;
+  border-bottom: 1px solid #EDE9E3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: .01em;
+}
+.c-subhead .sep { color: #DDD; }
+.incomplete-link {
+  color: #AAA;
+  text-decoration: none;
+  border-bottom: 1px dashed #ccc;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+  margin-left: auto;
+}
+.incomplete-link:hover { color: #444; border-color: #888; }
+
+/* ══════════════════════════════════════════
+   COMPACT ROW
+   Layout: [BPM] [cover] [title/artist] [D][S][▶]
+══════════════════════════════════════════ */
+.c-list { background: #fff; }
+
+.c-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(0,0,0,.055);
+  transition: filter .1s;
+  position: relative;
+}
+.c-row:last-child { border-bottom: none; }
+.c-row:hover { filter: brightness(.96); }
+
+/* BPM — left of cover */
+.c-bpm {
+  font-size: .88rem; font-weight: 700;
+  min-width: 38px; text-align: right;
+  flex-shrink: 0; letter-spacing: -.5px;
+  color: var(--tc, #111);
+  line-height: 1;
+}
+.c-bpm small {
+  display: block;
+  font-size: .55rem; font-weight: 500;
+  letter-spacing: .04em;
+  opacity: .55;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+.c-bpm-none {
+  min-width: 38px; text-align: right; flex-shrink: 0;
+  color: var(--tc, #111); opacity: .2; font-size: .8rem;
+}
+
+/* cover */
+.c-ph {
+  width: 40px; height: 40px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  color: rgba(255,255,255,.5);
+  overflow: hidden;
+}
+.c-thumb {
+  width: 40px; height: 40px;
+  border-radius: 5px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* track info */
+.c-info { flex: 1; min-width: 0; }
+.c-title {
+  font-size: .82rem; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.35;
+  color: var(--tc, #111);
+}
+.c-artist {
+  font-size: .72rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.3;
+  color: var(--tc, #888);
+  opacity: .72;
+}
+
+/* icon buttons — always readable via translucent white bg */
+.c-btns { display: flex; gap: 3px; flex-shrink: 0; }
+.ic-btn {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(255,255,255,.82);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; text-decoration: none; color: #444;
+  flex-shrink: 0;
+  transition: background .1s;
+  padding: 0;
+  backdrop-filter: blur(2px);
+}
+.ic-btn:hover { background: rgba(255,255,255,.97); }
+.ic-btn svg { width: 15px; height: 15px; display: block; }
+.ic-btn-play { color: #111; }
+.ic-btn[disabled] { opacity: .22; cursor: default; pointer-events: none; }
+
+/* ── HIDDEN VIEW badges ── */
+.h-section-title {
+  font-size: .68rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: #AAA;
+  padding: 12px 12px 5px;
+  background: #F5F1EB;
+  border-bottom: 1px solid #E8E4DE;
+}
+.h-flag {
+  font-size: .62rem; font-weight: 700;
+  border-radius: 4px; padding: 2px 6px;
+  flex-shrink: 0;
+  text-transform: uppercase; letter-spacing: .04em;
+  white-space: nowrap;
+}
+.f-bpm  { background: #FFF3E0; color: #BF5700; }
+.f-sp   { background: #E3F2FD; color: #1258A8; }
+.f-both { background: #FCE4EC; color: #880E4F; }
+
+/* ── responsive ── */
+@media (max-width: 480px) {
+  .c-row { padding: 4px 8px; gap: 7px; }
+  .c-ph, .c-thumb { width: 36px; height: 36px; }
+  .c-bpm { min-width: 34px; font-size: .82rem; }
+  .ic-btn { width: 27px; height: 27px; }
+  .ic-btn svg { width: 13px; height: 13px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────── -->
+<div class="site-header">
+  <span class="site-title">Coleção do Amsa</span>
+  <span class="site-stats">312 discos &nbsp;·&nbsp; 2528 faixas</span>
+</div>
+
+<!-- ── TABS ────────────────────────────────────────── -->
+<div class="tabs-bar" id="tabs-bar">
+  <button class="tab-btn" onclick="switchTab(this,'full')">Faixas</button>
+  <button class="tab-btn active" onclick="switchTab(this,'compact')">Compact</button>
+</div>
+
+<!-- ── VIEWS ───────────────────────────────────────── -->
+<div class="view" id="view-full">
+  <div class="view-placeholder">← View Faixas atual (não alterada)</div>
+</div>
+
+<div class="view active" id="view-compact">
+  <div class="c-subhead">
+    <span>BPM ↑ &nbsp;·&nbsp; Artista A–Z</span>
+    <span class="sep">·</span>
+    <a class="incomplete-link" onclick="unlockHidden()" id="incomplete-trigger"></a>
+  </div>
+  <div class="c-list" id="compact-list"></div>
+</div>
+
+<div class="view" id="view-hidden">
+  <div class="c-list" id="hidden-list"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// ICONS  (same as main app)
+// ══════════════════════════════════════════════════════════════
+
+const IC_DISC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="12" cy="12" r="10.2"/>
+  <circle cx="12" cy="12" r="4.1" stroke-width="1.5"/>
+  <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>
+</svg>`;
+
+const IC_SP = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#1DB954" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+</svg>`;
+
+const IC_PLAY = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="6,3 20,12 6,21"/>
+</svg>`;
+
+// ══════════════════════════════════════════════════════════════
+// SAMPLE DATA
+// bpm:null = não buscado  |  sp:null = não está no Spotify
+// ══════════════════════════════════════════════════════════════
+const TRACKS = [
+  { title:"Ponta de Areia",           artist:"Milton Nascimento",  bpm:88,  sp:"11abc",  disc:"3012345", color:"#7B6B9A" },
+  { title:"Corcovado",                artist:"João Gilberto",      bpm:72,  sp:"22def",  disc:"2987654", color:"#4A8A7B" },
+  { title:"Berimbau",                 artist:"Astrud Gilberto",    bpm:95,  sp:null,     disc:"3456789", color:"#8A7B5A" },
+  { title:"Funk Me",                  artist:"Marcos Valle",       bpm:112, sp:"33ghi",  disc:"4012345", color:"#3A6B9A" },
+  { title:"Consolação",               artist:"Baden Powell",       bpm:null,sp:"44jkl",  disc:"2765432", color:"#9A5A5A" },
+  { title:"Saudade Fez Um Samba",     artist:"Chico Buarque",      bpm:104, sp:"55mno",  disc:"3876543", color:"#7A9A5A" },
+  { title:"Baianidade Nagô",          artist:"Clara Nunes",        bpm:118, sp:null,     disc:"3234567", color:"#9A9A3A" },
+  { title:"Influência do Jazz",       artist:"Nara Leão",          bpm:null,sp:null,     disc:"2654321", color:"#5A5A9A" },
+  { title:"Vera Cruz",                artist:"Milton Nascimento",  bpm:124, sp:"66pqr",  disc:"3543210", color:"#9A4A7A" },
+  { title:"Palco",                    artist:"Gilberto Gil",       bpm:97,  sp:"77stu",  disc:"3765432", color:"#3A9A9A" },
+  { title:"Construção",               artist:"Chico Buarque",      bpm:86,  sp:null,     disc:"2543219", color:"#7A7A4A" },
+  { title:"Oriente",                  artist:"Gilberto Gil",       bpm:131, sp:"88vwx",  disc:"3987654", color:"#3A7A4A" },
+  { title:"Aquarela do Brasil",       artist:"Gal Costa",          bpm:null,sp:"99yza",  disc:"3109876", color:"#9A6A9A" },
+  { title:"Maria Fumaça",             artist:"Banda Black Rio",    bpm:109, sp:"aabcd",  disc:"4123456", color:"#9A3A3A" },
+  { title:"Zanzibar",                 artist:"Hermeto Pascoal",    bpm:142, sp:null,     disc:"4234567", color:"#3A9A4A" },
+  { title:"Mistério do Planeta",      artist:"Os Mutantes",        bpm:103, sp:"bbefg",  disc:"3345678", color:"#6A3A9A" },
+  { title:"Liquid Dreams",            artist:"Tim Maia",           bpm:93,  sp:"cchij",  disc:"2876543", color:"#3A9A6A" },
+  { title:"Odalay",                   artist:"Tim Maia",           bpm:null,sp:null,     disc:"2876544", color:"#3A9A6A" },
+  { title:"Realce",                   artist:"Gilberto Gil",       bpm:116, sp:"ddklm",  disc:"3210987", color:"#9A6A3A" },
+  { title:"Trem das Cores",           artist:"Gilberto Gil",       bpm:127, sp:"eenop",  disc:"3321098", color:"#3A6A9A" },
+  { title:"Asa Branca",               artist:"Luiz Gonzaga",       bpm:138, sp:"ffqrs",  disc:"2100001", color:"#9A8A3A" },
+  { title:"No More Tears",            artist:"Raul de Barros",     bpm:null,sp:null,     disc:"2200002", color:"#6A9A3A" },
+  { title:"Sambando",                 artist:"Elza Soares",        bpm:107, sp:"ggtuvw", disc:"2300003", color:"#9A3A9A" },
+];
+
+// ══════════════════════════════════════════════════════════════
+// COLOR HELPERS
+// ══════════════════════════════════════════════════════════════
+function luminance(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255;
+  const g = parseInt(hex.slice(3,5),16)/255;
+  const b = parseInt(hex.slice(5,7),16)/255;
+  // sRGB linearization then luminance
+  function lin(c){ return c<=.04045 ? c/12.92 : Math.pow((c+.055)/1.055,2.4); }
+  return .2126*lin(r) + .7152*lin(g) + .0722*lin(b);
+}
+function textColor(hex) {
+  return luminance(hex) > 0.30 ? '#111' : '#fff';
+}
+function rowStyle(hex) {
+  // Mix hex with white to produce true pastels (no opacity tricks)
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  const mix = (c, a) => c*a + 255*(1-a);            // blend channel with white
+  const rL = mix(r,.62), gL = mix(g,.62), bL = mix(b,.62);   // left  62% color
+  const rR = mix(r,.38), gR = mix(g,.38), bR = mix(b,.38);   // right 38% color
+  // Luminance of left pastel to choose text colour
+  function lin(c){ c/=255; return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4); }
+  const lum = .2126*lin(rL) + .7152*lin(gL) + .0722*lin(bL);
+  const tc  = lum > 0.30 ? '#111' : '#fff';
+  const h = c => Math.round(c).toString(16).padStart(2,'0');
+  return `background:linear-gradient(105deg,#${h(rL)}${h(gL)}${h(bL)} 0%,#${h(rR)}${h(gR)}${h(bR)} 100%);--tc:${tc}`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// ROW BUILDER  (shared by compact + hidden)
+// ══════════════════════════════════════════════════════════════
+function buildRow(t, extraFlags) {
+  const style = rowStyle(t.color);
+
+  const bpmEl = t.bpm
+    ? `<div class="c-bpm">${t.bpm}<small>bpm</small></div>`
+    : `<div class="c-bpm-none">—</div>`;
+
+  const cover = `<div class="c-ph" style="background:linear-gradient(135deg,${t.color}CC,${t.color}66)">♪</div>`;
+
+  const discBtn = t.disc
+    ? `<a class="ic-btn" href="https://www.discogs.com/release/${t.disc}" target="_blank" title="Discogs">${IC_DISC}</a>`
+    : '';
+  const spBtn = t.sp
+    ? `<a class="ic-btn ic-btn-sp" href="spotify:track:${t.sp}" title="Abrir no Spotify">${IC_SP}</a>`
+    : '';
+  const playBtn = t.sp
+    ? `<button class="ic-btn ic-btn-play" title="Ouvir" onclick="alert('Embed: ${t.sp}')">${IC_PLAY}</button>`
+    : `<button class="ic-btn ic-btn-play" title="Sem Spotify" disabled>${IC_PLAY}</button>`;
+
+  const flags = (extraFlags||[]).map(f=>`<span class="h-flag ${f.cls}">${f.lbl}</span>`).join('');
+
+  return `<div class="c-row" style="${style}">
+    ${bpmEl}
+    ${cover}
+    ${flags}
+    <div class="c-info">
+      <div class="c-title">${t.title}</div>
+      <div class="c-artist">${t.artist}</div>
+    </div>
+    <div class="c-btns">${discBtn}${spBtn}${playBtn}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// VIEW: COMPACT  — sorted BPM asc, then artist A-Z, no-BPM last
+// ══════════════════════════════════════════════════════════════
+function renderCompact() {
+  const sorted = [...TRACKS].sort((a,b) => {
+    if (a.bpm && b.bpm) return a.bpm - b.bpm || a.artist.localeCompare(b.artist,'pt');
+    if (a.bpm) return -1;
+    if (b.bpm) return  1;
+    return a.artist.localeCompare(b.artist,'pt');
+  });
+
+  document.getElementById('compact-list').innerHTML = sorted.map(t => buildRow(t, null)).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// VIEW: HIDDEN  — sem BPM e/ou sem Spotify
+// ══════════════════════════════════════════════════════════════
+function renderHidden() {
+  const noBoth = TRACKS.filter(t => !t.bpm && !t.sp);
+  const noBpm  = TRACKS.filter(t => !t.bpm &&  t.sp);
+  const noSp   = TRACKS.filter(t =>  t.bpm && !t.sp);
+
+  const total = noBoth.length + noBpm.length + noSp.length;
+
+  // update link label
+  document.getElementById('incomplete-trigger').textContent = `${total} incompletas →`;
+
+  const sections = [
+    { title:`Sem BPM — ${noBpm.length}`,                 tracks:noBpm,  cls:'f-bpm',  lbl:'sem BPM'     },
+    { title:`Sem BPM e sem Spotify — ${noBoth.length}`,  tracks:noBoth, cls:'f-both', lbl:'sem ambos'   },
+    { title:`Sem Spotify — ${noSp.length}`,              tracks:noSp,   cls:'f-sp',   lbl:'sem Spotify' },
+  ];
+
+  document.getElementById('hidden-list').innerHTML = sections
+    .filter(s => s.tracks.length)
+    .map(s =>
+      `<div class="h-section-title">${s.title}</div>` +
+      s.tracks.map(t => buildRow(t, [{cls:s.cls, lbl:s.lbl}])).join('')
+    ).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════════════════════
+function switchTab(btn, name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function unlockHidden() {
+  const bar = document.getElementById('tabs-bar');
+  if (!document.getElementById('tab-hidden')) {
+    const btn = document.createElement('button');
+    btn.id = 'tab-hidden';
+    btn.className = 'tab-btn secret';
+    btn.textContent = '⚬ Incompletas';
+    btn.onclick = function() { switchTab(this, 'hidden'); };
+    bar.appendChild(btn);
+    btn.animate(
+      [{opacity:0, transform:'scale(.85)'},{opacity:1, transform:'scale(1)'}],
+      {duration:220, easing:'ease-out'}
+    );
+  }
+  switchTab(document.getElementById('tab-hidden'), 'hidden');
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+renderCompact();
+renderHidden();
+</script>
+</body>
+</html>
