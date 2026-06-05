@@ -72,6 +72,10 @@ def load_uris_sorted_by_bpm():
     df = pd.read_csv(src, dtype=str).fillna("")
     df = df[df["status"] == "ACEITO"].copy()
 
+    # Remove coluna bpm existente no CSV de faixas antes de fazer o merge
+    # (evita bpm_x/bpm_y quando backup_matched já tem essa coluna)
+    df = df.drop(columns=["bpm"], errors="ignore")
+
     bpm_path = WORK_DIR / "backup_bpm.csv"
     if bpm_path.exists():
         bpm_df = pd.read_csv(bpm_path, dtype=str).fillna("")
