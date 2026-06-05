@@ -1956,12 +1956,12 @@ function refreshCardDisplayedFields(card,vals){
     var dateSpan=pRow.querySelector('.alb-date-added');
     var dateHtml=dateSpan?dateSpan.outerHTML:'';
     var pItems=[];
-    var _orig=('Origem' in vals)?vals['Origem']:(card.dataset.origem||'');
+    var _orig=vals['Origem']||card.dataset.origem||'';
     if(_orig) pItems.push('<span class="field-item">'+_orig+'</span>');
-    var _dj=('DJ' in vals)?vals['DJ']:card.dataset.dj||'';
+    var _dj=vals['DJ']||card.dataset.dj||'';
     if(_dj==='Sim') pItems.push('<span class="field-item">Para discotecar</span>');
     else if(_dj==='Parcial') pItems.push('<span class="field-item">Discotecar parcialmente</span>');
-    var _pa=('PA' in vals)?vals['PA']:card.dataset.pa||'';
+    var _pa=vals['PA']||card.dataset.pa||'';
     if(_pa==='Sim') pItems.push('<span class="field-item">Para trocar</span>');
     else if(_pa==='Em breve') pItems.push('<span class="field-item">Trocar em breve</span>');
     pRow.innerHTML=dateHtml+pItems.join('');
