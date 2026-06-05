@@ -13,6 +13,7 @@ Webapp estático que transforma uma coleção do [Discogs](https://www.discogs.c
 - **Filtros unificados** — Década, Origem, Tipo, Loja, Para discotecar, Para trocar, Recebido, BPM — sincronizados entre as duas views
 - **Ordenação** — por data de adição, ano, artista (Discos); BPM, ano, artista (Faixas)
 - **Edição inline** — edita campos personalizados do Discogs diretamente no browser, sem precisar abrir o Discogs
+- **Stories** — slideshow estilo Instagram acessível pelo logo do header; suporta fotos e vídeos
 - **Sync semanal automático** — GitHub Actions atualiza os dados toda segunda-feira
 
 ---
@@ -39,6 +40,8 @@ index.html                # HTML gerado (= MinhaColecao_DJ.html) — publicado p
 MinhaColecao_DJ.html      # idem
 MinhaColecao_DJ.xlsx      # planilha exportada
 preview.jpg               # imagem de preview para redes sociais (OG / WhatsApp)
+preview_squared.jpg       # favicon do site (tab do browser)
+stories/                  # imagens/vídeos do slideshow (1.jpg, 2.jpg … em ordem numérica)
 
 .github/workflows/weekly_sync.yml  # GitHub Actions: sync automático semanal
 ```
@@ -106,6 +109,21 @@ Permite editar campos personalizados do Discogs diretamente no site, sem abrir o
 5. **Salvar** envia direto ao Discogs via API e persiste as mudanças no `localStorage` do browser
 
 > As edições ficam visíveis imediatamente e sobrevivem a reloads via `localStorage`. Na próxima sincronização automática (semanal), o HTML é regenerado com os dados oficiais do Discogs.
+
+---
+
+## Stories (slideshow do header)
+
+Clique no logo do site (header) para abrir o slideshow estilo Instagram.
+
+- Coloque imagens ou vídeos na pasta `stories/` com nomes numéricos: `1.jpg`, `2.jpg`, ..., `12.jpg`
+- Formatos suportados: `.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`, `.mp4`, `.webm`, `.mov`
+- A ordem é numérica (não lexicográfica) — `1, 2, 3 … 12`, não `1, 10, 11, 12, 2 …`
+- **Desktop:** setas ← → nas laterais + teclado (← → Esc) + clicar nas barras de progresso no topo
+- **Mobile:** toque na metade esquerda (voltar) ou direita (avançar) da tela
+- Auto-avança em 5s por foto; vídeos avançam ao terminar
+- Ao chegar na última, volta para a primeira (loop)
+- Após adicionar ou remover arquivos em `stories/`, rode `python regen_html.py` para atualizar o `index.html`
 
 ---
 

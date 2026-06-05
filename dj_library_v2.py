@@ -1095,11 +1095,6 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .ctrl-input:focus{border-color:var(--acc)}
 .ctrl-sel{background:var(--bg2);border:1px solid var(--bdr);color:var(--text);
   padding:.4rem .8rem;border-radius:20px;font-size:.79rem;outline:none;cursor:pointer}
-.ctrl-btn{background:transparent;border:1px solid var(--bdr);color:var(--text2);
-  padding:.36rem .8rem;border-radius:8px;font-size:.72rem;letter-spacing:.04em;
-  text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all .18s}
-.ctrl-btn:hover{border-color:var(--acc);color:var(--acc)}
-
 /* CHIPS */
 .chip{padding:.26rem .62rem;border-radius:20px;font-size:.69rem;letter-spacing:.03em;
   cursor:pointer;border:1px solid var(--bdr);background:transparent;color:var(--text3);
@@ -1107,16 +1102,6 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .chip.active{background:#E0E0E0;border-color:#999;color:#111;font-weight:600}
 .chip.multi-active{background:#D5D5D5;border-color:#888;color:#111;font-weight:600}
 .chip:hover:not(.active):not(.multi-active){border-color:var(--acc2);color:var(--acc)}
-.chips-label{font-size:.62rem;color:var(--text3);white-space:nowrap;letter-spacing:.05em;
-  text-transform:uppercase}
-
-/* PLAYLIST BUTTON */
-.playlist-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .8rem;
-  border-radius:20px;font-size:.7rem;font-weight:600;letter-spacing:.04em;
-  background:#1DB954;color:#fff;border:none;cursor:pointer;text-decoration:none;
-  transition:opacity .15s;white-space:nowrap}
-.playlist-btn:hover{opacity:.85}
-
 /* SOCIAL BUTTONS (header) — links sem contorno */
 .header-social-btn{display:inline-flex;align-items:center;gap:.32rem;font-size:.74rem;
   color:var(--text2);text-decoration:none;padding:.1rem .2rem;font-weight:500;
@@ -2849,7 +2834,7 @@ def generate_html(df):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Discos do Amsa</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128191;</text></svg>">
+<link rel="icon" href="preview_squared.jpg">
 <!-- Open Graph / WhatsApp preview -->
 <meta property="og:type"        content="website">
 <meta property="og:url"         content="{_og_base}/">
