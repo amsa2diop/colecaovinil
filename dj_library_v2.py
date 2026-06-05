@@ -1055,7 +1055,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 
 
 /* CUSTOM FIELDS */
-.fields-row{display:flex;flex-wrap:wrap;gap:.25rem .7rem;margin-top:.45rem}
+.fields-row{display:flex;flex-wrap:wrap;gap:.25rem .7rem;margin-top:.45rem;align-items:center}
 .field-item{font-size:.65rem;color:var(--text3)}
 .field-item strong{color:var(--text2);font-weight:600}
 .field-notes{font-size:.65rem;color:var(--text2);font-weight:600;margin-top:.2rem}
@@ -1066,7 +1066,7 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 .copy-label{font-size:.58rem;color:var(--text2);font-weight:700;text-transform:uppercase;
   letter-spacing:.06em;white-space:nowrap}
 .copy-row .field-item{font-size:.65rem;color:var(--text3)}
-.copy-row .alb-date-added{opacity:1;font-size:.65rem;color:var(--text3)}
+.copy-row .alb-date-added{opacity:1;font-size:.65rem;color:var(--text3);margin-top:0}
 /* Edit form copy picker */
 .cef-copy-sel{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;padding-bottom:.4rem;border-bottom:1px solid var(--bdr2)}
 .cef-copy-pick{background:var(--cef-inp-bg,#e9e5de);border:1px solid var(--bdr);
@@ -1387,8 +1387,7 @@ body:not(.edit-mode) .sync-btn{display:none}
 .sync-toast{background:var(--bg,#fff);border:1px solid var(--bdr,#ddd);border-radius:10px;
   padding:.6rem .75rem .6rem .85rem;font-size:.72rem;color:var(--text,#111);
   display:flex;align-items:flex-start;gap:.5rem;
-  box-shadow:0 4px 16px rgba(0,0,0,.15);pointer-events:auto;
-  animation:toast-in .22s ease}
+  pointer-events:auto;animation:toast-in .22s ease}
 @keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .sync-toast.success{border-left:3px solid #2a7a2a}
 .sync-toast.error{border-left:3px solid #c0392b}
@@ -1895,6 +1894,10 @@ async function connectDiscogs(){
   }catch(e){st.innerHTML='<span style="color:#c0392b">✗ '+e.message+'</span>';}
 }
 
+function _toastTimeStr(){
+  return new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',
+    hour:'2-digit',minute:'2-digit'}).replace(',','');
+}
 function showSyncToast(msg,type){
   var container=document.getElementById('sync-toasts');
   if(!container){
@@ -1903,16 +1906,53 @@ function showSyncToast(msg,type){
     container.className='sync-toasts-container';
     document.body.appendChild(container);
   }
-  var now=new Date();
-  var timeStr=now.toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',
-    hour:'2-digit',minute:'2-digit'}).replace(',','');
   var toast=document.createElement('div');
   toast.className='sync-toast'+(type?' '+type:'');
   toast.innerHTML='<span class="sync-toast-msg">'+msg
-    +'<span class="sync-toast-time">'+timeStr+'</span></span>'
+    +'<span class="sync-toast-time">'+_toastTimeStr()+'</span></span>'
     +'<button class="sync-toast-close" onclick="this.closest(\'.sync-toast\').remove()" '
     +'title="Fechar">&#x2715;</button>';
   container.appendChild(toast);
+  return toast;
+}
+function updateToast(toast,msg,type){
+  if(!toast||!toast.parentNode)return;
+  if(type)toast.className='sync-toast '+type;
+  var msgEl=toast.querySelector('.sync-toast-msg');
+  if(msgEl){
+    var timeEl=msgEl.querySelector('.sync-toast-time');
+    msgEl.innerHTML=msg+'<span class="sync-toast-time">'
+      +(timeEl?timeEl.textContent:_toastTimeStr())+'</span>';
+  }
+}
+async function pollSyncCompletion(toast,ghToken,triggeredAt){
+  var maxTries=15;var tries=0;
+  async function check(){
+    tries++;
+    if(tries>maxTries){updateToast(toast,'&#8635; Sync em andamento (pode demorar mais)','info');return;}
+    try{
+      var r=await fetch(
+        'https://api.github.com/repos/amsa2diop/colecaovinil/actions/runs?per_page=5&event=workflow_dispatch',
+        {headers:{'Authorization':'Bearer '+ghToken,'Accept':'application/vnd.github+json'}});
+      var data=await r.json();
+      var runs=(data.workflow_runs||[]).filter(function(run){
+        return new Date(run.created_at).getTime()>=triggeredAt-90000;
+      });
+      var run=runs[0];
+      if(!run){setTimeout(check,20000);return;}
+      if(run.status==='completed'){
+        if(run.conclusion==='success'){
+          updateToast(toast,'&#10003; Sync conclu&#237;do &mdash; site, Discogs e Spotify atualizados','success');
+        }else{
+          updateToast(toast,'&#x26A0; Sync finalizado com erros &mdash; verifique Actions','error');
+        }
+      }else{
+        updateToast(toast,'&#8635; Em andamento&hellip; aguarde','info');
+        setTimeout(check,20000);
+      }
+    }catch(e){setTimeout(check,20000);}
+  }
+  setTimeout(check,12000);
 }
 
 async function triggerSync(btn){
@@ -1923,6 +1963,7 @@ async function triggerSync(btn){
     return;
   }
   btn.classList.add('syncing');btn.disabled=true;
+  var triggeredAt=Date.now();
   try{
     var res=await fetch(
       'https://api.github.com/repos/amsa2diop/colecaovinil/actions/workflows/weekly_sync.yml/dispatches',
@@ -1932,7 +1973,8 @@ async function triggerSync(btn){
                 'Content-Type':'application/json'},
        body:JSON.stringify({ref:'master'})});
     if(res.status===204||res.ok){
-      showSyncToast('&#8635; Sync iniciado — atualiza&#231;&#227;o em ~2 min','info');
+      var toast=showSyncToast('&#8635; Sync iniciado &mdash; cerca de 2 min','info');
+      pollSyncCompletion(toast,cfg.ghToken,triggeredAt);
     }else{
       var err=await res.json().catch(function(){return{};});
       showSyncToast('&#x26A0; Erro ao sincronizar: '+(err.message||'status '+res.status),'error');
