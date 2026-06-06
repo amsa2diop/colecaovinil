@@ -5,7 +5,7 @@ Discogs + Spotify: álbum-first matching, BPM via Deezer API,
 gera XLSX e HTML interativo com views por LP e por Faixas.
 """
 
-import sys, os, re, time, html as html_module, math, threading, webbrowser
+import sys, os, re, random, time, html as html_module, math, threading, webbrowser
 from datetime import datetime, timezone
 import http.server, urllib.parse
 from pathlib import Path
@@ -1480,7 +1480,7 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
 #lp-sub-grid{display:block;padding-bottom:calc(var(--sp-player-h,0px) + 1.8rem)}
 #grade-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:1rem;padding:0 1.2rem;
+  gap:1.5rem;padding:0 1.2rem;
 }
 @media(max-width:560px){
   #grade-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;padding:0 .75rem;}
@@ -1538,6 +1538,8 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
 .glb-title{font-size:1.1rem;font-weight:800;color:var(--text);line-height:1.22;margin-bottom:.3rem}
 .glb-meta-row{font-size:.63rem;color:var(--text3);margin-bottom:.25rem;line-height:1.5}
 .glb-stats{font-size:.62rem;color:var(--text3);margin-top:.12rem}
+body.is-owner .glb-meta-row .owner-only,
+body.is-owner .glb-stats .owner-only{display:inline!important}
 .glb-pub-row,.glb-priv-row{margin-top:.35rem;display:flex;flex-wrap:wrap;gap:.3rem}
 .glb-meta-tag{font-size:.6rem;background:var(--bdr);color:var(--text2);
   border-radius:4px;padding:.1rem .35rem}
@@ -2665,9 +2667,8 @@ def _hex_luminance(hex_color):
         return 1.0
 
 
-def render_album_grid(group, color_pastel="", country="", format_data=None):
+def render_album_grid(group, color_pastel="", country="", format_data=None, copy_count=1):
     """Renderiza um card compacto para a view em grade."""
-    format_info = format_data or {}
     group_dedup = group.drop_duplicates(subset=["position"])
     first       = group_dedup.iloc[0]
     release_id  = str(first.get("release_id", ""))
@@ -2677,22 +2678,10 @@ def render_album_grid(group, color_pastel="", country="", format_data=None):
     year_s      = str(int(first["year"])) if safe_float(first.get("year")) else ""
     cover       = esc(str(first.get("cover_url", "") or ""))
 
-    genres_s      = str(first.get("genres", "") or "")
-    styles_s      = str(first.get("styles", "") or "")
-    genre_style_s = _genre_style(genres_s, styles_s, limit=3)
-    fmt_label     = format_info.get("label", "") or ""
-    country_s     = (country or "").strip()
-
-    meta_parts = []
-    if year_s:        meta_parts.append(year_s)
-    if country_s:     meta_parts.append(esc(country_s))
-    if genre_style_s: meta_parts.append(esc(genre_style_s[:50]))
-    if fmt_label:     meta_parts.append(esc(fmt_label[:24]))
-    meta_html = (f'<div class="grid-meta">{" · ".join(meta_parts)}</div>'
-                 if meta_parts else "")
-
-    img_html  = (f'<img class="grid-cover" src="{cover}" alt="" loading="lazy">'
-                 if cover else '<div class="grid-cover"></div>')
+    copy_badge = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
+    title_year = f'{title}<span class="grid-year"> · {year_s}</span>' if year_s else title
+    img_html   = (f'<img class="grid-cover" src="{cover}" alt="" loading="lazy">'
+                  if cover else '<div class="grid-cover"></div>')
     cover_blur = (f'<div class="cover-blur" style="background-image:url(\'{cover}\')" '
                   f'aria-hidden="true"></div>') if cover else ""
     if color_pastel and len(color_pastel) == 7:
@@ -2706,16 +2695,16 @@ def render_album_grid(group, color_pastel="", country="", format_data=None):
         f'{cover_blur}'
         f'{img_html}'
         f'<div class="grid-info">'
-        f'<div class="grid-artist">{artist}</div>'
-        f'<div class="grid-title">{title}</div>'
-        f'{meta_html}'
+        f'<div class="grid-artist">{artist}{copy_badge}</div>'
+        f'<div class="grid-title">{title_year}</div>'
         f'</div></div>'
     )
 
 
-def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color_pastel=""):
+def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color_pastel="", country="", format_data=None, copy_count=1):
     """Renderiza o card escuro do lightbox da view em grade (pre-renderizado, oculto)."""
     _months = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"]
+    format_info = format_data or {}
     group_dedup = group.drop_duplicates(subset=["position"])
     first       = group_dedup.iloc[0]
     release_id  = str(first.get("release_id", ""))
@@ -2723,6 +2712,12 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
     artist_s    = esc(first.get("album_artist") or "")
     title_s     = esc(first.get("album_title") or "")
     year_s      = str(int(first["year"])) if safe_float(first.get("year")) else ""
+    genres_s    = str(first.get("genres", "") or "")
+    styles_s    = str(first.get("styles", "") or "")
+    genre_style_s = _genre_style(genres_s, styles_s, limit=3)
+    fmt_label   = format_info.get("label", "") or ""
+    country_s   = (country or "").strip()
+    instances   = instances or [{}]
 
     bpm_vals = group_dedup["bpm"].apply(safe_float).dropna()
     if len(bpm_vals):
@@ -2731,8 +2726,6 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
     else:
         bpm_range = ""
     n_bpm = int(bpm_vals.notna().sum()) if len(bpm_vals) else 0
-
-    fields = (instances or [{}])[0]
 
     def _fmt_date(raw):
         raw = (raw or "").strip()
@@ -2743,30 +2736,78 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
         except Exception:
             return ""
 
-    # Public meta
-    pub_parts = []
-    date_disp = _fmt_date(fields.get("date_added",""))
-    if date_disp: pub_parts.append(f"Adicionado em {date_disp}")
-    if fields.get("Origem"): pub_parts.append(esc(fields["Origem"]))
-    pub_html = "".join(f'<span class="glb-meta-tag">{p}</span>' for p in pub_parts)
+    def _glb_inst_html(inst, label=""):
+        pub, priv, priv_sec = [], [], []
+        if label:
+            pub.append(f'<span class="copy-label">{label}</span>')
+        date_disp = _fmt_date(inst.get("date_added", ""))
+        if date_disp:
+            pub.append(f'<span class="field-item alb-date-added">Adicionado em {date_disp}</span>')
+        if inst.get("Origem"):
+            pub.append(f'<span class="field-item">{esc(inst["Origem"])}</span>')
+        _dj = inst.get("DJ", "")
+        if _dj == "Sim":       priv.append('<span class="field-item">Para discotecar</span>')
+        elif _dj == "Parcial": priv.append('<span class="field-item">Discotecar parcialmente</span>')
+        _pa = inst.get("PA", "")
+        if _pa == "Sim":        priv.append('<span class="field-item">Para trocar</span>')
+        elif _pa == "Em breve": priv.append('<span class="field-item">Trocar em breve</span>')
+        if inst.get("$"):
+            priv_sec.append(f'<span class="field-item"><strong>R$</strong> {esc(inst["$"])}</span>')
+        if inst.get("Recebido?") == "Não":
+            priv_sec.append('<span class="field-item">N&#227;o recebido</span>')
+        mc = inst.get("Media Condition",""); sc = inst.get("Sleeve Condition","")
+        if mc or sc:
+            priv_sec.append(f'<span class="field-item"><strong>Cond:</strong> {esc(" / ".join(filter(None,[mc,sc])))}</span>')
+        html = ""
+        if pub: html += f'<div class="fields-row">{"".join(pub)}</div>'
+        owner_html = ""
+        if priv:     owner_html += f'<div class="fields-row fields-secondary">{"".join(priv)}</div>'
+        if priv_sec: owner_html += f'<div class="fields-row fields-secondary fields-price-row">{"".join(priv_sec)}</div>'
+        if inst.get("Notas"):
+            owner_html += f'<div class="field-notes fields-secondary">{esc(inst["Notas"])}</div>'
+        if owner_html:
+            html += f'<div class="owner-only">{owner_html}</div>'
+        return html
 
-    # Owner-only meta
-    priv_parts = []
-    _dj = fields.get("DJ","")
-    if _dj == "Sim":       priv_parts.append("Para discotecar")
-    elif _dj == "Parcial": priv_parts.append("Discotecar parcialmente")
-    _pa = fields.get("PA","")
-    if _pa == "Sim":        priv_parts.append("Para trocar")
-    elif _pa == "Em breve": priv_parts.append("Trocar em breve")
-    if fields.get("$"):    priv_parts.append(f"R$ {esc(fields['$'])}")
-    priv_tags = "".join(f'<span class="glb-meta-tag">{p}</span>' for p in priv_parts)
-    notes_html = f'<div class="glb-notes">{esc(fields["Notas"])}</div>' if fields.get("Notas") else ""
-    priv_html = f'<div class="owner-only glb-priv-row">{priv_tags}{notes_html}</div>' if (priv_parts or notes_html) else ""
+    if len(instances) == 1:
+        copies_html = _glb_inst_html(instances[0])
+    else:
+        rows = []
+        for i, inst in enumerate(instances):
+            _iid = esc((inst.get("instance_id") or "").strip())
+            rows.append(
+                f'<div class="copy-row" data-instance-id="{_iid}">'
+                f'{_glb_inst_html(inst, label=f"C&#243;pia {i+1}:")}'
+                f'</div>'
+            )
+        copies_html = f'<div class="copies-meta">{"".join(rows)}</div>'
 
+    # Meta line (year · country · genre · label + BPM owner-only)
+    meta_parts = []
+    if year_s:        meta_parts.append(year_s)
+    if country_s:     meta_parts.append(esc(country_s))
+    if genre_style_s: meta_parts.append(esc(genre_style_s[:50]))
+    if fmt_label:     meta_parts.append(esc(fmt_label[:24]))
     bpm_meta_html = f' &middot; <span class="owner-only">{bpm_range}</span>' if bpm_range else ""
-    bpm_stat_html = f' &middot; <span class="owner-only">{n_bpm} com BPM</span>' if n_bpm else ""
+    meta_line = (" &middot; ".join(meta_parts) + bpm_meta_html) if (meta_parts or bpm_meta_html) else ""
+    _meta_row = f'<div class="glb-meta-row">{meta_line}</div>' if meta_line else ""
 
+    # Stats
     n_tracks = len(group_dedup)
+    n_ok = int((group_dedup["status"] == "ACEITO").sum())
+    n_preview = sum(
+        1 for _, r in group_dedup.iterrows()
+        if str(r.get("spotify_uri","") or "").startswith("spotify:track:")
+        and str(r.get("status","")) == "ACEITO"
+    )
+    _tinfo = [f"{n_ok} de {n_tracks} faixas"]
+    if n_preview > 0: _tinfo.append(f"{n_preview} com pr&#233;via")
+    stats_html = " &middot; ".join(_tinfo)
+    if n_bpm > 0:
+        stats_html += f' &middot; <span class="owner-only">{n_bpm} com BPM</span>'
+
+    copy_badge_html = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
+
     discogs_url = f'https://www.discogs.com/release/{release_id}'
     disc_btn = (f'<a class="glb-btn" href="{discogs_url}" target="_blank" '
                 f'onclick="event.stopPropagation()">{_SVG_DISCOGS_SM} Discogs</a>')
@@ -2799,11 +2840,8 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
             f'</div>'
         )
 
-    blur_style     = f'background-image:url(\'{cover}\')' if cover else ""
-    _cover_img     = f'<img class="glb-cover" src="{cover}" alt="" loading="lazy">' if cover else ""
-    _meta_row      = (f'<div class="glb-meta-row">{year_s}{bpm_meta_html}</div>'
-                      if (year_s or bpm_meta_html) else "")
-    _pub_row       = f'<div class="glb-pub-row">{pub_html}</div>' if pub_html else ""
+    blur_style  = f'background-image:url(\'{cover}\')' if cover else ""
+    _cover_img  = f'<img class="glb-cover" src="{cover}" alt="" loading="lazy">' if cover else ""
     _pastel_attr = ""
     if color_pastel and len(color_pastel) == 7:
         _, _cvars = card_colors(color_pastel)
@@ -2816,12 +2854,11 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
         f'<div class="glb-header-inner">'
         f'{_cover_img}'
         f'<div class="glb-meta">'
-        f'<div class="glb-artist">{artist_s}</div>'
+        f'<div class="glb-artist">{artist_s}{copy_badge_html}</div>'
         f'<div class="glb-title">{title_s}</div>'
         f'{_meta_row}'
-        f'<div class="glb-stats">{n_tracks} faixas{bpm_stat_html}</div>'
-        f'{_pub_row}'
-        f'{priv_html}'
+        f'<div class="glb-stats">{stats_html}</div>'
+        f'{copies_html}'
         f'</div>'
         f'</div>'
         f'<div class="glb-btn-col">{disc_btn}{sp_btn}</div>'
@@ -3370,6 +3407,7 @@ def generate_html(df):
             color_pastel = colors_map.get(str(rid), ""),
             country      = country_map.get(str(rid), ""),
             format_data  = format_map.get(str(rid), {}),
+            copy_count   = copy_counts.get(str(rid), 1),
         )
         for rid, g in _sorted_groups
     )
@@ -3383,6 +3421,9 @@ def generate_html(df):
             instances        = instances_map.get(str(rid), []),
             sp_playlist_link = _sp_link,
             color_pastel     = colors_map.get(str(rid), ""),
+            country          = country_map.get(str(rid), ""),
+            format_data      = format_map.get(str(rid), {}),
+            copy_count       = copy_counts.get(str(rid), 1),
         )
         for rid, g in _sorted_groups
     )
@@ -3414,6 +3455,24 @@ def generate_html(df):
     sp_track_ids_js = _json.dumps([
         str(t) for t in _sp_accepted if str(t) not in ("", "nan", "None")
     ])
+
+    # ── Pre-compute Spotify player HTML (avoids nested f-string, Python < 3.12) ──
+    _sp_tids = [str(t) for t in _sp_accepted if str(t) not in ("", "nan", "None")]
+    _sp_start = f"&start_track_id={random.choice(_sp_tids)}" if _sp_tids else ""
+    sp_html = ""
+    if sp_embed_id:
+        _sp_src = (f'https://open.spotify.com/embed/playlist/{sp_embed_id}'
+                   f'?utm_source=generator&theme=0{_sp_start}')
+        sp_html = (
+            '<div id="sp-player-wrap">'
+            '<div style="position:relative">'
+            '<button class="sp-collapse-btn" onclick="toggleSpPlayer()" title="Recolher/Expandir">'
+            '<svg width="9" height="6" viewBox="0 0 9 6" fill="none">'
+            '<path d="M1 5L4.5 1.5L8 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
+            f'</svg></button><div class="sp-player-card"><iframe src="{_sp_src}"'
+            ' allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"'
+            ' loading="lazy"></iframe></div></div></div>'
+        )
 
     bpm_notice = ""
     if not has_bpm:
@@ -3762,21 +3821,7 @@ def generate_html(df):
 <!-- ═══ GRADE LIGHTBOX POOL (pre-rendered, hidden) ═══ -->
 <div id="glb-pool">{lightbox_pool_html}</div>
 
-{f"""<!-- ═══ SPOTIFY PLAYER FLUTUANTE ═══ -->
-<div id="sp-player-wrap">
-  <div style="position:relative">
-    <button class="sp-collapse-btn" onclick="toggleSpPlayer()" title="Recolher/Expandir">
-      <svg width="9" height="6" viewBox="0 0 9 6" fill="none">
-        <path d="M1 5L4.5 1.5L8 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </button>
-    <div class="sp-player-card">
-      <iframe src="https://open.spotify.com/embed/playlist/{sp_embed_id}?utm_source=generator&theme=0"
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        loading="lazy"></iframe>
-    </div>
-  </div>
-</div>""" if sp_embed_id else ""}
+{sp_html}
 
 <footer class="site-credits">BPM data by <a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM</a></footer>
 <script>var STORY_IMAGES={story_json};</script>
