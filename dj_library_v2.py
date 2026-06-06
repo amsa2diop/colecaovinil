@@ -1210,7 +1210,9 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   letter-spacing:.07em;white-space:nowrap;flex-basis:100%;flex-shrink:0;margin-bottom:.05rem}
 
 /* MAIN */
-.main{max-width:1200px;margin:0 auto;padding:1.4rem 2.5rem}
+.main{max-width:1200px;margin:0 auto;padding:1.4rem 2.5rem;
+  padding-bottom:calc(var(--sp-player-h,0px) + 1.4rem)}
+#grid-faixas{padding-bottom:calc(var(--sp-player-h,0px) + 1rem)}
 .results-bar{font-size:.7rem;color:var(--text3);letter-spacing:.06em;
   text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
 .results-bar-dates{margin-left:auto;font-size:.63rem;letter-spacing:.02em;color:var(--text3);
@@ -1463,17 +1465,23 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
 .site-credits a{color:var(--text3);text-decoration:none}
 .site-credits a:hover{color:var(--acc)}
 
-/* ── GRADE VIEW ──────────────────────────────────────────────────────────── */
-#view-grade{display:none;flex-direction:column}
-#view-grade.active{display:flex}
+/* ── LP VIEW TOGGLE (lista/grade) ────────────────────────────────────────── */
+.lp-view-toggle{display:flex;gap:3px;flex-shrink:0}
+.lp-vt-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--bdr);
+  background:transparent;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;color:var(--text3);transition:all .15s;padding:0}
+.lp-vt-btn.active{background:var(--text);border-color:var(--text);color:#fff}
+.lp-vt-btn:hover:not(.active){background:var(--bg2)}
+
+/* ── GRADE VIEW (sub-view dentro de DISCOS) ──────────────────────────────── */
+#lp-sub-grid{display:none;padding-bottom:calc(var(--sp-player-h,0px) + 1.8rem)}
 #grade-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
   gap:1rem;padding:0 1.2rem;
-  padding-bottom:calc(var(--sp-player-h,0px) + 1.8rem);
 }
 @media(max-width:560px){
-  #grade-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;padding:0 .75rem;
-    padding-bottom:calc(var(--sp-player-h,0px) + 1.5rem);}
+  #grade-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;padding:0 .75rem;}
+  #lp-sub-grid{padding-bottom:calc(var(--sp-player-h,0px) + 1.5rem)}
 }
 .grid-card{border-radius:14px;overflow:hidden;cursor:pointer;
   box-shadow:0 3px 16px rgba(0,0,0,.13);transition:transform .18s,box-shadow .18s}
@@ -1563,14 +1571,13 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
   .glb-header-inner{padding-right:7.5rem}
 }
 
-/* ── SPOTIFY PLAYER FLUTUANTE (grade view) ───────────────────────────────── */
+/* ── SPOTIFY PLAYER FLUTUANTE (todas as views) ───────────────────────────── */
 #sp-player-wrap{
   position:fixed;bottom:.6rem;left:50%;transform:translateX(-50%);
-  width:min(400px,calc(100vw - 2rem));z-index:9500;
-  transition:bottom .3s ease;display:none;
+  width:min(520px,calc(100vw - 2rem));z-index:9500;
+  transition:bottom .3s ease;
 }
-body.view-grade #sp-player-wrap{display:block}
-#sp-player-wrap.sp-hidden{bottom:-110px}
+#sp-player-wrap.sp-hidden{bottom:-120px}
 .sp-player-card{border-radius:14px;border:1px solid rgba(0,0,0,.1);
   box-shadow:0 8px 32px rgba(0,0,0,.2);overflow:hidden;position:relative}
 .sp-player-card iframe{width:100%;height:80px;border:none;display:block}
@@ -1785,6 +1792,7 @@ function filterLP(){
     });
     vc.forEach(function(c){grid.appendChild(c)});
   }
+  _filterGradeCards(q);
 }
 
 // ── TRACK VIEW ────────────────────────────────────────────────────────────────
@@ -2296,7 +2304,7 @@ function applyLocalOverrides(){
     }
   });
   if(changed)localStorage.setItem('discogs_edits',JSON.stringify(all));
-  if(discrepant>0){
+  if(discrepant>0 && document.body.classList.contains('is-owner')){
     showSyncToast('&#x26A0; '+discrepant+' edi&#231;&#227;o(&#245;es) n&#227;o confirmada(s) no Discogs ap&#243;s o &#250;ltimo sync &mdash; verifique','error');
   }
 }
@@ -2425,9 +2433,8 @@ document.addEventListener('click',function(e){
     document.querySelectorAll('.cef-sel-wrap.open').forEach(function(w){w.classList.remove('open');});
 });
 
-// ── GRADE VIEW ────────────────────────────────────────────────────────────────
-function filterGrade(){
-  var q=(document.getElementById('q-grade').value||'').toLowerCase().trim();
+// ── GRADE VIEW (sub-view de DISCOS) ──────────────────────────────────────────
+function _filterGradeCards(q){
   document.querySelectorAll('#grade-grid .grid-card').forEach(function(card){
     var rid=card.dataset.rid;
     var srcCard=document.querySelector('#grid-lp [data-release-id="'+rid+'"]');
@@ -2436,11 +2443,18 @@ function filterGrade(){
     card.style.display=match?'':'none';
   });
 }
-var _t3;
-document.addEventListener('DOMContentLoaded',function(){
-  var inp=document.getElementById('q-grade');
-  if(inp)inp.addEventListener('input',function(){clearTimeout(_t3);_t3=setTimeout(filterGrade,200);});
-});
+function setLPView(v){
+  var isList=v==='list';
+  document.getElementById('lp-sub-list').style.display=isList?'':'none';
+  document.getElementById('lp-sub-grid').style.display=isList?'none':'';
+  document.getElementById('btn-lp-list').classList.toggle('active',isList);
+  document.getElementById('btn-lp-grid').classList.toggle('active',!isList);
+  if(!isList){
+    var q=(document.getElementById('q-lp').value||'').toLowerCase().trim();
+    _filterGradeCards(q);
+  }
+  setTimeout(updateSpPlayerPadding,100);
+}
 
 // ── GRADE LIGHTBOX ────────────────────────────────────────────────────────────
 function openGridLightbox(rid){
@@ -2471,8 +2485,8 @@ function toggleSpPlayer(){
 function updateSpPlayerPadding(){
   var wrap=document.getElementById('sp-player-wrap');
   if(!wrap)return;
-  var visible=document.body.classList.contains('view-grade')&&!_spHidden;
-  document.documentElement.style.setProperty('--sp-player-h',visible?wrap.offsetHeight+'px':'0px');
+  var h=_spHidden?0:wrap.offsetHeight;
+  document.documentElement.style.setProperty('--sp-player-h',h+'px');
 }
 window.addEventListener('resize',updateSpPlayerPadding);
 document.addEventListener('DOMContentLoaded',function(){setTimeout(updateSpPlayerPadding,300);});
@@ -2612,20 +2626,36 @@ def render_track_lp(row):
 </div>'''
 
 
+def _hex_luminance(hex_color):
+    """Relative luminance (0–1) of a hex color string."""
+    try:
+        r = int(hex_color[1:3], 16) / 255
+        g = int(hex_color[3:5], 16) / 255
+        b = int(hex_color[5:7], 16) / 255
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+    except Exception:
+        return 1.0
+
+
 def render_album_grid(release_id, artist, title, year, cover, color_pastel=""):
     """Renderiza um card compacto para a view em grade."""
     rid   = esc(str(release_id))
     bg    = color_pastel if (color_pastel and len(color_pastel) == 7) else "#e8d5c4"
+    lum   = _hex_luminance(bg)
+    dark  = lum < 0.35
+    tc    = "rgba(255,255,255,.9)"  if dark else "rgba(0,0,0,.78)"
+    tc2   = "rgba(255,255,255,.55)" if dark else "rgba(0,0,0,.45)"
+    tc3   = "rgba(255,255,255,.45)" if dark else "rgba(0,0,0,.4)"
     year_s = str(int(year)) if safe_float(year) else ""
-    year_html = f'<span class="grid-year"> · {year_s}</span>' if year_s else ""
+    year_html = f'<span class="grid-year" style="color:{tc3}"> · {year_s}</span>' if year_s else ""
     img_html  = (f'<img class="grid-cover" src="{esc(cover)}" alt="" loading="lazy">'
                  if cover else '<div class="grid-cover" style="background:#ccc"></div>')
     return (
         f'<div class="grid-card" data-rid="{rid}" onclick="openGridLightbox(\'{rid}\')" style="background:{bg}">'
         f'{img_html}'
         f'<div class="grid-info" style="background:{bg}">'
-        f'<div class="grid-artist">{esc(artist)}</div>'
-        f'<div class="grid-title">{esc(title)}{year_html}</div>'
+        f'<div class="grid-artist" style="color:{tc2}">{esc(artist)}</div>'
+        f'<div class="grid-title" style="color:{tc}">{esc(title)}{year_html}</div>'
         f'</div></div>'
     )
 
@@ -3567,7 +3597,6 @@ def generate_html(df):
   <div class="header-tabs">
     <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">Discos</button>
     <button class="tab-btn" data-v="faixas" onclick="switchView('faixas')">Faixas</button>
-    <button class="tab-btn" data-v="grade" onclick="switchView('grade')">Grade</button>
   </div>
 </header>
 
@@ -3586,15 +3615,39 @@ def generate_html(df):
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">{_SVG_FILTER_LINES} Filtros &#9662;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
       <button class="sync-btn" onclick="triggerSync(this)" title="Sincronizar agora">&#8635;</button>
+      <div class="lp-view-toggle">
+        <button class="lp-vt-btn active" id="btn-lp-list" onclick="setLPView('list')" title="Lista">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
+            <rect x="0" y="1" width="13" height="2" rx="1"/>
+            <rect x="0" y="5.5" width="13" height="2" rx="1"/>
+            <rect x="0" y="10" width="13" height="2" rx="1"/>
+          </svg>
+        </button>
+        <button class="lp-vt-btn" id="btn-lp-grid" onclick="setLPView('grid')" title="Grade">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
+            <rect x="0" y="0" width="5.5" height="5.5" rx="1"/>
+            <rect x="7.5" y="0" width="5.5" height="5.5" rx="1"/>
+            <rect x="0" y="7.5" width="5.5" height="5.5" rx="1"/>
+            <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"/>
+          </svg>
+        </button>
+      </div>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
     </div>
     {fp_lp}
   </div>
-  <main class="main">
-    {bpm_notice}
-    <div class="results-bar"><span><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</span><span class="results-bar-dates" id="sync-dates-lp"></span></div>
-    <div class="albums-grid" id="grid-lp">{albums_html}</div>
-  </main>
+  <!-- Sub-view lista -->
+  <div id="lp-sub-list">
+    <main class="main">
+      {bpm_notice}
+      <div class="results-bar"><span><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</span><span class="results-bar-dates" id="sync-dates-lp"></span></div>
+      <div class="albums-grid" id="grid-lp">{albums_html}</div>
+    </main>
+  </div>
+  <!-- Sub-view grade -->
+  <div id="lp-sub-grid">
+    <div id="grade-grid">{grade_html}</div>
+  </div>
 </div>
 
 <!-- ═══════════════ TRACK VIEW ═══════════════ -->
@@ -3622,17 +3675,6 @@ def generate_html(df):
     </div>
     <div class="track-rows" id="grid-faixas">{tracks_html}</div>
   </main>
-</div>
-
-<!-- ═══════════════ GRADE VIEW ═══════════════ -->
-<div id="view-grade" class="view">
-  <div class="controls">
-    <div class="ctrl-row">
-      <input class="ctrl-input" id="q-grade" type="search" placeholder="Buscar artista ou &#225;lbum...">
-      <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
-    </div>
-  </div>
-  <div id="grade-grid">{grade_html}</div>
 </div>
 
 <!-- ═══ GRADE LIGHTBOX ═══ -->
