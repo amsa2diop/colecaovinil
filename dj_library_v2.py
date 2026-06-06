@@ -1220,6 +1220,8 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 body.edit-mode .results-bar-dates{display:block}
 .owner-only{display:none!important}
 body.is-owner .owner-only{display:block!important}
+body.is-owner .alb-tracks-info .owner-only,
+body.is-owner .alb-meta .owner-only{display:inline!important}
 
 /* ── LP VIEW ── */
 .albums-grid{display:flex;flex-direction:column;gap:.45rem}
@@ -1466,12 +1468,12 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
 .site-credits a:hover{color:var(--acc)}
 
 /* ── LP VIEW TOGGLE (lista/grade) ────────────────────────────────────────── */
-.lp-view-toggle{display:flex;gap:3px;flex-shrink:0}
-.lp-vt-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--bdr);
-  background:transparent;cursor:pointer;display:flex;align-items:center;
+.lp-view-toggle{display:flex;gap:3px;flex-shrink:0;margin-right:.3rem}
+.lp-vt-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--bdr);
+  background:var(--bg2);cursor:pointer;display:flex;align-items:center;
   justify-content:center;color:var(--text3);transition:all .15s;padding:0}
 .lp-vt-btn.active{background:var(--text);border-color:var(--text);color:#fff}
-.lp-vt-btn:hover:not(.active){background:var(--bg2)}
+.lp-vt-btn:hover:not(.active){filter:brightness(.94)}
 
 /* ── GRADE VIEW (sub-view dentro de DISCOS) ──────────────────────────────── */
 #lp-sub-grid{display:none;padding-bottom:calc(var(--sp-player-h,0px) + 1.8rem)}
@@ -2334,8 +2336,8 @@ function refreshCardDisplayedFields(card,vals,instId){
     else if(_pa==='Em breve') pItems.push('<span class="field-item">Trocar em breve</span>');
     pRow.innerHTML=dateHtml+pItems.join('');
   }
-  var sRow=root.querySelector('.fields-row.fields-secondary');
-  if(!sRow&&root!==card) sRow=card.querySelector('.fields-row.fields-secondary');
+  var sRow=root.querySelector('.fields-price-row');
+  if(!sRow&&root!==card) sRow=card.querySelector('.fields-price-row');
   if(sRow){
     var sItems=[];
     if(vals['$'])          sItems.push('<span class="field-item"><strong>R$</strong> '+vals['$']+'</span>');
@@ -2445,8 +2447,8 @@ function _filterGradeCards(q){
 }
 function setLPView(v){
   var isList=v==='list';
-  document.getElementById('lp-sub-list').style.display=isList?'':'none';
-  document.getElementById('lp-sub-grid').style.display=isList?'none':'';
+  document.getElementById('lp-sub-list').style.display=isList?'block':'none';
+  document.getElementById('lp-sub-grid').style.display=isList?'none':'block';
   document.getElementById('btn-lp-list').classList.toggle('active',isList);
   document.getElementById('btn-lp-grid').classList.toggle('active',!isList);
   if(!isList){
@@ -2878,7 +2880,7 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
         if pub: html += f'<div class="fields-row">{"".join(pub)}</div>'
         owner_html = ""
         if priv:     owner_html += f'<div class="fields-row fields-secondary">{"".join(priv)}</div>'
-        if priv_sec: owner_html += f'<div class="fields-row fields-secondary">{"".join(priv_sec)}</div>'
+        if priv_sec: owner_html += f'<div class="fields-row fields-secondary fields-price-row">{"".join(priv_sec)}</div>'
         if inst.get("Notas"):
             owner_html += f'<div class="field-notes fields-secondary">{esc(inst["Notas"])}</div>'
         if owner_html:
@@ -3615,23 +3617,6 @@ def generate_html(df):
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">{_SVG_FILTER_LINES} Filtros &#9662;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
       <button class="sync-btn" onclick="triggerSync(this)" title="Sincronizar agora">&#8635;</button>
-      <div class="lp-view-toggle">
-        <button class="lp-vt-btn active" id="btn-lp-list" onclick="setLPView('list')" title="Lista">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
-            <rect x="0" y="1" width="13" height="2" rx="1"/>
-            <rect x="0" y="5.5" width="13" height="2" rx="1"/>
-            <rect x="0" y="10" width="13" height="2" rx="1"/>
-          </svg>
-        </button>
-        <button class="lp-vt-btn" id="btn-lp-grid" onclick="setLPView('grid')" title="Grade">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
-            <rect x="0" y="0" width="5.5" height="5.5" rx="1"/>
-            <rect x="7.5" y="0" width="5.5" height="5.5" rx="1"/>
-            <rect x="0" y="7.5" width="5.5" height="5.5" rx="1"/>
-            <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"/>
-          </svg>
-        </button>
-      </div>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
     </div>
     {fp_lp}
@@ -3640,7 +3625,27 @@ def generate_html(df):
   <div id="lp-sub-list">
     <main class="main">
       {bpm_notice}
-      <div class="results-bar"><span><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</span><span class="results-bar-dates" id="sync-dates-lp"></span></div>
+      <div class="results-bar">
+        <div class="lp-view-toggle">
+          <button class="lp-vt-btn" id="btn-lp-grid" onclick="setLPView('grid')" title="Grade">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
+              <rect x="0" y="0" width="5.5" height="5.5" rx="1"/>
+              <rect x="7.5" y="0" width="5.5" height="5.5" rx="1"/>
+              <rect x="0" y="7.5" width="5.5" height="5.5" rx="1"/>
+              <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"/>
+            </svg>
+          </button>
+          <button class="lp-vt-btn active" id="btn-lp-list" onclick="setLPView('list')" title="Lista">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
+              <rect x="0" y="1" width="13" height="2" rx="1"/>
+              <rect x="0" y="5.5" width="13" height="2" rx="1"/>
+              <rect x="0" y="10" width="13" height="2" rx="1"/>
+            </svg>
+          </button>
+        </div>
+        <span><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</span>
+        <span class="results-bar-dates" id="sync-dates-lp"></span>
+      </div>
       <div class="albums-grid" id="grid-lp">{albums_html}</div>
     </main>
   </div>
