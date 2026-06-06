@@ -1221,7 +1221,8 @@ body.edit-mode .results-bar-dates{display:block}
 .owner-only{display:none!important}
 body.is-owner .owner-only{display:block!important}
 body.is-owner .alb-tracks-info .owner-only,
-body.is-owner .alb-meta .owner-only{display:inline!important}
+body.is-owner .alb-meta .owner-only,
+body.is-owner .results-bar .owner-only{display:inline!important}
 
 /* ── LP VIEW ── */
 .albums-grid{display:flex;flex-direction:column;gap:.45rem}
@@ -1500,7 +1501,7 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
 .grid-meta{font-size:.59rem;color:rgba(0,0,0,.48);margin-top:.28rem;
   line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;
   -webkit-box-orient:vertical}
-.grid-year{font-size:.62rem;font-weight:400;color:rgba(0,0,0,.4);margin-left:.25rem;font-style:italic}
+.grid-year{font-size:.62rem;font-weight:400;color:rgba(0,0,0,.4);margin-left:.25rem}
 
 /* ── GRADE LIGHTBOX ──────────────────────────────────────────────────────── */
 #grid-lightbox{position:fixed;inset:0;z-index:9000;display:none;
@@ -2338,7 +2339,7 @@ function refreshCardDisplayedFields(card,vals,instId){
     var dateHtml=dateSpan?dateSpan.outerHTML:'';
     var pItems=[];
     var _orig=('Origem' in vals)?vals['Origem']:(root.dataset.origem||card.dataset.origem||'').split('|')[0]||'';
-    if(_orig) pItems.push('<span class="field-item">'+_orig+'</span>');
+    if(_orig) pItems.push('<span class="field-item"><strong>Loja:</strong> '+_orig+'</span>');
     var _dj=('DJ' in vals)?vals['DJ']:card.dataset.dj.split('|')[0]||'';
     if(_dj==='Sim') pItems.push('<span class="field-item">Para discotecar</span>');
     else if(_dj==='Parcial') pItems.push('<span class="field-item">Discotecar parcialmente</span>');
@@ -2525,7 +2526,22 @@ function updateSpPlayerPadding(){
   document.documentElement.style.setProperty('--sp-player-h',h+'px');
 }
 window.addEventListener('resize',updateSpPlayerPadding);
-document.addEventListener('DOMContentLoaded',function(){setTimeout(updateSpPlayerPadding,300);});
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(updateSpPlayerPadding,300);
+  // Inject random Spotify track on load (changes every page load)
+  if(window.SP_TRACK_IDS&&SP_TRACK_IDS.length){
+    var card=document.querySelector('.sp-player-card');
+    if(card){
+      var tid=SP_TRACK_IDS[Math.floor(Math.random()*SP_TRACK_IDS.length)];
+      var fr=document.createElement('iframe');
+      fr.src='https://open.spotify.com/embed/track/'+tid+'?utm_source=generator&theme=0';
+      fr.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+      fr.loading='lazy';
+      card.appendChild(fr);
+      setTimeout(updateSpPlayerPadding,500);
+    }
+  }
+});
 """
 
 
@@ -2750,7 +2766,7 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
         if date_disp:
             pub.append(f'<span class="field-item alb-date-added">Adicionado em {date_disp}</span>')
         if inst.get("Origem"):
-            pub.append(f'<span class="field-item">{esc(inst["Origem"])}</span>')
+            pub.append(f'<span class="field-item"><strong>Loja:</strong> {esc(inst["Origem"])}</span>')
         _dj = inst.get("DJ", "")
         if _dj == "Sim":       priv.append('<span class="field-item">Para discotecar</span>')
         elif _dj == "Parcial": priv.append('<span class="field-item">Discotecar parcialmente</span>')
@@ -2863,7 +2879,7 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
         f'<div class="glb-artist">{artist_s}{copy_badge_html}</div>'
         f'<div class="glb-title">{title_s}</div>'
         f'{_meta_row}'
-        f'<div class="glb-stats">{stats_html}</div>'
+        f'<div class="glb-stats owner-only">{stats_html}</div>'
         f'{copies_html}'
         f'</div>'
         f'</div>'
@@ -2961,7 +2977,7 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
         if date_disp:
             pub.append(f'<span class="field-item alb-date-added">Adicionado em {date_disp}</span>')
         if inst.get("Origem"):
-            pub.append(f'<span class="field-item">{esc(inst["Origem"])}</span>')
+            pub.append(f'<span class="field-item"><strong>Loja:</strong> {esc(inst["Origem"])}</span>')
         _dj = inst.get("DJ", "")
         if _dj == "Sim":       priv.append('<span class="field-item">Para discotecar</span>')
         elif _dj == "Parcial": priv.append('<span class="field-item">Discotecar parcialmente</span>')
@@ -3153,7 +3169,7 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
       <div class="alb-title">{esc(first.get("album_title",""))}</div>
       {f'<div class="alb-meta">{tags}{bpm_tag}</div>' if (tags or bpm_tag) else ''}
       {custom_html}
-      <div class="alb-tracks-info">{alb_tracks_info}</div>
+      <div class="alb-tracks-info owner-only">{alb_tracks_info}</div>
     </div>
     {btn_group}
     <button class="toggle-btn" aria-label="expandir">&#9662;</button>
@@ -3462,22 +3478,17 @@ def generate_html(df):
         str(t) for t in _sp_accepted if str(t) not in ("", "nan", "None")
     ])
 
-    # ── Pre-compute Spotify player HTML (avoids nested f-string, Python < 3.12) ──
-    _sp_tids = [str(t) for t in _sp_accepted if str(t) not in ("", "nan", "None")]
-    _sp_start = f"&start_track_id={random.choice(_sp_tids)}" if _sp_tids else ""
+    # ── Pre-compute Spotify player HTML (iframe injected by JS for random start) ──
     sp_html = ""
     if sp_embed_id:
-        _sp_src = (f'https://open.spotify.com/embed/playlist/{sp_embed_id}'
-                   f'?utm_source=generator&theme=0{_sp_start}')
         sp_html = (
             '<div id="sp-player-wrap">'
             '<div style="position:relative">'
             '<button class="sp-collapse-btn" onclick="toggleSpPlayer()" title="Recolher/Expandir">'
             '<svg width="9" height="6" viewBox="0 0 9 6" fill="none">'
             '<path d="M1 5L4.5 1.5L8 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
-            f'</svg></button><div class="sp-player-card"><iframe src="{_sp_src}"'
-            ' allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"'
-            ' loading="lazy"></iframe></div></div></div>'
+            '</svg></button><div class="sp-player-card"></div>'
+            '</div></div>'
         )
 
     bpm_notice = ""
@@ -3807,7 +3818,7 @@ def generate_html(df):
   </div>
   <main class="main">
     <div class="results-bar">
-      <span><strong id="cnt-faixas">{n_tracks}</strong> faixas &nbsp;&middot;&nbsp; <a class="incomplete-link" id="incomplete-link" onclick="toggleIncompletas()" style="cursor:pointer"></a></span><span class="results-bar-dates" id="sync-dates-faixas"></span>
+      <span><strong id="cnt-faixas">{n_tracks}</strong> faixas <span class="owner-only">&nbsp;&middot;&nbsp; <a class="incomplete-link" id="incomplete-link" onclick="toggleIncompletas()" style="cursor:pointer"></a></span></span><span class="results-bar-dates" id="sync-dates-faixas"></span>
     </div>
     <div class="track-rows" id="grid-faixas">{tracks_html}</div>
   </main>
@@ -3830,7 +3841,7 @@ def generate_html(df):
 {sp_html}
 
 <footer class="site-credits">BPM data by <a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM</a></footer>
-<script>var STORY_IMAGES={story_json};</script>
+<script>var STORY_IMAGES={story_json};var SP_TRACK_IDS={sp_track_ids_js};</script>
 <script>{JS}</script>
 </body>
 </html>"""
