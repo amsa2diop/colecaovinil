@@ -1479,12 +1479,17 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
 /* ── GRADE VIEW (sub-view dentro de DISCOS) ──────────────────────────────── */
 #lp-sub-list{display:none}
 #lp-sub-grid{display:block;padding-bottom:calc(var(--sp-player-h,0px) + 1.8rem)}
+/* Results bar wrapper — full-width, same padding as grade grid */
+.results-bar-outer{padding:.6rem 1.2rem .4rem;box-sizing:border-box;width:100%}
 #grade-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
   gap:1.5rem;padding:0 1.2rem;
 }
+@media(max-width:640px){
+  .results-bar-outer{padding:.6rem .9rem .4rem}
+}
 @media(max-width:560px){
-  #grade-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;padding:0 .75rem;}
+  #grade-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;padding:0 .9rem;}
   #lp-sub-grid{padding-bottom:calc(var(--sp-player-h,0px) + 1.5rem)}
 }
 .grid-card{border-radius:14px;overflow:hidden;cursor:pointer;position:relative;
@@ -3761,7 +3766,7 @@ def generate_html(df):
     {fp_lp}
   </div>
   <!-- Results bar — always visible in both list and grade sub-views -->
-  <div class="main" style="padding-top:.6rem;padding-bottom:.4rem">
+  <div class="results-bar-outer">
     {bpm_notice}
     <div class="results-bar" style="margin-bottom:0">
       <span><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</span>
