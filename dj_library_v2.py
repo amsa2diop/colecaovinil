@@ -1212,7 +1212,12 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
 /* MAIN */
 .main{max-width:1200px;margin:0 auto;padding:1.4rem 2.5rem}
 .results-bar{font-size:.7rem;color:var(--text3);letter-spacing:.06em;
-  text-transform:uppercase;margin-bottom:1rem}
+  text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.results-bar-dates{margin-left:auto;font-size:.63rem;letter-spacing:.02em;color:var(--text3);
+  display:none;white-space:nowrap;text-transform:none}
+body.edit-mode .results-bar-dates{display:block}
+.owner-only{display:none!important}
+body.is-owner .owner-only{display:block!important}
 
 /* ── LP VIEW ── */
 .albums-grid{display:flex;flex-direction:column;gap:.45rem}
@@ -1457,6 +1462,127 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
   color:var(--text3);border-top:1px solid var(--bdr2);margin-top:1.5rem}
 .site-credits a{color:var(--text3);text-decoration:none}
 .site-credits a:hover{color:var(--acc)}
+
+/* ── GRADE VIEW ──────────────────────────────────────────────────────────── */
+#view-grade{display:none;flex-direction:column}
+#view-grade.active{display:flex}
+#grade-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:1rem;padding:0 1.2rem;
+  padding-bottom:calc(var(--sp-player-h,0px) + 1.8rem);
+}
+@media(max-width:560px){
+  #grade-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;padding:0 .75rem;
+    padding-bottom:calc(var(--sp-player-h,0px) + 1.5rem);}
+}
+.grid-card{border-radius:14px;overflow:hidden;cursor:pointer;
+  box-shadow:0 3px 16px rgba(0,0,0,.13);transition:transform .18s,box-shadow .18s}
+.grid-card:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,.19)}
+.grid-card:active{transform:scale(.97)}
+.grid-cover{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;border-radius:0;background:#ddd}
+.grid-info{padding:.45rem .6rem .55rem}
+.grid-artist{font-size:.53rem;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:rgba(0,0,0,.45);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.18rem}
+.grid-title{font-size:.72rem;font-weight:800;color:rgba(0,0,0,.78);
+  line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden}
+.grid-year{font-size:.62rem;font-weight:400;color:rgba(0,0,0,.4);margin-left:.25rem;font-style:italic}
+
+/* ── GRADE LIGHTBOX ──────────────────────────────────────────────────────── */
+#grid-lightbox{position:fixed;inset:0;z-index:9000;display:none;
+  align-items:center;justify-content:center;padding:1rem}
+#grid-lightbox.open{display:flex}
+.glb-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(12px)}
+.glb-card{position:relative;z-index:1;width:100%;max-width:700px;
+  max-height:calc(100vh - 2rem);border-radius:12px;overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:0 28px 80px rgba(0,0,0,.6);background:#1c1c1c;color:#e8e8e8}
+.glb-close{position:absolute;top:.6rem;right:.6rem;z-index:10;
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.12);color:#ccc;border:none;cursor:pointer;
+  font-size:.8rem;display:flex;align-items:center;justify-content:center;
+  transition:background .15s}
+.glb-close:hover{background:rgba(255,255,255,.25)}
+/* Lightbox card data (hidden pool) */
+#glb-pool{display:none}
+.glb-card-data{display:flex;flex-direction:column;height:100%}
+/* Blur header bg */
+.glb-blur-bg{position:absolute;inset:0;background-size:cover;background-position:center;
+  filter:blur(40px) saturate(.55);opacity:.38;transform:scale(1.1)}
+.glb-header{position:relative;flex-shrink:0;overflow:hidden}
+.glb-header-inner{position:relative;z-index:1;display:flex;gap:.85rem;align-items:flex-start;
+  padding:.9rem 1rem .85rem;padding-right:9rem}
+.glb-cover{width:90px;height:90px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#333}
+.glb-meta{flex:1;min-width:0}
+.glb-artist{font-size:.95rem;font-weight:700;color:#e8e8e8;margin-bottom:.1rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.glb-title{font-size:1.1rem;font-weight:800;color:#fff;line-height:1.22;margin-bottom:.3rem}
+.glb-meta-row{font-size:.63rem;color:rgba(255,255,255,.42);margin-bottom:.25rem;line-height:1.5}
+.glb-stats{font-size:.62rem;color:rgba(255,255,255,.38);margin-top:.12rem}
+.glb-pub-row,.glb-priv-row{margin-top:.35rem;display:flex;flex-wrap:wrap;gap:.3rem}
+.glb-meta-tag{font-size:.6rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);
+  border-radius:4px;padding:.1rem .35rem}
+.glb-notes{font-size:.62rem;color:rgba(255,255,255,.45);margin-top:.25rem;font-style:italic}
+.glb-btn-col{position:absolute;top:.9rem;right:.85rem;z-index:2;
+  display:flex;flex-direction:column;gap:.28rem}
+.glb-btn{font-size:.66rem;font-weight:600;padding:.28rem .6rem;border-radius:6px;
+  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);
+  color:#e0e0e0;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:.3rem;transition:all .12s;white-space:nowrap}
+.glb-btn:hover{background:rgba(255,255,255,.22);color:#fff}
+.glb-btn-sp{border-color:rgba(29,185,84,.5);background:rgba(29,185,84,.15)}
+.glb-btn-sp:hover{background:rgba(29,185,84,.3)}
+.glb-divider{height:1px;background:rgba(255,255,255,.07);flex-shrink:0}
+.glb-body{overflow-y:auto;flex:1;padding:.3rem 0 .6rem}
+.glb-tracks-label{font-size:.57rem;font-weight:700;color:rgba(255,255,255,.3);
+  text-transform:uppercase;letter-spacing:.08em;padding:.5rem 1rem .3rem}
+.glb-track{display:flex;align-items:center;gap:.5rem;
+  padding:.3rem 1rem;border-bottom:1px solid rgba(255,255,255,.05);
+  font-size:.73rem;cursor:default}
+.glb-track:last-child{border-bottom:none}
+.glb-track:hover{background:rgba(255,255,255,.04)}
+.glb-trk-pos{width:24px;flex-shrink:0;font-size:.6rem;color:rgba(255,255,255,.28);font-weight:600;text-align:right}
+.glb-trk-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0}
+.glb-trk-info{flex:1;min-width:0}
+.glb-trk-title{color:#e8e8e8;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.glb-trk-artist{font-size:.6rem;color:rgba(255,255,255,.38);margin-top:.03rem}
+.glb-bpm{font-size:.62rem;font-weight:700;color:rgba(255,255,255,.7);
+  background:rgba(255,255,255,.1);border-radius:5px;padding:.06rem .32rem;
+  flex-shrink:0;letter-spacing:.02em}
+.glb-trk-btns{display:flex;gap:.22rem;flex-shrink:0}
+.glb-trk-btn{font-size:.6rem;font-weight:600;padding:.18rem .42rem;border-radius:4px;
+  border:none;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:.2rem;transition:all .12s}
+.glb-trk-btn-sp{background:#1db954;color:#fff}
+.glb-trk-btn-sp:hover{background:#1aa348}
+@media(max-width:480px){
+  .glb-card{max-height:92vh;border-radius:8px}
+  .glb-cover{width:72px;height:72px}
+  .glb-title{font-size:.9rem}
+  .glb-header-inner{padding-right:7.5rem}
+}
+
+/* ── SPOTIFY PLAYER FLUTUANTE (grade view) ───────────────────────────────── */
+#sp-player-wrap{
+  position:fixed;bottom:.6rem;left:50%;transform:translateX(-50%);
+  width:min(400px,calc(100vw - 2rem));z-index:9500;
+  transition:bottom .3s ease;display:none;
+}
+body.view-grade #sp-player-wrap{display:block}
+#sp-player-wrap.sp-hidden{bottom:-110px}
+.sp-player-card{border-radius:14px;border:1px solid rgba(0,0,0,.1);
+  box-shadow:0 8px 32px rgba(0,0,0,.2);overflow:hidden;position:relative}
+.sp-player-card iframe{width:100%;height:80px;border:none;display:block}
+.sp-collapse-btn{position:absolute;top:-11px;right:6px;
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.1);
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text3);transition:color .15s}
+.sp-collapse-btn:hover{color:var(--sp)}
+#sp-player-wrap.sp-hidden .sp-collapse-btn svg{transform:scaleY(-1)}
+.sp-collapse-btn svg{transition:transform .3s}
 """
 
 JS = r"""
@@ -1466,7 +1592,10 @@ function switchView(v){
   document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active')});
   document.getElementById('view-'+v).classList.add('active');
   document.querySelector('[data-v="'+v+'"]').classList.add('active');
+  document.body.className=document.body.className.replace(/\bview-\S+/g,'').trim();
+  document.body.classList.add('view-'+v);
   syncAllChips();
+  setTimeout(updateSpPlayerPadding,100);
 }
 
 // ── SHARED FILTER STATE ───────────────────────────────────────────────────────
@@ -1827,13 +1956,46 @@ function _dSave(o){localStorage.setItem('discogs_cfg',JSON.stringify(o))}
 
 var DISCOGS_OWNER='amsa2diop';
 
+function updateSyncDates(){
+  var syncMeta=document.querySelector('meta[name="sync-time"]');
+  var syncTime=syncMeta?new Date(syncMeta.content):null;
+  var edits=JSON.parse(localStorage.getItem('discogs_edits')||'{}');
+  var lastLocal=0;
+  Object.values(edits).forEach(function(e){if((e._savedAt||0)>lastLocal)lastLocal=e._savedAt;});
+  function fmtDt(d){
+    if(!d||isNaN(d.getTime()))return'—';
+    return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'})
+          +' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  }
+  var text='Discogs: '+fmtDt(syncTime);
+  if(lastLocal)text+=' · Local: '+fmtDt(new Date(lastLocal));
+  document.querySelectorAll('.results-bar-dates').forEach(function(el){el.textContent=text;});
+}
+
 function toggleEditMode(){
   var cfg=_dcfg();
   if(!cfg.token){openSetupModal();return;}
   editMode=!editMode;
   document.body.classList.toggle('edit-mode',editMode);
   document.querySelectorAll('.pencil-mode-btn').forEach(function(b){b.classList.toggle('active',editMode);});
-  if(editMode) refreshDiscogsFieldOptions();
+  if(editMode){refreshDiscogsFieldOptions();updateSyncDates();}
+}
+
+function checkOwnerAuth(){
+  var cfg=_dcfg();
+  if(!cfg.token){return;}
+  if(localStorage.getItem('_ownerVerified')===DISCOGS_OWNER){
+    document.body.classList.add('is-owner');return;
+  }
+  var h={'Authorization':'Discogs token='+cfg.token,'User-Agent':'ColecaoDoAmsa/1.0'};
+  fetch('https://api.discogs.com/oauth/identity',{headers:h})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.username===DISCOGS_OWNER){
+        localStorage.setItem('_ownerVerified',d.username);
+        document.body.classList.add('is-owner');
+      }
+    }).catch(function(){});
 }
 
 function refreshDiscogsFieldOptions(){
@@ -1896,6 +2058,8 @@ async function connectDiscogs(){
       closeSetupModal();
       editMode=true;
       document.body.classList.add('edit-mode');
+      document.body.classList.add('is-owner');
+      localStorage.setItem('_ownerVerified',DISCOGS_OWNER);
       document.querySelectorAll('.pencil-mode-btn').forEach(function(b){b.classList.add('active');});
     },1200);
   }catch(e){st.innerHTML='<span style="color:#c0392b">✗ '+e.message+'</span>';}
@@ -2137,6 +2301,7 @@ function applyLocalOverrides(){
   }
 }
 document.addEventListener('DOMContentLoaded',applyLocalOverrides);
+document.addEventListener('DOMContentLoaded',checkOwnerAuth);
 
 function refreshCardDisplayedFields(card,vals,instId){
   // Find the right container: specific copy row, or the card itself
@@ -2259,6 +2424,58 @@ document.addEventListener('click',function(e){
   if(!e.target.closest('.cef-sel-wrap'))
     document.querySelectorAll('.cef-sel-wrap.open').forEach(function(w){w.classList.remove('open');});
 });
+
+// ── GRADE VIEW ────────────────────────────────────────────────────────────────
+function filterGrade(){
+  var q=(document.getElementById('q-grade').value||'').toLowerCase().trim();
+  document.querySelectorAll('#grade-grid .grid-card').forEach(function(card){
+    var rid=card.dataset.rid;
+    var srcCard=document.querySelector('#grid-lp [data-release-id="'+rid+'"]');
+    var match=!q||(srcCard&&srcCard.dataset.search.includes(q))
+      ||card.textContent.toLowerCase().includes(q);
+    card.style.display=match?'':'none';
+  });
+}
+var _t3;
+document.addEventListener('DOMContentLoaded',function(){
+  var inp=document.getElementById('q-grade');
+  if(inp)inp.addEventListener('input',function(){clearTimeout(_t3);_t3=setTimeout(filterGrade,200);});
+});
+
+// ── GRADE LIGHTBOX ────────────────────────────────────────────────────────────
+function openGridLightbox(rid){
+  var pool=document.getElementById('glb-pool');
+  var src=pool&&pool.querySelector('[data-rid="'+rid+'"]');
+  if(!src)return;
+  var inner=document.getElementById('glb-inner');
+  inner.innerHTML=src.innerHTML;
+  document.getElementById('grid-lightbox').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeGridLightbox(){
+  document.getElementById('grid-lightbox').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&document.getElementById('grid-lightbox').classList.contains('open'))
+    closeGridLightbox();
+});
+
+// ── SPOTIFY FLOATING PLAYER ───────────────────────────────────────────────────
+var _spHidden=false;
+function toggleSpPlayer(){
+  _spHidden=!_spHidden;
+  document.getElementById('sp-player-wrap').classList.toggle('sp-hidden',_spHidden);
+  setTimeout(updateSpPlayerPadding,350);
+}
+function updateSpPlayerPadding(){
+  var wrap=document.getElementById('sp-player-wrap');
+  if(!wrap)return;
+  var visible=document.body.classList.contains('view-grade')&&!_spHidden;
+  document.documentElement.style.setProperty('--sp-player-h',visible?wrap.offsetHeight+'px':'0px');
+}
+window.addEventListener('resize',updateSpPlayerPadding);
+document.addEventListener('DOMContentLoaded',function(){setTimeout(updateSpPlayerPadding,300);});
 """
 
 
@@ -2388,11 +2605,146 @@ def render_track_lp(row):
     <div class="trk-artist">{esc(row.get("artist_clean"))}</div>
     <div class="trk-name">{esc(row.get("track_title"))}</div>
   </div>
-  <div class="trk-badges">
+  <div class="trk-badges owner-only">
     <span class="badge-bpm">{bpm_txt}</span>
   </div>
   {btn_col}
 </div>'''
+
+
+def render_album_grid(release_id, artist, title, year, cover, color_pastel=""):
+    """Renderiza um card compacto para a view em grade."""
+    rid   = esc(str(release_id))
+    bg    = color_pastel if (color_pastel and len(color_pastel) == 7) else "#e8d5c4"
+    year_s = str(int(year)) if safe_float(year) else ""
+    year_html = f'<span class="grid-year"> · {year_s}</span>' if year_s else ""
+    img_html  = (f'<img class="grid-cover" src="{esc(cover)}" alt="" loading="lazy">'
+                 if cover else '<div class="grid-cover" style="background:#ccc"></div>')
+    return (
+        f'<div class="grid-card" data-rid="{rid}" onclick="openGridLightbox(\'{rid}\')" style="background:{bg}">'
+        f'{img_html}'
+        f'<div class="grid-info" style="background:{bg}">'
+        f'<div class="grid-artist">{esc(artist)}</div>'
+        f'<div class="grid-title">{esc(title)}{year_html}</div>'
+        f'</div></div>'
+    )
+
+
+def render_album_lightbox_card(group, instances=None, sp_playlist_link=""):
+    """Renderiza o card escuro do lightbox da view em grade (pre-renderizado, oculto)."""
+    _months = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"]
+    group_dedup = group.drop_duplicates(subset=["position"])
+    first       = group_dedup.iloc[0]
+    release_id  = str(first.get("release_id", ""))
+    cover       = esc(first.get("cover_url") or "")
+    artist_s    = esc(first.get("album_artist") or "")
+    title_s     = esc(first.get("album_title") or "")
+    year_s      = str(int(first["year"])) if safe_float(first.get("year")) else ""
+
+    bpm_vals = group_dedup["bpm"].apply(safe_float).dropna()
+    if len(bpm_vals):
+        bmin, bmax = int(bpm_vals.min()), int(bpm_vals.max())
+        bpm_range = f"{bmin} BPM" if bmin == bmax else f"{bmin}–{bmax} BPM"
+    else:
+        bpm_range = ""
+    n_bpm = int(bpm_vals.notna().sum()) if len(bpm_vals) else 0
+
+    fields = (instances or [{}])[0]
+
+    def _fmt_date(raw):
+        raw = (raw or "").strip()
+        if not raw: return ""
+        try:
+            _d = raw[:10].split("-")
+            return f"{int(_d[2])} {_months[int(_d[1])-1]} {_d[0]}"
+        except Exception:
+            return ""
+
+    # Public meta
+    pub_parts = []
+    date_disp = _fmt_date(fields.get("date_added",""))
+    if date_disp: pub_parts.append(f"Adicionado em {date_disp}")
+    if fields.get("Origem"): pub_parts.append(esc(fields["Origem"]))
+    pub_html = "".join(f'<span class="glb-meta-tag">{p}</span>' for p in pub_parts)
+
+    # Owner-only meta
+    priv_parts = []
+    _dj = fields.get("DJ","")
+    if _dj == "Sim":       priv_parts.append("Para discotecar")
+    elif _dj == "Parcial": priv_parts.append("Discotecar parcialmente")
+    _pa = fields.get("PA","")
+    if _pa == "Sim":        priv_parts.append("Para trocar")
+    elif _pa == "Em breve": priv_parts.append("Trocar em breve")
+    if fields.get("$"):    priv_parts.append(f"R$ {esc(fields['$'])}")
+    priv_tags = "".join(f'<span class="glb-meta-tag">{p}</span>' for p in priv_parts)
+    notes_html = f'<div class="glb-notes">{esc(fields["Notas"])}</div>' if fields.get("Notas") else ""
+    priv_html = f'<div class="owner-only glb-priv-row">{priv_tags}{notes_html}</div>' if (priv_parts or notes_html) else ""
+
+    bpm_meta_html = f' &middot; <span class="owner-only">{bpm_range}</span>' if bpm_range else ""
+    bpm_stat_html = f' &middot; <span class="owner-only">{n_bpm} com BPM</span>' if n_bpm else ""
+
+    n_tracks = len(group_dedup)
+    discogs_url = f'https://www.discogs.com/release/{release_id}'
+    disc_btn = (f'<a class="glb-btn" href="{discogs_url}" target="_blank" '
+                f'onclick="event.stopPropagation()">{_SVG_DISCOGS_SM} Discogs</a>')
+    sp_btn = (f'<a class="glb-btn glb-btn-sp" href="{sp_playlist_link}" target="_blank" '
+              f'onclick="event.stopPropagation()">{_SVG_SPOTIFY_SM} Spotify</a>') if sp_playlist_link else ""
+
+    # Tracks
+    track_rows = []
+    for _, row in group_dedup.iterrows():
+        pos_s      = esc(str(row.get("position","") or ""))
+        trk_title  = esc(str(row.get("track_title","") or ""))
+        trk_artist = str(row.get("artist_clean","") or "")
+        bpm_f      = safe_float(row.get("bpm",""))
+        bpm_chip   = (f'<span class="glb-bpm owner-only">{int(bpm_f)}</span>' if bpm_f else "")
+        trk_sp_uri = str(row.get("spotify_uri","") or "")
+        trk_sp_btn = ""
+        if trk_sp_uri and "spotify:track:" in trk_sp_uri:
+            track_href = trk_sp_uri.replace("spotify:track:","https://open.spotify.com/track/")
+            trk_sp_btn = (f'<a class="glb-trk-btn glb-trk-btn-sp" href="{track_href}" '
+                          f'target="_blank" onclick="event.stopPropagation()">Spotify</a>')
+        artist_diff = trk_artist.lower() != (first.get("album_artist","") or "").lower()
+        artist_line = f'<div class="glb-trk-artist">{esc(trk_artist)}</div>' if artist_diff else ""
+        track_rows.append(
+            f'<div class="glb-track">'
+            f'<span class="glb-trk-pos">{pos_s}</span>'
+            f'<div class="glb-trk-dot"></div>'
+            f'<div class="glb-trk-info"><div class="glb-trk-title">{trk_title}</div>{artist_line}</div>'
+            f'{bpm_chip}'
+            f'<div class="glb-trk-btns">{trk_sp_btn}</div>'
+            f'</div>'
+        )
+
+    blur_style     = f'background-image:url(\'{cover}\')' if cover else ""
+    _cover_img     = f'<img class="glb-cover" src="{cover}" alt="" loading="lazy">' if cover else ""
+    _meta_row      = (f'<div class="glb-meta-row">{year_s}{bpm_meta_html}</div>'
+                      if (year_s or bpm_meta_html) else "")
+    _pub_row       = f'<div class="glb-pub-row">{pub_html}</div>' if pub_html else ""
+    return (
+        f'<div class="glb-card-data" data-rid="{release_id}">'
+        f'<div class="glb-header">'
+        f'<div class="glb-blur-bg" style="{blur_style}"></div>'
+        f'<div class="glb-header-inner">'
+        f'{_cover_img}'
+        f'<div class="glb-meta">'
+        f'<div class="glb-artist">{artist_s}</div>'
+        f'<div class="glb-title">{title_s}</div>'
+        f'{_meta_row}'
+        f'<div class="glb-stats">{n_tracks} faixas{bpm_stat_html}</div>'
+        f'{_pub_row}'
+        f'{priv_html}'
+        f'</div>'
+        f'</div>'
+        f'<div class="glb-btn-col">{disc_btn}{sp_btn}</div>'
+        f'</div>'
+        f'<div class="glb-divider"></div>'
+        f'<div class="glb-body">'
+        f'<div class="glb-tracks-label">{n_tracks} Faixas</div>'
+        f'{"".join(track_rows)}'
+        f'</div>'
+        f'</div>'
+    )
 
 
 def render_album_lp(group, copy_count=1, fields=None, instances=None, country="", color_pastel="", format_data=None):
@@ -2453,9 +2805,9 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
     if country_s:     meta_parts.append(country_s)
     if fmt_size and fmt_size not in ("LP","Other"): meta_parts.append(esc(fmt_size))
     if genre_style_s: meta_parts.append(genre_style_s[:60])
-    if bpm_range:     meta_parts.append(bpm_range)
     if fmt_label:     meta_parts.append(esc(fmt_label[:28]))
     tags = " · ".join(meta_parts)
+    bpm_tag = f' &middot; <span class="owner-only">{bpm_range}</span>' if bpm_range else ""
 
     _months = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"]
 
@@ -2469,32 +2821,38 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
             return ""
 
     def _inst_meta_html(inst, label=""):
-        pri, sec = [], []
+        # pub  = always visible (data de adição, loja)
+        # priv = owner-only (discotecar, trocar, preço, condição, notas)
+        pub, priv, priv_sec = [], [], []
         if label:
-            pri.append(f'<span class="copy-label">{label}</span>')
+            pub.append(f'<span class="copy-label">{label}</span>')
         date_disp = _fmt_date(inst.get("date_added", ""))
         if date_disp:
-            pri.append(f'<span class="field-item alb-date-added">Adicionado em {date_disp}</span>')
+            pub.append(f'<span class="field-item alb-date-added">Adicionado em {date_disp}</span>')
         if inst.get("Origem"):
-            pri.append(f'<span class="field-item">{esc(inst["Origem"])}</span>')
+            pub.append(f'<span class="field-item">{esc(inst["Origem"])}</span>')
         _dj = inst.get("DJ", "")
-        if _dj == "Sim":      pri.append('<span class="field-item">Para discotecar</span>')
-        elif _dj == "Parcial": pri.append('<span class="field-item">Discotecar parcialmente</span>')
+        if _dj == "Sim":       priv.append('<span class="field-item">Para discotecar</span>')
+        elif _dj == "Parcial": priv.append('<span class="field-item">Discotecar parcialmente</span>')
         _pa = inst.get("PA", "")
-        if _pa == "Sim":        pri.append('<span class="field-item">Para trocar</span>')
-        elif _pa == "Em breve": pri.append('<span class="field-item">Trocar em breve</span>')
+        if _pa == "Sim":        priv.append('<span class="field-item">Para trocar</span>')
+        elif _pa == "Em breve": priv.append('<span class="field-item">Trocar em breve</span>')
         if inst.get("$"):
-            sec.append(f'<span class="field-item"><strong>R$</strong> {esc(inst["$"])}</span>')
+            priv_sec.append(f'<span class="field-item"><strong>R$</strong> {esc(inst["$"])}</span>')
         if inst.get("Recebido?") == "Não":
-            sec.append('<span class="field-item">Não recebido</span>')
+            priv_sec.append('<span class="field-item">N&#227;o recebido</span>')
         mc = inst.get("Media Condition",""); sc = inst.get("Sleeve Condition","")
         if mc or sc:
-            sec.append(f'<span class="field-item"><strong>Cond:</strong> {esc(" / ".join(filter(None,[mc,sc])))}</span>')
+            priv_sec.append(f'<span class="field-item"><strong>Cond:</strong> {esc(" / ".join(filter(None,[mc,sc])))}</span>')
         html = ""
-        if pri: html += f'<div class="fields-row">{"".join(pri)}</div>'
-        if sec: html += f'<div class="fields-row fields-secondary">{"".join(sec)}</div>'
+        if pub: html += f'<div class="fields-row">{"".join(pub)}</div>'
+        owner_html = ""
+        if priv:     owner_html += f'<div class="fields-row fields-secondary">{"".join(priv)}</div>'
+        if priv_sec: owner_html += f'<div class="fields-row fields-secondary">{"".join(priv_sec)}</div>'
         if inst.get("Notas"):
-            html += f'<div class="field-notes fields-secondary">{esc(inst["Notas"])}</div>'
+            owner_html += f'<div class="field-notes fields-secondary">{esc(inst["Notas"])}</div>'
+        if owner_html:
+            html += f'<div class="owner-only">{owner_html}</div>'
         return html
 
     # Per-copy meta rows
@@ -2546,10 +2904,11 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
 
     all_orig_search = " ".join(inst.get("Origem","") for inst in instances)
     all_notas_search = " ".join(inst.get("Notas","") for inst in instances)
-    track_titles = " ".join(str(r.get("track_title","")) for _, r in group_dedup.iterrows())
+    track_titles  = " ".join(str(r.get("track_title",""))  for _, r in group_dedup.iterrows())
+    track_artists = " ".join(str(r.get("artist_clean","")) for _, r in group_dedup.iterrows())
     search_str = html_module.escape(
         f'{first.get("album_artist","")} {first.get("album_title","")} '
-        f'{styles_s} {genres_s} {year_s} {country} {track_titles} '
+        f'{styles_s} {genres_s} {year_s} {country} {track_titles} {track_artists} '
         f'{fmt_label} {all_orig_search} {all_notas_search}'.lower()
     )
 
@@ -2563,9 +2922,10 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
         if (_uri and "spotify" in _uri and str(_r.get("status", "")) == "ACEITO") or _did:
             n_preview += 1
     _tinfo = [f"{n_ok} de {len(group_dedup)} faixas"]
-    if n_bpm > 0:   _tinfo.append(f"{n_bpm} com BPM")
     if n_preview > 0: _tinfo.append(f"{n_preview} com pr&#233;via")
     alb_tracks_info = " &middot; ".join(_tinfo)
+    if n_bpm > 0:
+        alb_tracks_info += f' &middot; <span class="owner-only">{n_bpm} com BPM</span>'
     country_key = country.strip().lower()
 
     # ── Inline edit form ────────────────────────────────────────────────────────
@@ -2660,7 +3020,7 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
     <div class="album-info">
       <div class="alb-artist">{esc(first.get("album_artist",""))}{copy_badge}</div>
       <div class="alb-title">{esc(first.get("album_title",""))}</div>
-      {f'<div class="alb-meta">{tags}</div>' if tags else ''}
+      {f'<div class="alb-meta">{tags}{bpm_tag}</div>' if (tags or bpm_tag) else ''}
       {custom_html}
       <div class="alb-tracks-info">{alb_tracks_info}</div>
     </div>
@@ -2725,15 +3085,15 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     if _dj_v  and _dj_v  != "Não": _extra_parts.append('<span class="c-badge c-badge-disc">DJ</span>')
     if _rec_v == "Não":             _extra_parts.append('<span class="c-badge c-badge-nrec">N&#227;o recebido</span>')
     if _not_v:                      _extra_parts.append(f'<span class="c-notes-inline">{esc(_not_v)}</span>')
-    c_extra = f'<div class="c-extra">{"".join(_extra_parts)}</div>' if _extra_parts else ""
+    c_extra = f'<div class="c-extra owner-only">{"".join(_extra_parts)}</div>' if _extra_parts else ""
 
     # ── pastel gradient ──────────────────────────────────────────
     pg = pastel_gradient(color_pastel)
     row_style = f' style="{pg}"' if pg else ""
 
     # ── BPM chip (left of cover) ─────────────────────────────────
-    bpm_el = (f'<div class="c-bpm">{bpm_txt}<small>bpm</small></div>'
-              if bpm_f else '<div class="c-bpm-none">—</div>')
+    bpm_el = (f'<div class="c-bpm owner-only">{bpm_txt}<small>bpm</small></div>'
+              if bpm_f else '<div class="c-bpm-none owner-only">—</div>')
 
     # ── Cover ────────────────────────────────────────────────────
     if thumb:
@@ -2896,7 +3256,13 @@ def generate_html(df):
     bpm_vals  = df["bpm"].apply(safe_float).dropna()
     has_bpm   = len(bpm_vals) > 0
 
+    # ── Spotify embed ID ─────────────────────────────────────────────────────
+    sp_embed_id = ""
+    if playlist_url:
+        sp_embed_id = playlist_url.split(":")[-1].split("/")[-1]
+
     # ── LP view ──────────────────────────────────────────────────────────────
+    _sorted_groups = list(df.sort_values(["album_artist","album_title"]).groupby("release_id", sort=False))
     albums_html = "\n".join(
         render_album_lp(
             g,
@@ -2906,7 +3272,31 @@ def generate_html(df):
             color_pastel = colors_map.get(str(rid), ""),
             format_data  = format_map.get(str(rid), {}),
         )
-        for rid, g in df.sort_values(["album_artist","album_title"]).groupby("release_id", sort=False)
+        for rid, g in _sorted_groups
+    )
+
+    # ── Grade view grid cards ────────────────────────────────────────────────
+    grade_html = "\n".join(
+        render_album_grid(
+            release_id   = rid,
+            artist       = g.iloc[0].get("album_artist", ""),
+            title        = g.iloc[0].get("album_title", ""),
+            year         = g.iloc[0].get("year", ""),
+            cover        = g.iloc[0].get("cover_url", "") or "",
+            color_pastel = colors_map.get(str(rid), ""),
+        )
+        for rid, g in _sorted_groups
+    )
+
+    # ── Grade lightbox pool (pre-rendered dark cards, hidden) ────────────────
+    lightbox_pool_html = "\n".join(
+        render_album_lightbox_card(
+            g,
+            instances       = instances_map.get(str(rid), []),
+            sp_playlist_link= playlist_url.replace("spotify:playlist:", "https://open.spotify.com/playlist/")
+                              if playlist_url else "",
+        )
+        for rid, g in _sorted_groups
     )
 
     # ── Track view: sorted by BPM (deduplica cópias) ─────────────────────────
@@ -3177,6 +3567,7 @@ def generate_html(df):
   <div class="header-tabs">
     <button class="tab-btn active" data-v="lp" onclick="switchView('lp')">Discos</button>
     <button class="tab-btn" data-v="faixas" onclick="switchView('faixas')">Faixas</button>
+    <button class="tab-btn" data-v="grade" onclick="switchView('grade')">Grade</button>
   </div>
 </header>
 
@@ -3201,7 +3592,7 @@ def generate_html(df):
   </div>
   <main class="main">
     {bpm_notice}
-    <div class="results-bar"><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</div>
+    <div class="results-bar"><span><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</span><span class="results-bar-dates" id="sync-dates-lp"></span></div>
     <div class="albums-grid" id="grid-lp">{albums_html}</div>
   </main>
 </div>
@@ -3227,13 +3618,50 @@ def generate_html(df):
   </div>
   <main class="main">
     <div class="results-bar">
-      <strong id="cnt-faixas">{n_tracks}</strong> faixas
-      &nbsp;&middot;&nbsp;
-      <a class="incomplete-link" id="incomplete-link" onclick="toggleIncompletas()" style="cursor:pointer"></a>
+      <span><strong id="cnt-faixas">{n_tracks}</strong> faixas &nbsp;&middot;&nbsp; <a class="incomplete-link" id="incomplete-link" onclick="toggleIncompletas()" style="cursor:pointer"></a></span><span class="results-bar-dates" id="sync-dates-faixas"></span>
     </div>
     <div class="track-rows" id="grid-faixas">{tracks_html}</div>
   </main>
 </div>
+
+<!-- ═══════════════ GRADE VIEW ═══════════════ -->
+<div id="view-grade" class="view">
+  <div class="controls">
+    <div class="ctrl-row">
+      <input class="ctrl-input" id="q-grade" type="search" placeholder="Buscar artista ou &#225;lbum...">
+      <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
+    </div>
+  </div>
+  <div id="grade-grid">{grade_html}</div>
+</div>
+
+<!-- ═══ GRADE LIGHTBOX ═══ -->
+<div id="grid-lightbox">
+  <div class="glb-backdrop" onclick="closeGridLightbox()"></div>
+  <div class="glb-card" onclick="event.stopPropagation()">
+    <button class="glb-close" onclick="closeGridLightbox()">&#10005;</button>
+    <div id="glb-inner" style="display:flex;flex-direction:column;flex:1;overflow:hidden"></div>
+  </div>
+</div>
+
+<!-- ═══ GRADE LIGHTBOX POOL (pre-rendered, hidden) ═══ -->
+<div id="glb-pool">{lightbox_pool_html}</div>
+
+{f"""<!-- ═══ SPOTIFY PLAYER FLUTUANTE ═══ -->
+<div id="sp-player-wrap">
+  <div style="position:relative">
+    <button class="sp-collapse-btn" onclick="toggleSpPlayer()" title="Recolher/Expandir">
+      <svg width="9" height="6" viewBox="0 0 9 6" fill="none">
+        <path d="M1 5L4.5 1.5L8 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="sp-player-card">
+      <iframe src="https://open.spotify.com/embed/playlist/{sp_embed_id}?utm_source=generator&theme=0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"></iframe>
+    </div>
+  </div>
+</div>""" if sp_embed_id else ""}
 
 <footer class="site-credits">BPM data by <a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM</a></footer>
 <script>var STORY_IMAGES={story_json};</script>
