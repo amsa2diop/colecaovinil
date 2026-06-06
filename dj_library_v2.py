@@ -1476,7 +1476,8 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
 .lp-vt-btn:hover:not(.active){filter:brightness(.94)}
 
 /* ── GRADE VIEW (sub-view dentro de DISCOS) ──────────────────────────────── */
-#lp-sub-grid{display:none;padding-bottom:calc(var(--sp-player-h,0px) + 1.8rem)}
+#lp-sub-list{display:none}
+#lp-sub-grid{display:block;padding-bottom:calc(var(--sp-player-h,0px) + 1.8rem)}
 #grade-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
   gap:1rem;padding:0 1.2rem;
@@ -1486,27 +1487,26 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
   #lp-sub-grid{padding-bottom:calc(var(--sp-player-h,0px) + 1.5rem)}
 }
 .grid-card{border-radius:14px;overflow:hidden;cursor:pointer;position:relative;
-  box-shadow:0 3px 16px rgba(0,0,0,.13);transition:transform .18s,box-shadow .18s;
-  --text:rgba(0,0,0,.78);--text2:rgba(0,0,0,.45);--text3:rgba(0,0,0,.4)}
+  box-shadow:0 3px 16px rgba(0,0,0,.13);transition:transform .18s,box-shadow .18s}
 .grid-card:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,.19)}
 .grid-card:active{transform:scale(.97)}
 .grid-cover{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;
   border-radius:0;background:rgba(0,0,0,.1);position:relative;z-index:1}
-.grid-info{padding:.45rem .6rem .55rem;position:relative;z-index:1}
-.grid-artist{font-size:.53rem;font-weight:700;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--text2);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.18rem}
-.grid-title{font-size:.72rem;font-weight:800;color:var(--text);
-  line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;
-  -webkit-box-orient:vertical;overflow:hidden}
-.grid-year{color:var(--text3)}
+.grid-info{padding:.48rem .65rem .6rem;position:relative;z-index:1}
+.grid-artist{font-weight:600;font-size:.8rem;color:rgba(0,0,0,.82);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.1rem}
+.grid-title{font-size:.7rem;color:rgba(0,0,0,.56);margin-top:.05rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grid-meta{font-size:.59rem;color:rgba(0,0,0,.48);margin-top:.28rem;
+  line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical}
 .grid-year{font-size:.62rem;font-weight:400;color:rgba(0,0,0,.4);margin-left:.25rem;font-style:italic}
 
 /* ── GRADE LIGHTBOX ──────────────────────────────────────────────────────── */
 #grid-lightbox{position:fixed;inset:0;z-index:9000;display:none;
   align-items:center;justify-content:center;padding:1rem}
 #grid-lightbox.open{display:flex}
-.glb-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(12px)}
+.glb-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.42);backdrop-filter:blur(8px)}
 .glb-card{position:relative;z-index:1;width:100%;max-width:700px;
   max-height:calc(100vh - 2rem);border-radius:12px;overflow:hidden;
   display:flex;flex-direction:column;
@@ -1588,10 +1588,10 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
   width:min(520px,calc(100vw - 2rem));z-index:9500;
   transition:bottom .3s ease;
 }
-#sp-player-wrap.sp-hidden{bottom:-210px}
+#sp-player-wrap.sp-hidden{bottom:-120px}
 .sp-player-card{border-radius:14px;border:1px solid rgba(0,0,0,.1);
   box-shadow:0 8px 32px rgba(0,0,0,.2);overflow:hidden;position:relative}
-.sp-player-card iframe{width:100%;height:152px;border:none;display:block}
+.sp-player-card iframe{width:100%;height:80px;border:none;display:block}
 .sp-collapse-btn{position:absolute;top:-11px;right:6px;
   width:22px;height:22px;border-radius:50%;
   background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.1);
@@ -1803,7 +1803,7 @@ function filterLP(){
     });
     vc.forEach(function(c){grid.appendChild(c)});
   }
-  _filterGradeCards(q);
+  _filterGradeCards();
 }
 
 // ── TRACK VIEW ────────────────────────────────────────────────────────────────
@@ -2445,14 +2445,19 @@ document.addEventListener('click',function(e){
 });
 
 // ── GRADE VIEW (sub-view de DISCOS) ──────────────────────────────────────────
-function _filterGradeCards(q){
-  document.querySelectorAll('#grade-grid .grid-card').forEach(function(card){
-    var rid=card.dataset.rid;
-    var srcCard=document.querySelector('#grid-lp [data-release-id="'+rid+'"]');
-    var match=!q||(srcCard&&srcCard.dataset.search.includes(q))
-      ||card.textContent.toLowerCase().includes(q);
-    card.style.display=match?'':'none';
+function _filterGradeCards(){
+  var lpCards=document.querySelectorAll('#grid-lp .album-card');
+  var vis=0;
+  lpCards.forEach(function(lp,idx){
+    var rid=lp.dataset.releaseId;
+    var gc=document.querySelector('#grade-grid [data-rid="'+rid+'"]');
+    if(!gc)return;
+    var hidden=lp.classList.contains('hidden');
+    gc.style.display=hidden?'none':'';
+    gc.style.order=idx;
+    if(!hidden)vis++;
   });
+  document.getElementById('cnt-lp').textContent=vis;
 }
 function setLPView(v){
   var isList=v==='list';
@@ -2460,10 +2465,7 @@ function setLPView(v){
   document.getElementById('lp-sub-grid').style.display=isList?'none':'block';
   document.getElementById('btn-lp-list').classList.toggle('active',isList);
   document.getElementById('btn-lp-grid').classList.toggle('active',!isList);
-  if(!isList){
-    var q=(document.getElementById('q-lp').value||'').toLowerCase().trim();
-    _filterGradeCards(q);
-  }
+  if(!isList)filterLP();
   setTimeout(updateSpPlayerPadding,100);
 }
 
@@ -2663,14 +2665,35 @@ def _hex_luminance(hex_color):
         return 1.0
 
 
-def render_album_grid(release_id, artist, title, year, cover, color_pastel=""):
+def render_album_grid(group, color_pastel="", country="", format_data=None):
     """Renderiza um card compacto para a view em grade."""
-    rid    = esc(str(release_id))
-    year_s = str(int(year)) if safe_float(year) else ""
-    year_html = f'<span class="grid-year"> · {year_s}</span>' if year_s else ""
-    img_html  = (f'<img class="grid-cover" src="{esc(cover)}" alt="" loading="lazy">'
+    format_info = format_data or {}
+    group_dedup = group.drop_duplicates(subset=["position"])
+    first       = group_dedup.iloc[0]
+    release_id  = str(first.get("release_id", ""))
+    rid         = esc(release_id)
+    artist      = esc(str(first.get("album_artist", "") or ""))
+    title       = esc(str(first.get("album_title", "") or ""))
+    year_s      = str(int(first["year"])) if safe_float(first.get("year")) else ""
+    cover       = esc(str(first.get("cover_url", "") or ""))
+
+    genres_s      = str(first.get("genres", "") or "")
+    styles_s      = str(first.get("styles", "") or "")
+    genre_style_s = _genre_style(genres_s, styles_s, limit=3)
+    fmt_label     = format_info.get("label", "") or ""
+    country_s     = (country or "").strip()
+
+    meta_parts = []
+    if year_s:        meta_parts.append(year_s)
+    if country_s:     meta_parts.append(esc(country_s))
+    if genre_style_s: meta_parts.append(esc(genre_style_s[:50]))
+    if fmt_label:     meta_parts.append(esc(fmt_label[:24]))
+    meta_html = (f'<div class="grid-meta">{" · ".join(meta_parts)}</div>'
+                 if meta_parts else "")
+
+    img_html  = (f'<img class="grid-cover" src="{cover}" alt="" loading="lazy">'
                  if cover else '<div class="grid-cover"></div>')
-    cover_blur = (f'<div class="cover-blur" style="background-image:url(\'{esc(cover)}\')" '
+    cover_blur = (f'<div class="cover-blur" style="background-image:url(\'{cover}\')" '
                   f'aria-hidden="true"></div>') if cover else ""
     if color_pastel and len(color_pastel) == 7:
         _, cvars = card_colors(color_pastel)
@@ -2683,8 +2706,9 @@ def render_album_grid(release_id, artist, title, year, cover, color_pastel=""):
         f'{cover_blur}'
         f'{img_html}'
         f'<div class="grid-info">'
-        f'<div class="grid-artist">{esc(artist)}</div>'
-        f'<div class="grid-title">{esc(title)}{year_html}</div>'
+        f'<div class="grid-artist">{artist}</div>'
+        f'<div class="grid-title">{title}</div>'
+        f'{meta_html}'
         f'</div></div>'
     )
 
@@ -3342,12 +3366,10 @@ def generate_html(df):
     # ── Grade view grid cards ────────────────────────────────────────────────
     grade_html = "\n".join(
         render_album_grid(
-            release_id   = rid,
-            artist       = g.iloc[0].get("album_artist", ""),
-            title        = g.iloc[0].get("album_title", ""),
-            year         = g.iloc[0].get("year", ""),
-            cover        = g.iloc[0].get("cover_url", "") or "",
+            g,
             color_pastel = colors_map.get(str(rid), ""),
+            country      = country_map.get(str(rid), ""),
+            format_data  = format_map.get(str(rid), {}),
         )
         for rid, g in _sorted_groups
     )
@@ -3669,7 +3691,7 @@ def generate_html(df):
       <span><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</span>
       <span class="results-bar-dates" id="sync-dates-lp"></span>
       <div class="lp-view-toggle" style="margin-left:auto">
-        <button class="lp-vt-btn" id="btn-lp-grid" onclick="setLPView('grid')" title="Grade">
+        <button class="lp-vt-btn active" id="btn-lp-grid" onclick="setLPView('grid')" title="Grade">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
             <rect x="0" y="0" width="5.5" height="5.5" rx="1"/>
             <rect x="7.5" y="0" width="5.5" height="5.5" rx="1"/>
@@ -3677,7 +3699,7 @@ def generate_html(df):
             <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"/>
           </svg>
         </button>
-        <button class="lp-vt-btn active" id="btn-lp-list" onclick="setLPView('list')" title="Lista">
+        <button class="lp-vt-btn" id="btn-lp-list" onclick="setLPView('list')" title="Lista">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
             <rect x="0" y="1" width="13" height="2" rx="1"/>
             <rect x="0" y="5.5" width="13" height="2" rx="1"/>
@@ -3749,8 +3771,7 @@ def generate_html(df):
       </svg>
     </button>
     <div class="sp-player-card">
-      <iframe id="sp-main-iframe"
-        src="https://open.spotify.com/embed/playlist/{sp_embed_id}?utm_source=generator&theme=0"
+      <iframe src="https://open.spotify.com/embed/playlist/{sp_embed_id}?utm_source=generator&theme=0"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"></iframe>
     </div>
@@ -3760,17 +3781,6 @@ def generate_html(df):
 <footer class="site-credits">BPM data by <a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM</a></footer>
 <script>var STORY_IMAGES={story_json};</script>
 <script>{JS}</script>
-<script>
-(function(){{
-  var ids={sp_track_ids_js};
-  var pid="{sp_embed_id}";
-  if(!ids.length||!pid)return;
-  var rid=ids[Math.floor(Math.random()*ids.length)];
-  var frame=document.getElementById('sp-main-iframe');
-  if(frame)frame.src='https://open.spotify.com/embed/playlist/'+pid+
-    '?utm_source=generator&theme=0&start_track_id='+rid;
-}})();
-</script>
 </body>
 </html>"""
 
