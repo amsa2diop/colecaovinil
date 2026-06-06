@@ -253,7 +253,7 @@ def sync():
              name=PLAYLIST_NAME, uris=uris_all,
              uri_file="backup_playlist.txt",
              old_name=PLAYLIST_NAME_OLD,
-             description=f"Ordenado por BPM | {now}")
+             description="Garimpando grooves....")
 
     print(f"\n── Discos do Amsa (DJ) ──")
     sync_one(sp, uid,

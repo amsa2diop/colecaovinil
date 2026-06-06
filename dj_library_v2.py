@@ -1485,18 +1485,21 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
   #grade-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;padding:0 .75rem;}
   #lp-sub-grid{padding-bottom:calc(var(--sp-player-h,0px) + 1.5rem)}
 }
-.grid-card{border-radius:14px;overflow:hidden;cursor:pointer;
-  box-shadow:0 3px 16px rgba(0,0,0,.13);transition:transform .18s,box-shadow .18s}
+.grid-card{border-radius:14px;overflow:hidden;cursor:pointer;position:relative;
+  box-shadow:0 3px 16px rgba(0,0,0,.13);transition:transform .18s,box-shadow .18s;
+  --text:rgba(0,0,0,.78);--text2:rgba(0,0,0,.45);--text3:rgba(0,0,0,.4)}
 .grid-card:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,.19)}
 .grid-card:active{transform:scale(.97)}
-.grid-cover{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;border-radius:0;background:#ddd}
-.grid-info{padding:.45rem .6rem .55rem}
+.grid-cover{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;
+  border-radius:0;background:rgba(0,0,0,.1);position:relative;z-index:1}
+.grid-info{padding:.45rem .6rem .55rem;position:relative;z-index:1}
 .grid-artist{font-size:.53rem;font-weight:700;letter-spacing:.07em;
-  text-transform:uppercase;color:rgba(0,0,0,.45);
+  text-transform:uppercase;color:var(--text2);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.18rem}
-.grid-title{font-size:.72rem;font-weight:800;color:rgba(0,0,0,.78);
+.grid-title{font-size:.72rem;font-weight:800;color:var(--text);
   line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;
   -webkit-box-orient:vertical;overflow:hidden}
+.grid-year{color:var(--text3)}
 .grid-year{font-size:.62rem;font-weight:400;color:rgba(0,0,0,.4);margin-left:.25rem;font-style:italic}
 
 /* ── GRADE LIGHTBOX ──────────────────────────────────────────────────────── */
@@ -1507,58 +1510,64 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
 .glb-card{position:relative;z-index:1;width:100%;max-width:700px;
   max-height:calc(100vh - 2rem);border-radius:12px;overflow:hidden;
   display:flex;flex-direction:column;
-  box-shadow:0 28px 80px rgba(0,0,0,.6);background:#1c1c1c;color:#e8e8e8}
-.glb-close{position:absolute;top:.6rem;right:.6rem;z-index:10;
-  width:26px;height:26px;border-radius:50%;
-  background:rgba(255,255,255,.12);color:#ccc;border:none;cursor:pointer;
-  font-size:.8rem;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 28px 80px rgba(0,0,0,.6);
+  background:linear-gradient(135deg,#2a2a2aEE 0%,#2a2a2a88 100%);
+  --text:#e8e8e8;--text2:rgba(255,255,255,.62);--text3:rgba(255,255,255,.38);
+  --bdr:rgba(255,255,255,.08);--bdr2:rgba(255,255,255,.05);--tracks-bg:rgba(0,0,0,.18)}
+.glb-titlebar{display:flex;justify-content:flex-end;
+  padding:.28rem .4rem .2rem;background:rgba(0,0,0,.25);flex-shrink:0;z-index:10}
+.glb-close{width:24px;height:24px;border-radius:50%;
+  background:rgba(255,255,255,.15);color:rgba(255,255,255,.75);border:none;cursor:pointer;
+  font-size:.75rem;display:flex;align-items:center;justify-content:center;
   transition:background .15s}
-.glb-close:hover{background:rgba(255,255,255,.25)}
+.glb-close:hover{background:rgba(255,255,255,.3);color:#fff}
 /* Lightbox card data (hidden pool) */
 #glb-pool{display:none}
 .glb-card-data{display:flex;flex-direction:column;height:100%}
 /* Blur header bg */
 .glb-blur-bg{position:absolute;inset:0;background-size:cover;background-position:center;
-  filter:blur(40px) saturate(.55);opacity:.38;transform:scale(1.1)}
+  filter:blur(40px) saturate(.7);opacity:.22;transform:scale(1.1)}
 .glb-header{position:relative;flex-shrink:0;overflow:hidden}
 .glb-header-inner{position:relative;z-index:1;display:flex;gap:.85rem;align-items:flex-start;
-  padding:.9rem 1rem .85rem;padding-right:9rem}
-.glb-cover{width:90px;height:90px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#333}
+  padding:.8rem 1rem .8rem;padding-right:9rem}
+.glb-cover{width:90px;height:90px;object-fit:cover;border-radius:6px;flex-shrink:0;
+  background:rgba(0,0,0,.2)}
 .glb-meta{flex:1;min-width:0}
-.glb-artist{font-size:.95rem;font-weight:700;color:#e8e8e8;margin-bottom:.1rem;
+.glb-artist{font-size:.95rem;font-weight:700;color:var(--text2);margin-bottom:.1rem;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.glb-title{font-size:1.1rem;font-weight:800;color:#fff;line-height:1.22;margin-bottom:.3rem}
-.glb-meta-row{font-size:.63rem;color:rgba(255,255,255,.42);margin-bottom:.25rem;line-height:1.5}
-.glb-stats{font-size:.62rem;color:rgba(255,255,255,.38);margin-top:.12rem}
+.glb-title{font-size:1.1rem;font-weight:800;color:var(--text);line-height:1.22;margin-bottom:.3rem}
+.glb-meta-row{font-size:.63rem;color:var(--text3);margin-bottom:.25rem;line-height:1.5}
+.glb-stats{font-size:.62rem;color:var(--text3);margin-top:.12rem}
 .glb-pub-row,.glb-priv-row{margin-top:.35rem;display:flex;flex-wrap:wrap;gap:.3rem}
-.glb-meta-tag{font-size:.6rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);
+.glb-meta-tag{font-size:.6rem;background:var(--bdr);color:var(--text2);
   border-radius:4px;padding:.1rem .35rem}
-.glb-notes{font-size:.62rem;color:rgba(255,255,255,.45);margin-top:.25rem;font-style:italic}
-.glb-btn-col{position:absolute;top:.9rem;right:.85rem;z-index:2;
+.glb-notes{font-size:.62rem;color:var(--text3);margin-top:.25rem;font-style:italic}
+.glb-btn-col{position:absolute;top:.8rem;right:.85rem;z-index:2;
   display:flex;flex-direction:column;gap:.28rem}
 .glb-btn{font-size:.66rem;font-weight:600;padding:.28rem .6rem;border-radius:6px;
-  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);
-  color:#e0e0e0;cursor:pointer;text-decoration:none;
+  border:1px solid var(--bdr);background:var(--bdr2);
+  color:var(--text2);cursor:pointer;text-decoration:none;
   display:inline-flex;align-items:center;gap:.3rem;transition:all .12s;white-space:nowrap}
-.glb-btn:hover{background:rgba(255,255,255,.22);color:#fff}
-.glb-btn-sp{border-color:rgba(29,185,84,.5);background:rgba(29,185,84,.15)}
+.glb-btn:hover{background:var(--bdr);color:var(--text)}
+.glb-btn-sp{border-color:rgba(29,185,84,.5);background:rgba(29,185,84,.15);
+  color:var(--text)}
 .glb-btn-sp:hover{background:rgba(29,185,84,.3)}
-.glb-divider{height:1px;background:rgba(255,255,255,.07);flex-shrink:0}
-.glb-body{overflow-y:auto;flex:1;padding:.3rem 0 .6rem}
-.glb-tracks-label{font-size:.57rem;font-weight:700;color:rgba(255,255,255,.3);
+.glb-divider{height:1px;background:var(--bdr);flex-shrink:0}
+.glb-body{overflow-y:auto;flex:1;padding:.3rem 0 .6rem;background:var(--tracks-bg)}
+.glb-tracks-label{font-size:.57rem;font-weight:700;color:var(--text3);
   text-transform:uppercase;letter-spacing:.08em;padding:.5rem 1rem .3rem}
 .glb-track{display:flex;align-items:center;gap:.5rem;
-  padding:.3rem 1rem;border-bottom:1px solid rgba(255,255,255,.05);
+  padding:.3rem 1rem;border-bottom:1px solid var(--bdr);
   font-size:.73rem;cursor:default}
 .glb-track:last-child{border-bottom:none}
-.glb-track:hover{background:rgba(255,255,255,.04)}
-.glb-trk-pos{width:24px;flex-shrink:0;font-size:.6rem;color:rgba(255,255,255,.28);font-weight:600;text-align:right}
-.glb-trk-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0}
+.glb-track:hover{background:var(--bdr2)}
+.glb-trk-pos{width:24px;flex-shrink:0;font-size:.6rem;color:var(--text3);font-weight:600;text-align:right}
+.glb-trk-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0}
 .glb-trk-info{flex:1;min-width:0}
-.glb-trk-title{color:#e8e8e8;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.glb-trk-artist{font-size:.6rem;color:rgba(255,255,255,.38);margin-top:.03rem}
-.glb-bpm{font-size:.62rem;font-weight:700;color:rgba(255,255,255,.7);
-  background:rgba(255,255,255,.1);border-radius:5px;padding:.06rem .32rem;
+.glb-trk-title{color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.glb-trk-artist{font-size:.6rem;color:var(--text3);margin-top:.03rem}
+.glb-bpm{font-size:.62rem;font-weight:700;color:var(--text2);
+  background:var(--bdr);border-radius:5px;padding:.06rem .32rem;
   flex-shrink:0;letter-spacing:.02em}
 .glb-trk-btns{display:flex;gap:.22rem;flex-shrink:0}
 .glb-trk-btn{font-size:.6rem;font-weight:600;padding:.18rem .42rem;border-radius:4px;
@@ -1579,10 +1588,10 @@ select.cef-input option{background:#1e1e1e;color:#e6e6e6}
   width:min(520px,calc(100vw - 2rem));z-index:9500;
   transition:bottom .3s ease;
 }
-#sp-player-wrap.sp-hidden{bottom:-120px}
+#sp-player-wrap.sp-hidden{bottom:-210px}
 .sp-player-card{border-radius:14px;border:1px solid rgba(0,0,0,.1);
   box-shadow:0 8px 32px rgba(0,0,0,.2);overflow:hidden;position:relative}
-.sp-player-card iframe{width:100%;height:80px;border:none;display:block}
+.sp-player-card iframe{width:100%;height:152px;border:none;display:block}
 .sp-collapse-btn{position:absolute;top:-11px;right:6px;
   width:22px;height:22px;border-radius:50%;
   background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.1);
@@ -2465,12 +2474,27 @@ function openGridLightbox(rid){
   if(!src)return;
   var inner=document.getElementById('glb-inner');
   inner.innerHTML=src.innerHTML;
+  var glbCard=document.querySelector('.glb-card');
+  var pastel=src.dataset.pastel||'';
+  var cvars=(src.dataset.cvars||'');
+  if(pastel&&cvars){
+    glbCard.style.cssText='background:linear-gradient(135deg,'+pastel+'EE 0%,'+pastel+'55 100%);'+cvars;
+  } else {
+    glbCard.removeAttribute('style');
+  }
   document.getElementById('grid-lightbox').classList.add('open');
   document.body.style.overflow='hidden';
+  var spWrap=document.getElementById('sp-player-wrap');
+  if(spWrap){spWrap.classList.add('sp-hidden');updateSpPlayerPadding();}
 }
 function closeGridLightbox(){
   document.getElementById('grid-lightbox').classList.remove('open');
+  document.querySelector('.glb-card').removeAttribute('style');
   document.body.style.overflow='';
+  if(!_spHidden){
+    var spWrap=document.getElementById('sp-player-wrap');
+    if(spWrap){spWrap.classList.remove('sp-hidden');setTimeout(updateSpPlayerPadding,350);}
+  }
 }
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'&&document.getElementById('grid-lightbox').classList.contains('open'))
@@ -2641,28 +2665,31 @@ def _hex_luminance(hex_color):
 
 def render_album_grid(release_id, artist, title, year, cover, color_pastel=""):
     """Renderiza um card compacto para a view em grade."""
-    rid   = esc(str(release_id))
-    bg    = color_pastel if (color_pastel and len(color_pastel) == 7) else "#e8d5c4"
-    lum   = _hex_luminance(bg)
-    dark  = lum < 0.35
-    tc    = "rgba(255,255,255,.9)"  if dark else "rgba(0,0,0,.78)"
-    tc2   = "rgba(255,255,255,.55)" if dark else "rgba(0,0,0,.45)"
-    tc3   = "rgba(255,255,255,.45)" if dark else "rgba(0,0,0,.4)"
+    rid    = esc(str(release_id))
     year_s = str(int(year)) if safe_float(year) else ""
-    year_html = f'<span class="grid-year" style="color:{tc3}"> · {year_s}</span>' if year_s else ""
+    year_html = f'<span class="grid-year"> · {year_s}</span>' if year_s else ""
     img_html  = (f'<img class="grid-cover" src="{esc(cover)}" alt="" loading="lazy">'
-                 if cover else '<div class="grid-cover" style="background:#ccc"></div>')
+                 if cover else '<div class="grid-cover"></div>')
+    cover_blur = (f'<div class="cover-blur" style="background-image:url(\'{esc(cover)}\')" '
+                  f'aria-hidden="true"></div>') if cover else ""
+    if color_pastel and len(color_pastel) == 7:
+        _, cvars = card_colors(color_pastel)
+        card_style = (f'style="background:linear-gradient(135deg,{color_pastel}EE 0%,'
+                      f'{color_pastel}55 100%);{cvars}"')
+    else:
+        card_style = ""
     return (
-        f'<div class="grid-card" data-rid="{rid}" onclick="openGridLightbox(\'{rid}\')" style="background:{bg}">'
+        f'<div class="grid-card" data-rid="{rid}" onclick="openGridLightbox(\'{rid}\')" {card_style}>'
+        f'{cover_blur}'
         f'{img_html}'
-        f'<div class="grid-info" style="background:{bg}">'
-        f'<div class="grid-artist" style="color:{tc2}">{esc(artist)}</div>'
-        f'<div class="grid-title" style="color:{tc}">{esc(title)}{year_html}</div>'
+        f'<div class="grid-info">'
+        f'<div class="grid-artist">{esc(artist)}</div>'
+        f'<div class="grid-title">{esc(title)}{year_html}</div>'
         f'</div></div>'
     )
 
 
-def render_album_lightbox_card(group, instances=None, sp_playlist_link=""):
+def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color_pastel=""):
     """Renderiza o card escuro do lightbox da view em grade (pre-renderizado, oculto)."""
     _months = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"]
     group_dedup = group.drop_duplicates(subset=["position"])
@@ -2753,8 +2780,13 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link=""):
     _meta_row      = (f'<div class="glb-meta-row">{year_s}{bpm_meta_html}</div>'
                       if (year_s or bpm_meta_html) else "")
     _pub_row       = f'<div class="glb-pub-row">{pub_html}</div>' if pub_html else ""
+    _pastel_attr = ""
+    if color_pastel and len(color_pastel) == 7:
+        _, _cvars = card_colors(color_pastel)
+        _cvars_safe = _cvars.replace('"', "'")
+        _pastel_attr = f' data-pastel="{color_pastel}" data-cvars="{_cvars_safe}"'
     return (
-        f'<div class="glb-card-data" data-rid="{release_id}">'
+        f'<div class="glb-card-data" data-rid="{release_id}"{_pastel_attr}>'
         f'<div class="glb-header">'
         f'<div class="glb-blur-bg" style="{blur_style}"></div>'
         f'<div class="glb-header-inner">'
@@ -3321,12 +3353,14 @@ def generate_html(df):
     )
 
     # ── Grade lightbox pool (pre-rendered dark cards, hidden) ────────────────
+    _sp_link = (playlist_url.replace("spotify:playlist:", "https://open.spotify.com/playlist/")
+                if playlist_url else "")
     lightbox_pool_html = "\n".join(
         render_album_lightbox_card(
             g,
-            instances       = instances_map.get(str(rid), []),
-            sp_playlist_link= playlist_url.replace("spotify:playlist:", "https://open.spotify.com/playlist/")
-                              if playlist_url else "",
+            instances        = instances_map.get(str(rid), []),
+            sp_playlist_link = _sp_link,
+            color_pastel     = colors_map.get(str(rid), ""),
         )
         for rid, g in _sorted_groups
     )
@@ -3351,6 +3385,13 @@ def generate_html(df):
         )
         for _, r in df_tracks.iterrows()
     )
+
+    # ── Spotify track IDs for random start ───────────────────────────────────
+    import json as _json
+    _sp_accepted = df_tracks[df_tracks["status"] == "ACEITO"]["track_id"].dropna()
+    sp_track_ids_js = _json.dumps([
+        str(t) for t in _sp_accepted if str(t) not in ("", "nan", "None")
+    ])
 
     bpm_notice = ""
     if not has_bpm:
@@ -3621,31 +3662,34 @@ def generate_html(df):
     </div>
     {fp_lp}
   </div>
+  <!-- Results bar — always visible in both list and grade sub-views -->
+  <div class="main" style="padding-top:.6rem;padding-bottom:.4rem">
+    {bpm_notice}
+    <div class="results-bar" style="margin-bottom:0">
+      <span><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</span>
+      <span class="results-bar-dates" id="sync-dates-lp"></span>
+      <div class="lp-view-toggle" style="margin-left:auto">
+        <button class="lp-vt-btn" id="btn-lp-grid" onclick="setLPView('grid')" title="Grade">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
+            <rect x="0" y="0" width="5.5" height="5.5" rx="1"/>
+            <rect x="7.5" y="0" width="5.5" height="5.5" rx="1"/>
+            <rect x="0" y="7.5" width="5.5" height="5.5" rx="1"/>
+            <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"/>
+          </svg>
+        </button>
+        <button class="lp-vt-btn active" id="btn-lp-list" onclick="setLPView('list')" title="Lista">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
+            <rect x="0" y="1" width="13" height="2" rx="1"/>
+            <rect x="0" y="5.5" width="13" height="2" rx="1"/>
+            <rect x="0" y="10" width="13" height="2" rx="1"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
   <!-- Sub-view lista -->
   <div id="lp-sub-list">
-    <main class="main">
-      {bpm_notice}
-      <div class="results-bar">
-        <div class="lp-view-toggle">
-          <button class="lp-vt-btn" id="btn-lp-grid" onclick="setLPView('grid')" title="Grade">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
-              <rect x="0" y="0" width="5.5" height="5.5" rx="1"/>
-              <rect x="7.5" y="0" width="5.5" height="5.5" rx="1"/>
-              <rect x="0" y="7.5" width="5.5" height="5.5" rx="1"/>
-              <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"/>
-            </svg>
-          </button>
-          <button class="lp-vt-btn active" id="btn-lp-list" onclick="setLPView('list')" title="Lista">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
-              <rect x="0" y="1" width="13" height="2" rx="1"/>
-              <rect x="0" y="5.5" width="13" height="2" rx="1"/>
-              <rect x="0" y="10" width="13" height="2" rx="1"/>
-            </svg>
-          </button>
-        </div>
-        <span><strong id="cnt-lp">{n_unique}</strong> &#250;nicos &nbsp;&#183;&nbsp; {dup_link}</span>
-        <span class="results-bar-dates" id="sync-dates-lp"></span>
-      </div>
+    <main class="main" style="padding-top:.5rem">
       <div class="albums-grid" id="grid-lp">{albums_html}</div>
     </main>
   </div>
@@ -3686,7 +3730,9 @@ def generate_html(df):
 <div id="grid-lightbox">
   <div class="glb-backdrop" onclick="closeGridLightbox()"></div>
   <div class="glb-card" onclick="event.stopPropagation()">
-    <button class="glb-close" onclick="closeGridLightbox()">&#10005;</button>
+    <div class="glb-titlebar">
+      <button class="glb-close" onclick="closeGridLightbox()" title="Fechar">&#10005;</button>
+    </div>
     <div id="glb-inner" style="display:flex;flex-direction:column;flex:1;overflow:hidden"></div>
   </div>
 </div>
@@ -3703,7 +3749,8 @@ def generate_html(df):
       </svg>
     </button>
     <div class="sp-player-card">
-      <iframe src="https://open.spotify.com/embed/playlist/{sp_embed_id}?utm_source=generator&theme=0"
+      <iframe id="sp-main-iframe"
+        src="https://open.spotify.com/embed/playlist/{sp_embed_id}?utm_source=generator&theme=0"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"></iframe>
     </div>
@@ -3713,6 +3760,17 @@ def generate_html(df):
 <footer class="site-credits">BPM data by <a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM</a></footer>
 <script>var STORY_IMAGES={story_json};</script>
 <script>{JS}</script>
+<script>
+(function(){{
+  var ids={sp_track_ids_js};
+  var pid="{sp_embed_id}";
+  if(!ids.length||!pid)return;
+  var rid=ids[Math.floor(Math.random()*ids.length)];
+  var frame=document.getElementById('sp-main-iframe');
+  if(frame)frame.src='https://open.spotify.com/embed/playlist/'+pid+
+    '?utm_source=generator&theme=0&start_track_id='+rid;
+}})();
+</script>
 </body>
 </html>"""
 
