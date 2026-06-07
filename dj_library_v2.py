@@ -1223,6 +1223,15 @@ body.is-owner .owner-only{display:block!important}
 body.is-owner .alb-tracks-info .owner-only,
 body.is-owner .alb-meta .owner-only,
 body.is-owner .results-bar .owner-only{display:inline!important}
+body.is-owner .filter-group.owner-only{display:flex!important}
+/* Preview-as-public: amsa2diop pode ver a coleção como o público vê */
+body.is-owner.preview-public .owner-only,
+body.is-owner.preview-public .alb-tracks-info .owner-only,
+body.is-owner.preview-public .alb-meta .owner-only,
+body.is-owner.preview-public .results-bar .owner-only,
+body.is-owner.preview-public .filter-group.owner-only,
+body.is-owner.preview-public .glb-meta-row .owner-only,
+body.is-owner.preview-public .glb-stats .owner-only{display:none!important}
 
 /* ── LP VIEW ── */
 .albums-grid{display:flex;flex-direction:column;gap:.45rem}
@@ -1381,6 +1390,15 @@ body.is-owner .results-bar .owner-only{display:inline!important}
   transition:background .15s,color .15s,border-color .15s;color:var(--text3)}
 .pencil-mode-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
 .pencil-mode-btn.active{background:#e2e2e2;border-color:#999;color:#333;font-weight:600}
+/* Discreet preview-as-public switch — visible only to amsa2diop, beside pencil */
+.preview-toggle-btn{width:34px;height:34px;border-radius:20px;
+  border:1px solid var(--bdr);background:var(--bg2);
+  display:none;align-items:center;justify-content:center;
+  cursor:pointer;font-size:.85rem;flex-shrink:0;
+  transition:background .15s,color .15s,border-color .15s;color:var(--text3)}
+body.is-owner .preview-toggle-btn{display:flex}
+.preview-toggle-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+.preview-toggle-btn.active{background:#e2e2e2;border-color:#999;color:#333;font-weight:600}
 .sync-btn{width:34px;height:34px;border-radius:20px;
   border:1px solid var(--bdr);background:var(--bg2);
   display:flex;align-items:center;justify-content:center;
@@ -1634,6 +1652,7 @@ var paFilter='all';
 var dupFilter='all';
 var recebidoFilter='all';
 var incFilterActive=false;
+var previewPublic=localStorage.getItem('_previewPublic')==='1';
 
 function syncAllChips(){
   document.querySelectorAll('.nac-chip').forEach(function(c){
@@ -2010,9 +2029,9 @@ function toggleEditMode(){
 
 function checkOwnerAuth(){
   var cfg=_dcfg();
-  if(!cfg.token){return;}
+  if(!cfg.token){refreshViewMode();return;}
   if(localStorage.getItem('_ownerVerified')===DISCOGS_OWNER){
-    document.body.classList.add('is-owner');return;
+    document.body.classList.add('is-owner');refreshViewMode();return;
   }
   var h={'Authorization':'Discogs token='+cfg.token,'User-Agent':'ColecaoDoAmsa/1.0'};
   fetch('https://api.discogs.com/oauth/identity',{headers:h})
@@ -2021,8 +2040,42 @@ function checkOwnerAuth(){
       if(d.username===DISCOGS_OWNER){
         localStorage.setItem('_ownerVerified',d.username);
         document.body.classList.add('is-owner');
+        refreshViewMode();filterLP();filterTracks();
+      }else{
+        refreshViewMode();
       }
-    }).catch(function(){});
+    }).catch(function(){refreshViewMode();});
+}
+
+// ── PREVIEW-AS-PUBLIC TOGGLE (discreto, somente para amsa2diop) ──────────────
+function refreshViewMode(){
+  var isOwner=document.body.classList.contains('is-owner');
+  document.body.classList.toggle('preview-public',isOwner&&previewPublic);
+  document.querySelectorAll('.preview-toggle-btn').forEach(function(b){
+    b.classList.toggle('active',previewPublic);
+    b.title=previewPublic?'Voltar ao modo amsa2diop':'Visualizar como público';
+  });
+  var sel=document.getElementById('sort-faixas');
+  if(sel){
+    var showBpm=isOwner&&!previewPublic;
+    ['opt-bpm-asc','opt-bpm-desc'].forEach(function(id){
+      var o=document.getElementById(id);
+      if(o)o.hidden=!showBpm;
+    });
+    if(!showBpm&&(sel.value==='bpm-asc'||sel.value==='bpm-desc')){
+      sel.value='az';
+      filterTracks();
+    }
+  }
+  syncAllChips();
+}
+function togglePreviewPublic(){
+  if(!document.body.classList.contains('is-owner'))return;
+  previewPublic=!previewPublic;
+  localStorage.setItem('_previewPublic',previewPublic?'1':'0');
+  if(previewPublic&&editMode){toggleEditMode();}
+  refreshViewMode();
+  filterLP();filterTracks();
 }
 
 function refreshDiscogsFieldOptions(){
@@ -3596,15 +3649,17 @@ def generate_html(df):
         f'Duplicados ({n_dup_releases})</button>'
     )
 
-    # ── Filter panels (collapsible) ───────────────────────────────────────────
+    # ── Filter panels (collapsível) ───────────────────────────────────────────
+    # Loja, Para discotecar, Para trocar, Recebido? e BPM são filtros de uso
+    # pessoal do amsa2diop — ficam ocultos para o público em geral (owner-only)
     origem_group = (
-        f'<div class="filter-group"><span class="filter-group-label">Loja</span>{origem_inner}</div>'
+        f'<div class="filter-group owner-only"><span class="filter-group-label">Loja</span>{origem_inner}</div>'
         if origem_inner else ''
     )
 
-    dj_group       = (f'<div class="filter-group"><span class="filter-group-label">Para discotecar</span>{dj_inner}</div>'   if dj_inner       else '')
-    pa_group       = (f'<div class="filter-group"><span class="filter-group-label">Para trocar</span>{pa_inner}</div>'       if pa_inner       else '')
-    recebido_group = (f'<div class="filter-group"><span class="filter-group-label">Recebido?</span>{recebido_inner}</div>'  if recebido_inner else '')
+    dj_group       = (f'<div class="filter-group owner-only"><span class="filter-group-label">Para discotecar</span>{dj_inner}</div>'   if dj_inner       else '')
+    pa_group       = (f'<div class="filter-group owner-only"><span class="filter-group-label">Para trocar</span>{pa_inner}</div>'       if pa_inner       else '')
+    recebido_group = (f'<div class="filter-group owner-only"><span class="filter-group-label">Recebido?</span>{recebido_inner}</div>'  if recebido_inner else '')
     dup_group =  f'<div class="filter-group"><span class="filter-group-label">C&#243;pias</span>{dup_inner}</div>'
 
     _shared_groups = (
@@ -3615,7 +3670,7 @@ def generate_html(df):
         f'{dj_group}'
         f'{pa_group}'
         f'{recebido_group}'
-        f'<div class="filter-group"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
+        f'<div class="filter-group owner-only"><span class="filter-group-label">BPM</span>{bpm_chip_inner}</div>'
     )
 
     fp_lp     = f'<div class="filter-panel" id="fp-lp">{_shared_groups}</div>'
@@ -3759,6 +3814,7 @@ def generate_html(df):
         <option value="" selected>Artista A&#8594;Z</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">{_SVG_FILTER_LINES} Filtros &#9662;</button>
+      <button class="preview-toggle-btn" onclick="togglePreviewPublic()" title="Visualizar como p&#250;blico">&#128065;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
       <button class="sync-btn" onclick="triggerSync(this)" title="Sincronizar agora">&#8635;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
@@ -3811,10 +3867,11 @@ def generate_html(df):
         <option value="year-desc">Ano &#9662;</option>
         <option value="year-asc">Ano &#9652;</option>
         <option value="az">Artista A&#8594;Z</option>
-        <option value="bpm-asc" selected>BPM &#9652;</option>
-        <option value="bpm-desc">BPM &#9662;</option>
+        <option value="bpm-asc" id="opt-bpm-asc" selected>BPM &#9652;</option>
+        <option value="bpm-desc" id="opt-bpm-desc">BPM &#9662;</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">{_SVG_FILTER_LINES} Filtros &#9662;</button>
+      <button class="preview-toggle-btn" onclick="togglePreviewPublic()" title="Visualizar como p&#250;blico">&#128065;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
       <button class="sync-btn" onclick="triggerSync(this)" title="Sincronizar agora">&#8635;</button>
       <button class="back-top-btn" onclick="window.scrollTo({{top:0,behavior:'smooth'}})" title="Voltar ao topo">&#8679;</button>
