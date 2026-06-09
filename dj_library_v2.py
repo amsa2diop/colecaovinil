@@ -2228,7 +2228,12 @@ async function triggerSync(btn){
       pollSyncCompletion(toast,cfg.ghToken,triggeredAt);
     }else{
       var err=await res.json().catch(function(){return{};});
-      showSyncToast('&#x26A0; Erro ao sincronizar: '+(err.message||'status '+res.status),'error');
+      if(res.status===401||res.status===403||(err.message||'').toLowerCase().indexOf('credential')!==-1){
+        openSetupModal();
+        document.getElementById('setup-status').innerHTML='<span style="color:#c0392b">&#x26A0; Token GitHub inv&#225;lido ou expirado &mdash; insira um novo.</span>';
+      }else{
+        showSyncToast('&#x26A0; Erro ao sincronizar: '+(err.message||'status '+res.status),'error');
+      }
     }
   }catch(e){showSyncToast('&#x26A0; Erro: '+e.message,'error');}
   btn.classList.remove('syncing');btn.disabled=false;
