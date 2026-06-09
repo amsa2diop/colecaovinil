@@ -1,10 +1,12 @@
 """
 Atualiza (ou cria) as playlists Spotify a partir dos CSVs de backup:
-  • "Discos do Amsa"      — todos os discos aceitos, ordenados por BPM
-  • "Discos do Amsa (DJ)" — só discos com DJ=Sim ou Parcial, ordenados por BPM
+  • "Discos do Amsa"       — pública, todos os discos aceitos, na ordem do
+                              álbum (artista A→Z, álbum A→Z, faixa na ordem do disco)
+  • "Discos do Amsa (BPM)" — privada, todos os discos aceitos, ordenados por BPM
+  • "Discos do Amsa (DJ)"  — privada, só discos com DJ=Sim ou Parcial, ordenados por BPM
 
 Estratégia:
-  1. Se backup_playlist.txt contém um ID válido, atualiza essa playlist diretamente.
+  1. Se backup_playlist*.txt contém um ID válido, atualiza essa playlist diretamente.
   2. Se não existe mais (deletada), busca por nome.
   3. Se não encontrar por nome, cria uma nova.
   Após atualizar/criar, faz upload de playlist_cover.jpg se disponível.
@@ -12,7 +14,7 @@ Estratégia:
 Funciona localmente e no GitHub Actions via SPOTIFY_REFRESH_TOKEN como variável de ambiente.
 """
 from pathlib import Path
-import base64, os, json, sys, time
+import base64, os, json, re, sys, time
 from datetime import datetime
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -25,11 +27,14 @@ SP_CLIENT_ID  = "1ab6d898c52d42a19b737f451ce31e2a"
 SP_CLIENT_SEC = "3c8b2f47049b44e2af6937ea835e1f2f"
 COVER_PATH    = WORK_DIR / "playlist_cover.jpg"
 
-# Playlist principal
+# Playlist principal — pública, ordem de álbum
 PLAYLIST_NAME     = "Discos do Amsa"
 PLAYLIST_NAME_OLD = "Meu Discogs — por BPM"   # nome anterior — migra automaticamente
 
-# Playlist DJ
+# Playlist por BPM — privada
+PLAYLIST_NAME_BPM = "Discos do Amsa (BPM)"
+
+# Playlist DJ — privada
 PLAYLIST_NAME_DJ  = "Discos do Amsa (DJ)"
 
 
@@ -117,6 +122,28 @@ def load_uris_sorted_by_bpm():
     return _extract_uris(_merge_bpm(df))
 
 
+def _position_key(pos):
+    """Chave de ordenação para posições estilo Discogs (A1, A2, B1, 1, 2-3...)."""
+    pos = str(pos or "").strip().upper()
+    m = re.match(r"^([A-Z]*)\s*0*(\d+)?", pos)
+    if m:
+        letters = m.group(1) or ""
+        num = int(m.group(2)) if m.group(2) else 0
+        return (letters, num, pos)
+    return (pos, 0, pos)
+
+
+def load_uris_by_album_order():
+    """Todos os discos aceitos, na ordem do álbum: artista A→Z, álbum A→Z, faixa na ordem do disco."""
+    df = _load_source_df()
+    if df is None or df.empty:
+        return []
+    df = df.copy()
+    df["_pos_key"] = df["position"].apply(_position_key)
+    df = df.sort_values(["album_artist", "album_title", "_pos_key"])
+    return _extract_uris(df)
+
+
 def load_uris_dj_sorted_by_bpm():
     """Só discos com DJ=Sim ou Parcial, ordenados por BPM."""
     import pandas as pd
@@ -190,7 +217,7 @@ def _upload_cover(sp, pid: str):
         print(f"  ⚠ Capa não enviada: {e}")
 
 
-def sync_one(sp, uid, name, uris, uri_file, old_name=None, description=""):
+def sync_one(sp, uid, name, uris, uri_file, old_name=None, description="", public=None):
     """Atualiza playlist existente (por ID ou nome) ou cria nova. Mantém a playlist nas pastas do usuário."""
     if not uris:
         print(f"  Sem faixas para '{name}' — pulando."); return
@@ -199,17 +226,20 @@ def sync_one(sp, uid, name, uris, uri_file, old_name=None, description=""):
     known_pid = _pid_from_file(txt_path)
 
     pid = None
+    details = {"description": description}
+    if public is not None:
+        details["public"] = public
 
     # 1. Tenta pelo ID conhecido (preserva pasta/posição da playlist)
     if known_pid and _playlist_exists(sp, known_pid):
         pid = known_pid
-        # Garante nome e descrição corretos
+        # Garante nome, visibilidade e descrição corretos
         pl_info = sp.playlist(pid, fields="name")
         if pl_info.get("name") != name:
             print(f"  Renomeando para '{name}'...")
-            sp.playlist_change_details(pid, name=name, description=description)
+            sp.playlist_change_details(pid, name=name, **details)
         else:
-            sp.playlist_change_details(pid, description=description)
+            sp.playlist_change_details(pid, **details)
         print(f"  Playlist existente por ID ({pid}). Substituindo {len(uris)} faixas...")
 
     # 2. Fallback: busca por nome (caso a playlist tenha sido deletada e recriada)
@@ -218,15 +248,15 @@ def sync_one(sp, uid, name, uris, uri_file, old_name=None, description=""):
         if pid:
             if needs_rename:
                 print(f"  Renomeando '{old_name}' → '{name}'...")
-                sp.playlist_change_details(pid, name=name, description=description)
+                sp.playlist_change_details(pid, name=name, **details)
             else:
-                sp.playlist_change_details(pid, description=description)
+                sp.playlist_change_details(pid, **details)
             print(f"  Playlist encontrada por nome ({pid}). Substituindo {len(uris)} faixas...")
 
     # 3. Cria nova se não encontrou
     if pid is None:
         print(f"  Criando nova playlist '{name}'...")
-        pl = sp.user_playlist_create(user=uid, name=name, public=False, description=description)
+        pl = sp.user_playlist_create(user=uid, name=name, public=bool(public), description=description)
         pid = pl["id"]
         print(f"  ✓ Criada ({pid})")
 
@@ -244,9 +274,10 @@ def sync_one(sp, uid, name, uris, uri_file, old_name=None, description=""):
 
 def sync():
     print("Carregando faixas...")
-    uris_all = load_uris_sorted_by_bpm()
-    uris_dj  = load_uris_dj_sorted_by_bpm()
-    print(f"  {len(uris_all)} faixas totais  |  {len(uris_dj)} faixas DJ (Sim+Parcial)")
+    uris_album = load_uris_by_album_order()
+    uris_bpm   = load_uris_sorted_by_bpm()
+    uris_dj    = load_uris_dj_sorted_by_bpm()
+    print(f"  {len(uris_album)} faixas (ordem de álbum)  |  {len(uris_bpm)} por BPM  |  {len(uris_dj)} faixas DJ (Sim+Parcial)")
 
     print("Conectando ao Spotify...")
     sp  = get_sp()
@@ -255,16 +286,25 @@ def sync():
 
     print(f"\n── Discos do Amsa ──")
     sync_one(sp, uid,
-             name=PLAYLIST_NAME, uris=uris_all,
+             name=PLAYLIST_NAME, uris=uris_album,
              uri_file="backup_playlist.txt",
              old_name=PLAYLIST_NAME_OLD,
-             description="Garimpando grooves....")
+             description="Garimpando grooves....",
+             public=True)
+
+    print(f"\n── Discos do Amsa (BPM) ──")
+    sync_one(sp, uid,
+             name=PLAYLIST_NAME_BPM, uris=uris_bpm,
+             uri_file="backup_playlist_bpm.txt",
+             description=f"Todos os discos, ordenados por BPM | {now}",
+             public=False)
 
     print(f"\n── Discos do Amsa (DJ) ──")
     sync_one(sp, uid,
              name=PLAYLIST_NAME_DJ, uris=uris_dj,
              uri_file="backup_playlist_dj.txt",
-             description=f"Para discotecar · Ordenado por BPM | {now}")
+             description=f"Para discotecar · Ordenado por BPM | {now}",
+             public=False)
 
 
 if __name__ == "__main__":

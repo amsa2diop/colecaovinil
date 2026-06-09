@@ -5,7 +5,7 @@ Discogs + Spotify: álbum-first matching, BPM via Deezer API,
 gera XLSX e HTML interativo com views por LP e por Faixas.
 """
 
-import sys, os, re, random, time, html as html_module, math, threading, webbrowser
+import sys, os, re, random, time, html as html_module, math, threading, webbrowser, itertools
 from datetime import datetime, timezone
 import http.server, urllib.parse
 from pathlib import Path
@@ -3578,23 +3578,74 @@ def generate_html(df):
     _sorted_groups = list(df.sort_values(["album_artist","album_title"]).groupby("release_id", sort=False))
 
     # ── Similar pressings detection ───────────────────────────────────────────
-    # Group release_ids that share the same normalized artist+title (different pressings)
+    # Agrupa release_ids que compartilham artista+título — usando uma normalização
+    # "leve" que preserva parênteses/subtítulos (ex.: "(Trilha Sonora Internacional)"
+    # vs "(Trilha Sonora Original Da Novela)" ou "- Francis Hime & Marcos Valle"
+    # vs "- Luiz Melodia & Djavan" continuam DIFERENTES). Dentro de cada grupo
+    # candidato, só são consideradas "prensagens similares" as que também tiverem
+    # tracklists com correspondência significativa — isso evita juntar álbuns
+    # homônimos mas distintos (ex.: "Furacão 2000" de coletâneas de anos diferentes).
     from collections import defaultdict as _dd
-    _sim_groups = _dd(list)
+
+    def _title_loose(text):
+        if not text: return ""
+        text = unidecode(str(text)).lower()
+        text = re.sub(r"[^a-z0-9 ]", " ", text)
+        return re.sub(r"\s+", " ", text).strip()
+
+    def _year_of(rid_s):
+        try:
+            rid_int = int(float(rid_s))
+            rows = df[df["release_id"].apply(lambda v: int(float(v)) if pd.notna(v) else -1) == rid_int]
+            if not rows.empty and safe_float(rows.iloc[0].get("year")):
+                return int(rows.iloc[0]["year"])
+        except Exception:
+            pass
+        return 9999
+
+    _track_sets = {
+        str(_rid): set(normalize(t) for t in _g["track_title"].astype(str) if normalize(t))
+        for _rid, _g in _sorted_groups
+    }
+
+    _cand_groups = _dd(list)
     for _rid, _g in _sorted_groups:
         _fr = _g.iloc[0]
-        _key = normalize(str(_fr.get("album_artist","") or "")).strip() + \
-               "|||" + normalize(str(_fr.get("album_title","") or "")).strip()
-        _sim_groups[_key].append(str(_rid))
+        _key = _title_loose(str(_fr.get("album_artist","") or "")) + \
+               "|||" + _title_loose(str(_fr.get("album_title","") or ""))
+        _cand_groups[_key].append(str(_rid))
 
-    similar_map = {}  # {rid_str: [all rid_strs in same pressing group]}
-    for _rids in _sim_groups.values():
-        if len(_rids) > 1:
-            for _r in _rids:
-                similar_map[_r] = _rids
+    similar_map = {}  # {rid_str: [todos os rid_strs das prensagens similares, ordenados por ano]}
+    n_similar_dupes = 0
+    for _rids in _cand_groups.values():
+        if len(_rids) < 2:
+            continue
+        # Liga releases cujas tracklists têm correspondência >= 50% (das menores faixas)
+        _adj = {r: set() for r in _rids}
+        for _a, _b in itertools.combinations(_rids, 2):
+            _sa, _sb = _track_sets.get(_a, set()), _track_sets.get(_b, set())
+            if not _sa or not _sb:
+                continue
+            _overlap = len(_sa & _sb) / max(1, min(len(_sa), len(_sb)))
+            if _overlap >= 0.5:
+                _adj[_a].add(_b); _adj[_b].add(_a)
+        _seen = set()
+        for _r in _rids:
+            if _r in _seen:
+                continue
+            _comp, _stack = set(), [_r]
+            while _stack:
+                _x = _stack.pop()
+                if _x in _comp: continue
+                _comp.add(_x); _seen.add(_x)
+                _stack.extend(_adj[_x] - _comp)
+            if len(_comp) > 1:
+                _comp_sorted = sorted(_comp, key=_year_of)
+                for _c in _comp:
+                    similar_map[_c] = _comp_sorted
+                n_similar_dupes += len(_comp) - 1
 
-    n_similar_dupes = sum(len(_rids) - 1 for _rids in _sim_groups.values() if len(_rids) > 1)
-    n_dupes         = (n_items - n_unique) + n_similar_dupes
+    n_dupes = (n_items - n_unique) + n_similar_dupes
 
     def _pressing_info(rid_s):
         """Year/country/label for a release_id."""

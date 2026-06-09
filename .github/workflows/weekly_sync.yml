@@ -41,7 +41,7 @@ jobs:
           git add index.html MinhaColecao_DJ.html MinhaColecao_DJ.xlsx
           git add backup_collection_fields.csv
           git add backup_tracks.csv backup_matched_v2.csv backup_bpm.csv backup_final.csv
-          git add backup_playlist.txt backup_playlist_dj.txt 2>/dev/null || true
+          git add backup_playlist.txt backup_playlist_bpm.txt backup_playlist_dj.txt 2>/dev/null || true
           git diff --cached --quiet && echo "Nada mudou." || \
             git commit -m "chore: sync automático $(date +'%Y-%m-%d')"
           git push
