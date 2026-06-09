@@ -70,7 +70,7 @@ DISCOGS_TOKEN  = "FmUsfbDTXUFCniDqrTckrwBfJxvIljOGuMdygfVD"
 SP_CLIENT_ID   = "1ab6d898c52d42a19b737f451ce31e2a"
 SP_CLIENT_SEC  = "3c8b2f47049b44e2af6937ea835e1f2f"
 SP_REDIRECT    = "http://127.0.0.1:1410/"
-SP_SCOPE       = "playlist-modify-public playlist-modify-private"
+SP_SCOPE       = "playlist-modify-public playlist-modify-private ugc-image-upload"
 
 LIMIAR_ACEITO   = 72
 LIMIAR_REVISAR  = 55
@@ -891,6 +891,19 @@ def main():
             print(f"  ✓ backup_matched_v2.csv atualizado")
         else:
             print(f"✓ Spotify matching completo ({len(df_matched)} faixas, sem novos releases)")
+
+        # Re-match releases that are still PENDENTE (never matched yet)
+        pendente_ids = set(
+            df_matched[df_matched["status"] == "PENDENTE"]["release_id"].dropna().astype(int).unique()
+        )
+        if pendente_ids:
+            print(f"Fazendo matching de {len(pendente_ids)} release(s) com status PENDENTE...")
+            df_pend_tracks  = df[df["release_id"].isin(pendente_ids)].copy()
+            df_pend_matched = run_album_first_matching(sp, df_pend_tracks)
+            df_matched = df_matched[~df_matched["release_id"].isin(pendente_ids)]
+            df_matched = pd.concat([df_matched, df_pend_matched], ignore_index=True)
+            df_matched.to_csv(backup_v2_path, index=False)
+            print(f"  ✓ {(df_pend_matched['status']=='ACEITO').sum()} aceitos de {len(pendente_ids)} PENDENTE")
     elif (WORK_DIR / "backup_final.csv").exists():
         # Compatibilidade com versão anterior
         print("Carregando backup legado (backup_final.csv)...")

@@ -15,6 +15,11 @@ from pathlib import Path
 import base64, os, json, sys, time
 from datetime import datetime
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 WORK_DIR      = Path(__file__).parent
 SP_CLIENT_ID  = "1ab6d898c52d42a19b737f451ce31e2a"
 SP_CLIENT_SEC = "3c8b2f47049b44e2af6937ea835e1f2f"
