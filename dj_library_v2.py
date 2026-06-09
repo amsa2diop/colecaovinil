@@ -85,12 +85,28 @@ WORK_DIR = Path(__file__).parent
 # 2. AUTENTICAÇÃO SPOTIFY
 # ==============================================================================
 def spotify_auth():
+    # CI headless: bootstrap cache from SPOTIFY_REFRESH_TOKEN env var so
+    # SpotifyOAuth can exchange it for an access token without opening a browser.
+    cache_path = str(WORK_DIR / ".spotify_cache")
+    refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN", "").strip()
+    if refresh_token and not Path(cache_path).exists():
+        cache_data = {
+            "access_token": "",
+            "token_type": "Bearer",
+            "expires_in": 3600,
+            "refresh_token": refresh_token,
+            "scope": SP_SCOPE,
+            "expires_at": 0,
+        }
+        Path(cache_path).write_text(json.dumps(cache_data), encoding="utf-8")
+        print("✓ Cache Spotify criado via SPOTIFY_REFRESH_TOKEN (CI).")
+
     sp_oauth = SpotifyOAuth(
         client_id     = SP_CLIENT_ID,
         client_secret = SP_CLIENT_SEC,
         redirect_uri  = SP_REDIRECT,
         scope         = SP_SCOPE,
-        cache_path    = str(WORK_DIR / ".spotify_cache"),
+        cache_path    = cache_path,
         open_browser  = False,
     )
     token_info = sp_oauth.get_cached_token()
