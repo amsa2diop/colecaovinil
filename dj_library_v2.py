@@ -1627,6 +1627,16 @@ body.is-owner .glb-stats .owner-only{display:inline!important}
 .sp-collapse-btn:hover{color:var(--sp)}
 #sp-player-wrap.sp-hidden .sp-collapse-btn svg{transform:scaleY(-1)}
 .sp-collapse-btn svg{transition:transform .3s}
+/* Pill de reexpansão — aparece quando o player está recolhido pelo usuário */
+.sp-expand-btn{
+  position:fixed;bottom:.6rem;left:50%;transform:translateX(-50%);
+  z-index:9501;display:none;align-items:center;gap:.3rem;
+  background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.12);
+  box-shadow:0 2px 10px rgba(0,0,0,.15);border-radius:20px;
+  padding:.28rem .85rem .28rem .65rem;
+  font-size:.65rem;color:var(--text2);cursor:pointer;
+  transition:background .15s,color .15s,border-color .15s;white-space:nowrap}
+.sp-expand-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
 """
 
 JS = r"""
@@ -2580,6 +2590,9 @@ var _spHidden=false;
 function toggleSpPlayer(){
   _spHidden=!_spHidden;
   document.getElementById('sp-player-wrap').classList.toggle('sp-hidden',_spHidden);
+  document.querySelectorAll('.sp-expand-btn').forEach(function(b){
+    b.style.display=_spHidden?'flex':'none';
+  });
   setTimeout(updateSpPlayerPadding,350);
 }
 function updateSpPlayerPadding(){
@@ -3906,6 +3919,10 @@ def generate_html(df):
 <div id="glb-pool">{lightbox_pool_html}</div>
 
 {sp_html}
+<button class="sp-expand-btn" onclick="toggleSpPlayer()" title="Mostrar player Spotify">
+  <svg width="9" height="6" viewBox="0 0 9 6" fill="none"><path d="M1 5L4.5 1.5L8 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  &#9834; Spotify
+</button>
 
 <footer class="site-credits">BPM data by <a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM</a></footer>
 <script>var STORY_IMAGES={story_json};var SP_TRACK_IDS={sp_track_ids_js};</script>

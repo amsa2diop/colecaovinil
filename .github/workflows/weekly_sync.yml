@@ -30,6 +30,10 @@ jobs:
       - name: Atualizar campos da coleção Discogs
         run: python fetch_discogs_fields.py
 
+      # Busca faixas Discogs para releases novos (não presentes em backup_final.csv)
+      - name: Buscar faixas de novos discos (Discogs REST)
+        run: python fetch_new_releases.py
+
       # Sincroniza playlist Spotify SOMENTE se backup_collection_fields.csv mudou
       # (ou seja, houve adição/remoção de disco na coleção).
       # Requer secret SPOTIFY_REFRESH_TOKEN configurado no repositório.
@@ -49,7 +53,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html MinhaColecao_DJ.html MinhaColecao_DJ.xlsx backup_collection_fields.csv
+          git add index.html MinhaColecao_DJ.html MinhaColecao_DJ.xlsx backup_collection_fields.csv backup_final.csv
           git add backup_playlist.txt backup_playlist_dj.txt 2>/dev/null || true
           git diff --cached --quiet && echo "Nada mudou." || \
             git commit -m "chore: sync automático $(date +'%Y-%m-%d')"
