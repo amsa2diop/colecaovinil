@@ -1069,6 +1069,15 @@ h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
   font-weight:700;letter-spacing:.07em;text-transform:uppercase;
   background:#fff;color:#111;border:1px solid rgba(0,0,0,.22);
   margin-left:.35rem;vertical-align:middle}
+.similar-badge{display:inline-block;padding:.1rem .42rem;border-radius:4px;font-size:.6rem;
+  font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  background:#e8e3ff;color:#4a3fb5;border:1px solid rgba(74,63,181,.28);
+  margin-left:.35rem;vertical-align:middle}
+.similars-meta{margin-top:.38rem;border-top:1px solid var(--bdr);padding-top:.3rem}
+.similar-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:.2rem .4rem;padding:.06rem 0}
+.similar-link{color:var(--acc);text-decoration:none;font-size:.72rem}
+.similar-link:hover{text-decoration:underline}
+.similar-current{font-size:.72rem;font-style:italic;color:var(--text3)}
 
 
 /* CUSTOM FIELDS */
@@ -1678,6 +1687,10 @@ var paFilter='all';
 var dupFilter='all';
 var recebidoFilter='all';
 var incFilterActive=false;
+// Normaliza busca: remove acentos, pontuação, lowercase — garante "sos bánd" → "the s.o.s. band"
+function _normQ(s){
+  return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s]/g,' ').toLowerCase().replace(/\s+/g,' ').trim();
+}
 var previewPublic=localStorage.getItem('_previewPublic')==='1';
 
 function syncAllChips(){
@@ -1817,13 +1830,13 @@ function albumBpmOk(card, filterSet){
   });
 }
 function filterLP(){
-  var q=document.getElementById('q-lp').value.toLowerCase().trim();
+  var q=_normQ(document.getElementById('q-lp').value);
   var s=document.getElementById('sort-lp').value;
   var grid=document.getElementById('grid-lp');
   var cards=Array.from(grid.querySelectorAll('.album-card'));
   var vis=0;
   cards.forEach(function(c){
-    var qOk=!q||c.dataset.search.includes(q);
+    var qOk=!q||_normQ(c.dataset.search).includes(q);
     var _origVals=(c.dataset.origem||'').toLowerCase().split('|');
     var origOk=origemFilter.size===0||_origVals.some(function(v){return origemFilter.has(v);});
     var isBrazil=c.dataset.country==='brazil';
@@ -1834,7 +1847,7 @@ function filterLP(){
     var djOk=djFilter==='all'||(djFilter==='yes'&&_djVals.some(function(v){return v==='Sim'||v==='Parcial';}));
     var _paVals=(c.dataset.pa||'').split('|');
     var paOk=paFilter==='all'||(paFilter==='yes'&&_paVals.some(function(v){return v==='Sim'||v==='Em breve';}));
-    var dupOk=dupFilter==='all'||(dupFilter==='dup'&&+c.dataset.copies>1);
+    var dupOk=dupFilter==='all'||(dupFilter==='dup'&&(+c.dataset.copies>1||+c.dataset.similar>1));
     var _recVals=(c.dataset.recebido||'').split('|');
     var recOk=recebidoFilter==='all'||(recebidoFilter==='sim'&&_recVals.some(function(v){return v==='Sim';}))||(recebidoFilter==='nao'&&_recVals.some(function(v){return v!=='Sim';}));
     var bpmOk=albumBpmOk(c,activeBpmFilter);
@@ -1892,7 +1905,7 @@ function bpmFilterOk(bpm,hasBpm,filterSet){
   });
 }
 function filterTracks(){
-  var q=document.getElementById('q-faixas').value.toLowerCase().trim();
+  var q=_normQ(document.getElementById('q-faixas').value);
   var s=document.getElementById('sort-faixas').value;
   var grid=document.getElementById('grid-faixas');
   var rows=Array.from(grid.querySelectorAll('.track-row'));
@@ -1902,7 +1915,7 @@ function filterTracks(){
     var bpm=+r.dataset.bpm||0;
     var hasBpm=r.dataset.hasbpm==='1';
     var bpmOk=bpmFilterOk(bpm,hasBpm,activeBpmFilter);
-    var qOk=!q||r.dataset.search.includes(q);
+    var qOk=!q||_normQ(r.dataset.search).includes(q);
     var isBrazil=r.dataset.country==='brazil';
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(r.dataset.decade);
@@ -2781,7 +2794,7 @@ def _hex_luminance(hex_color):
         return 1.0
 
 
-def render_album_grid(group, color_pastel="", country="", format_data=None, copy_count=1):
+def render_album_grid(group, color_pastel="", country="", format_data=None, copy_count=1, similar_count=1):
     """Renderiza um card compacto para a view em grade."""
     group_dedup = group.drop_duplicates(subset=["position"])
     first       = group_dedup.iloc[0]
@@ -2792,7 +2805,9 @@ def render_album_grid(group, color_pastel="", country="", format_data=None, copy
     year_s      = str(int(first["year"])) if safe_float(first.get("year")) else ""
     cover       = esc(str(first.get("cover_url", "") or ""))
 
-    copy_badge = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
+    copy_badge   = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
+    similar_badge = f'<span class="similar-badge">{similar_count} prensagens</span>' if similar_count > 1 else ""
+    dup_badges   = copy_badge + similar_badge
     title_year = f'{title}<span class="grid-year"> · {year_s}</span>' if year_s else title
     img_html   = (f'<img class="grid-cover" src="{cover}" alt="" loading="lazy">'
                   if cover else '<div class="grid-cover"></div>')
@@ -2809,13 +2824,13 @@ def render_album_grid(group, color_pastel="", country="", format_data=None, copy
         f'{cover_blur}'
         f'{img_html}'
         f'<div class="grid-info">'
-        f'<div class="grid-artist">{artist}{copy_badge}</div>'
+        f'<div class="grid-artist">{artist}{dup_badges}</div>'
         f'<div class="grid-title">{title_year}</div>'
         f'</div></div>'
     )
 
 
-def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color_pastel="", country="", format_data=None, copy_count=1):
+def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color_pastel="", country="", format_data=None, copy_count=1, similar_pressings=None):
     """Renderiza o card escuro do lightbox da view em grade (pre-renderizado, oculto)."""
     _months = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"]
     format_info = format_data or {}
@@ -2920,7 +2935,35 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
     if n_bpm > 0:
         stats_html += f' &middot; <span class="owner-only">{n_bpm} com BPM</span>'
 
-    copy_badge_html = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
+    copy_badge_html    = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
+    _sim_prs           = similar_pressings or []
+    _sim_count         = len(_sim_prs)
+    similar_badge_html = f'<span class="similar-badge">{_sim_count} prensagens</span>' if _sim_count > 1 else ""
+
+    # Similar pressings section for lightbox
+    similar_html = ""
+    if _sim_count > 1:
+        _sim_rows = []
+        for _i, _p in enumerate(_sim_prs):
+            _is_cur = str(_p.get("release_id","")) == str(release_id)
+            _parts  = [x for x in [_p.get("year",""), _p.get("country",""), _p.get("label","")] if x]
+            _info   = " · ".join(_parts) if _parts else f"Prensagem {_i+1}"
+            if _is_cur:
+                _sim_rows.append(
+                    f'<div class="copy-row similar-row">'
+                    f'<span class="copy-label">Prensagem {_i+1}:</span>'
+                    f' <span class="similar-current">{esc(_info)}</span>'
+                    f'</div>'
+                )
+            else:
+                _dlink = f"https://www.discogs.com/release/{_p['release_id']}"
+                _sim_rows.append(
+                    f'<div class="copy-row similar-row">'
+                    f'<span class="copy-label">Prensagem {_i+1}:</span>'
+                    f' <a class="similar-link" href="{_dlink}" target="_blank" onclick="event.stopPropagation()">{esc(_info)}</a>'
+                    f'</div>'
+                )
+        similar_html = f'<div class="similars-meta copies-meta">{"".join(_sim_rows)}</div>'
 
     discogs_url = f'https://www.discogs.com/release/{release_id}'
     disc_btn = (f'<a class="glb-btn" href="{discogs_url}" target="_blank" '
@@ -2968,11 +3011,12 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
         f'<div class="glb-header-inner">'
         f'{_cover_img}'
         f'<div class="glb-meta">'
-        f'<div class="glb-artist">{artist_s}{copy_badge_html}</div>'
+        f'<div class="glb-artist">{artist_s}{copy_badge_html}{similar_badge_html}</div>'
         f'<div class="glb-title">{title_s}</div>'
         f'{_meta_row}'
         f'<div class="glb-stats owner-only">{stats_html}</div>'
         f'{copies_html}'
+        f'{similar_html}'
         f'</div>'
         f'</div>'
         f'<div class="glb-btn-col">{disc_btn}{sp_btn}</div>'
@@ -2986,7 +3030,7 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
     )
 
 
-def render_album_lp(group, copy_count=1, fields=None, instances=None, country="", color_pastel="", format_data=None):
+def render_album_lp(group, copy_count=1, fields=None, instances=None, country="", color_pastel="", format_data=None, similar_pressings=None):
     """Renderiza um card de álbum (LP view)."""
     format_info = format_data or {}
 
@@ -3125,7 +3169,35 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
     all_dates = [inst.get("date_added","") for inst in instances if inst.get("date_added","")]
     date_added_raw = max(all_dates) if all_dates else ""
 
-    copy_badge = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
+    copy_badge  = f'<span class="copy-badge">{copy_count} c&#243;pias</span>' if copy_count > 1 else ""
+
+    # Similar pressings (different pressings of same album)
+    _sim_prs    = similar_pressings or []
+    _sim_count  = len(_sim_prs)
+    similar_badge_html = f'<span class="similar-badge">{_sim_count} prensagens</span>' if _sim_count > 1 else ""
+    similar_meta_html  = ""
+    if _sim_count > 1:
+        _sim_rows = []
+        for _i, _p in enumerate(_sim_prs):
+            _is_cur = str(_p.get("release_id","")) == str(release_id)
+            _parts  = [x for x in [_p.get("year",""), _p.get("country",""), _p.get("label","")] if x]
+            _info   = " · ".join(_parts) if _parts else f"Prensagem {_i+1}"
+            if _is_cur:
+                _sim_rows.append(
+                    f'<div class="copy-row similar-row">'
+                    f'<span class="copy-label">Prensagem {_i+1}:</span>'
+                    f' <span class="similar-current">{esc(_info)}</span>'
+                    f'</div>'
+                )
+            else:
+                _dlink = f"https://www.discogs.com/release/{_p['release_id']}"
+                _sim_rows.append(
+                    f'<div class="copy-row similar-row">'
+                    f'<span class="copy-label">Prensagem {_i+1}:</span>'
+                    f' <a class="similar-link" href="{_dlink}" target="_blank" onclick="event.stopPropagation()">{esc(_info)}</a>'
+                    f'</div>'
+                )
+        similar_meta_html = f'<div class="copies-meta similars-meta">{"".join(_sim_rows)}</div>'
 
     discogs_url = f"https://www.discogs.com/release/{release_id}"
     _sp_ids = group_dedup[group_dedup["status"] == "ACEITO"]["track_id"].dropna()
@@ -3250,6 +3322,7 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
   data-recebido="{esc(all_rec)}"
   data-bpm-list="{bpm_list_str}"
   data-copies="{copy_count}"
+  data-similar="{_sim_count}"
   data-date-added="{esc(date_added_raw)}"
   data-release-id="{release_id}"
   data-instance-id="{instance_id}">
@@ -3257,10 +3330,11 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
   <header class="album-header" onclick="toggleAlbum(this)">
     <div class="cover-wrap">{img_tag}</div>
     <div class="album-info">
-      <div class="alb-artist">{esc(first.get("album_artist",""))}{copy_badge}</div>
+      <div class="alb-artist">{esc(first.get("album_artist",""))}{copy_badge}{similar_badge_html}</div>
       <div class="alb-title">{esc(first.get("album_title",""))}</div>
       {f'<div class="alb-meta">{tags}{bpm_tag}</div>' if (tags or bpm_tag) else ''}
       {custom_html}
+      {similar_meta_html}
       <div class="alb-tracks-info owner-only">{alb_tracks_info}</div>
     </div>
     {btn_group}
@@ -3486,7 +3560,44 @@ def generate_html(df):
 
     n_unique  = df["release_id"].nunique()
     n_items   = sum(copy_counts.get(str(rid), 1) for rid in df["release_id"].unique()) if copy_counts else n_unique
-    n_dupes   = n_items - n_unique   # total extra copies
+
+    # ── LP view: sorted groups ────────────────────────────────────────────────
+    _sorted_groups = list(df.sort_values(["album_artist","album_title"]).groupby("release_id", sort=False))
+
+    # ── Similar pressings detection ───────────────────────────────────────────
+    # Group release_ids that share the same normalized artist+title (different pressings)
+    from collections import defaultdict as _dd
+    _sim_groups = _dd(list)
+    for _rid, _g in _sorted_groups:
+        _fr = _g.iloc[0]
+        _key = normalize(str(_fr.get("album_artist","") or "")).strip() + \
+               "|||" + normalize(str(_fr.get("album_title","") or "")).strip()
+        _sim_groups[_key].append(str(_rid))
+
+    similar_map = {}  # {rid_str: [all rid_strs in same pressing group]}
+    for _rids in _sim_groups.values():
+        if len(_rids) > 1:
+            for _r in _rids:
+                similar_map[_r] = _rids
+
+    n_similar_dupes = sum(len(_rids) - 1 for _rids in _sim_groups.values() if len(_rids) > 1)
+    n_dupes         = (n_items - n_unique) + n_similar_dupes
+
+    def _pressing_info(rid_s):
+        """Year/country/label for a release_id."""
+        try:
+            rid_int = int(float(rid_s))
+            rows = df[df["release_id"].apply(lambda v: int(float(v)) if pd.notna(v) else -1) == rid_int]
+            year_s = str(int(rows.iloc[0]["year"])) if not rows.empty and safe_float(rows.iloc[0].get("year")) else ""
+        except Exception:
+            year_s = ""
+        return {
+            "release_id": rid_s,
+            "year":    year_s,
+            "country": country_map.get(rid_s, ""),
+            "label":   format_map.get(rid_s, {}).get("label", ""),
+        }
+
     n_tracks  = len(df.drop_duplicates(subset=["release_id","position"]))  # sem duplicatas de cópia
     dup_link  = (f'<a class="incomplete-link" id="dup-link" onclick="toggleDupFilter()" style="cursor:pointer">{n_dupes} duplicados</a>'
                  if n_dupes > 0 else f'{n_dupes} duplicados')
@@ -3500,16 +3611,15 @@ def generate_html(df):
     if playlist_url:
         sp_embed_id = playlist_url.split(":")[-1].split("/")[-1]
 
-    # ── LP view ──────────────────────────────────────────────────────────────
-    _sorted_groups = list(df.sort_values(["album_artist","album_title"]).groupby("release_id", sort=False))
     albums_html = "\n".join(
         render_album_lp(
             g,
-            copy_count   = copy_counts.get(str(rid), 1),
-            instances    = instances_map.get(str(rid), []),
-            country      = country_map.get(str(rid), ""),
-            color_pastel = colors_map.get(str(rid), ""),
-            format_data  = format_map.get(str(rid), {}),
+            copy_count        = copy_counts.get(str(rid), 1),
+            instances         = instances_map.get(str(rid), []),
+            country           = country_map.get(str(rid), ""),
+            color_pastel      = colors_map.get(str(rid), ""),
+            format_data       = format_map.get(str(rid), {}),
+            similar_pressings = [_pressing_info(r) for r in similar_map.get(str(rid), [])],
         )
         for rid, g in _sorted_groups
     )
@@ -3518,10 +3628,11 @@ def generate_html(df):
     grade_html = "\n".join(
         render_album_grid(
             g,
-            color_pastel = colors_map.get(str(rid), ""),
-            country      = country_map.get(str(rid), ""),
-            format_data  = format_map.get(str(rid), {}),
-            copy_count   = copy_counts.get(str(rid), 1),
+            color_pastel   = colors_map.get(str(rid), ""),
+            country        = country_map.get(str(rid), ""),
+            format_data    = format_map.get(str(rid), {}),
+            copy_count     = copy_counts.get(str(rid), 1),
+            similar_count  = len(similar_map.get(str(rid), [])),
         )
         for rid, g in _sorted_groups
     )
@@ -3532,12 +3643,13 @@ def generate_html(df):
     lightbox_pool_html = "\n".join(
         render_album_lightbox_card(
             g,
-            instances        = instances_map.get(str(rid), []),
-            sp_playlist_link = _sp_link,
-            color_pastel     = colors_map.get(str(rid), ""),
-            country          = country_map.get(str(rid), ""),
-            format_data      = format_map.get(str(rid), {}),
-            copy_count       = copy_counts.get(str(rid), 1),
+            instances         = instances_map.get(str(rid), []),
+            sp_playlist_link  = _sp_link,
+            color_pastel      = colors_map.get(str(rid), ""),
+            country           = country_map.get(str(rid), ""),
+            format_data       = format_map.get(str(rid), {}),
+            copy_count        = copy_counts.get(str(rid), 1),
+            similar_pressings = [_pressing_info(r) for r in similar_map.get(str(rid), [])],
         )
         for rid, g in _sorted_groups
     )
