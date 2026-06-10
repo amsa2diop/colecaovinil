@@ -1686,6 +1686,13 @@ function switchView(v){
   document.querySelector('[data-v="'+v+'"]').classList.add('active');
   document.body.className=document.body.className.replace(/\bview-\S+/g,'').trim();
   document.body.classList.add('view-'+v);
+  // Mantém o termo de busca ao trocar de view
+  var inputId=v==='lp'?'q-lp':'q-faixas';
+  var input=document.getElementById(inputId);
+  if(input.value!==searchQuery){
+    input.value=searchQuery;
+    if(v==='lp')filterLP();else filterTracks();
+  }
   syncAllChips();
   setTimeout(updateSpPlayerPadding,100);
 }
@@ -1704,6 +1711,15 @@ var incFilterActive=false;
 function _normQ(s){
   return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s]/g,' ').toLowerCase().replace(/\s+/g,' ').trim();
 }
+// Busca por múltiplos termos em qualquer ordem: "quincy garden" casa com
+// "Quincy Jones ... The Secret Garden" mesmo não sendo um trecho contínuo.
+function _searchMatch(raw,q){
+  if(!q)return true;
+  var norm=_normQ(raw);
+  return q.split(' ').every(function(t){return !t||norm.indexOf(t)!==-1});
+}
+// Termo de busca compartilhado entre as views Discos e Faixas
+var searchQuery='';
 var previewPublic=localStorage.getItem('_previewPublic')==='1';
 
 function syncAllChips(){
@@ -1849,7 +1865,7 @@ function filterLP(){
   var cards=Array.from(grid.querySelectorAll('.album-card'));
   var vis=0;
   cards.forEach(function(c){
-    var qOk=!q||_normQ(c.dataset.search).includes(q);
+    var qOk=_searchMatch(c.dataset.search,q);
     var _origVals=(c.dataset.origem||'').toLowerCase().split('|');
     var origOk=origemFilter.size===0||_origVals.some(function(v){return origemFilter.has(v);});
     var isBrazil=c.dataset.country==='brazil';
@@ -1928,7 +1944,7 @@ function filterTracks(){
     var bpm=+r.dataset.bpm||0;
     var hasBpm=r.dataset.hasbpm==='1';
     var bpmOk=bpmFilterOk(bpm,hasBpm,activeBpmFilter);
-    var qOk=!q||_normQ(r.dataset.search).includes(q);
+    var qOk=_searchMatch(r.dataset.search,q);
     var isBrazil=r.dataset.country==='brazil';
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(r.dataset.decade);
@@ -2035,8 +2051,8 @@ function loadDeezerEmbed(el,did){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-var t1;document.getElementById('q-lp').addEventListener('input',function(){clearTimeout(t1);t1=setTimeout(filterLP,200)});
-var t2;document.getElementById('q-faixas').addEventListener('input',function(){clearTimeout(t2);t2=setTimeout(filterTracks,200)});
+var t1;document.getElementById('q-lp').addEventListener('input',function(){searchQuery=this.value;clearTimeout(t1);t1=setTimeout(filterLP,200)});
+var t2;document.getElementById('q-faixas').addEventListener('input',function(){searchQuery=this.value;clearTimeout(t2);t2=setTimeout(filterTracks,200)});
 document.getElementById('cnt-lp').textContent=document.querySelectorAll('#grid-lp .album-card').length;
 document.getElementById('cnt-faixas').textContent=document.querySelectorAll('#grid-faixas .track-row').length;
 // Populate incomplete count on load (don't render yet)

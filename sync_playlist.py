@@ -133,14 +133,27 @@ def _position_key(pos):
     return (pos, 0, pos)
 
 
+# Artistas genéricos de coletâneas — para essas, ordena pelo artista de cada
+# faixa (artist_clean) em vez do álbum, senão tudo fica empilhado em "V".
+_GENERIC_ARTISTS = {"various", "various artists", "va", "v.a.", "unknown artist"}
+
+
 def load_uris_by_album_order():
-    """Todos os discos aceitos, na ordem do álbum: artista A→Z, álbum A→Z, faixa na ordem do disco."""
+    """Todos os discos aceitos, na ordem do álbum: artista A→Z, álbum A→Z, faixa na ordem do disco.
+
+    Para coletâneas (artista genérico tipo "Various"), ordena pelo artista de
+    cada faixa, para não empilhar centenas de faixas de artistas diferentes
+    sob "V" e quebrar a ordenação alfabética geral.
+    """
     df = _load_source_df()
     if df is None or df.empty:
         return []
     df = df.copy()
     df["_pos_key"] = df["position"].apply(_position_key)
-    df = df.sort_values(["album_artist", "album_title", "_pos_key"])
+    is_generic = df["album_artist"].str.strip().str.lower().isin(_GENERIC_ARTISTS)
+    df["_artist_sort"] = df["album_artist"].where(~is_generic, df["artist_clean"]).str.lower()
+    df["_album_sort"]  = df["album_title"].str.lower()
+    df = df.sort_values(["_artist_sort", "_album_sort", "_pos_key"])
     return _extract_uris(df)
 
 
