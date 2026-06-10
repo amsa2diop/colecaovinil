@@ -1,5 +1,6 @@
 # Auth token — nunca commitar
 .spotify_cache
+.spotify_cache_liked
 
 # Python cache
 __pycache__/
@@ -14,6 +15,9 @@ py_err.txt
 py_log.txt
 run_err.txt
 run_log.txt
+
+# Relatórios gerados pelo spotify_liked_sync.py (regeráveis via 'analyze')
+backup_liked_*.csv
 
 # R legacy (dados brutos, grandes)
 backup_01_albums.rds
