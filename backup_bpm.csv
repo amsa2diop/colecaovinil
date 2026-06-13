@@ -117,7 +117,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 3cRy07f4VxvEL0BQcN58FM,123.8,,,,,,,
 0KD6DThQm5juZRqNhY3Dwy,89.9,,,,,,,63616046.0
 2or7954hBpFpulF5Ih7YUa,119.2,,,,,,,128433015.0
-46heieL84Mzn1hCLUJlb5p,99.8,,,,,,,63942838
+46heieL84Mzn1hCLUJlb5p,99.8,,,,,,,63942838.0
 2yRk01D6hPUP2H2a7oEGqt,77.2,,,,,,,78291285.0
 2Xs1LRuHuSHsXODHKUtbQx,121.6,,,,,,,588235062.0
 6U8jOtP4u9MIaH17VfcKtN,103.9,,,,,,,346528621.0
@@ -331,7 +331,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 4n6whjEhlm2naYcnCfy1iL,87.6,,,,,,,66761270.0
 5Ykf1427yW4cYXev5lNIUI,113.6,,,,,,,
 3FAuo7JM27jjL2Wb7C7w72,111.1,,,,,,,
-6yBxkbajqOS6m3JhfEcNMv,132.1,,,,,,,129606902
+6yBxkbajqOS6m3JhfEcNMv,132.1,,,,,,,129606902.0
 57mKOVASTSW6heOcejBPlO,95.7,,,,,,,
 0cw3ZPFxRnD6oSszTzySvM,117.1,,,,,,,66761271.0
 4TXMsiicte8rJWpU6d0aa8,128.8,,,,,,,66761280.0
@@ -640,6 +640,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 2E1c3bSJyZ9eOcovV6W3Df,137.8,,,,,,,75345141.0
 0G0SPViSDa3ajAkzna1bZD,130.0,,,,,,,
 5T2PKN9WninWlfvm0g9oem,113.0,,,,,,,711142.0
+7j6PiWNtc8iRCvciGX1jTW,95.7,,,,,,,92601040
 6ZbEXy58udMRx88OA7nyeZ,71.5,,,,,,,2583252.0
 7BhJEUC5B3pXb5ZgCIS2gy,124.5,,,,,,,
 6HhxG1eIAXZLg3LeqOpk6s,134.2,,,,,,,
@@ -974,14 +975,15 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 2nQEmUf2Hu7UF7uW4shZSY,73.8,,,,,,,
 3zYpRGnnoegSpt3SguSo3W,119.2,,,,,,,14874840.0
 6NGsHLZYGVAkXTFr75WWnn,130.4,,,,,,,4603414.0
-7a4s57UdEXk4c669tLnRah,103.3,,,,,,,68486201
-2qDiNSJNYagxRhs54nnl7z,117.1,,,,,,,68486202
+7a4s57UdEXk4c669tLnRah,103.3,,,,,,,68486201.0
+2qDiNSJNYagxRhs54nnl7z,117.1,,,,,,,68486202.0
 4WreptTFEUBLQsdteZpdq4,119.8,,,,,,,577858132.0
-24ZxIfK7IvCKjyFRoNDQOa,101.3,,,,,,,68486204
-6fgLN8O311pxRs4Av591ww,122.3,,,,,,,68486205
-3Xa1GuylT0d4yJ39AJKrV6,122.3,,,,,,,68486206
-4fXeesf5TdyEBTl8EuZ6uj,79.8,,,,,,,68486207
-5Nw2vkKZ2MoHrFDA3z5iqP,110.2,,,,,,,68486208
+24ZxIfK7IvCKjyFRoNDQOa,101.3,,,,,,,68486204.0
+6fgLN8O311pxRs4Av591ww,122.3,,,,,,,68486205.0
+3Xa1GuylT0d4yJ39AJKrV6,122.3,,,,,,,68486206.0
+4fXeesf5TdyEBTl8EuZ6uj,79.8,,,,,,,68486207.0
+5Nw2vkKZ2MoHrFDA3z5iqP,110.2,,,,,,,68486208.0
+0G0t1aGEN0aekqmSrBDn9z,131.2,,,,,,,68486209
 3mhkKb0pfI889wRL77VJv7,125.3,,,,,,,98703922.0
 1AaFZTH9D7qzEnkQ6WLL0i,124.9,,,,,,,475006352.0
 34hl6dQ6l6yN9AOTeOau8J,78.6,,,,,,,64195697.0
@@ -1151,7 +1153,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 3qIQvhlthNd4THAYMDoxdJ,73.8,,,,,,,
 0OTskAGUmWyIC7trEfgVfs,88.0,,,,,,,
 7AElArhUm0vxfKeZJpP8TH,133.8,,,,,,,
-5UiXhxtl69RyixaI8g7pcu,100.8,,,,,,,128436077
+5UiXhxtl69RyixaI8g7pcu,100.8,,,,,,,128436077.0
 1Ya90l79BJXdW8tLlv4dZ4,88.0,,,,,,,
 49RRbd6a1DB9Fx78TGd2N7,133.4,,,,,,,
 5YauqJjcRbOYZ4AIhjL9VV,109.1,,,,,,,12601807.0
@@ -1179,7 +1181,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 1XSum2KcsGysxMYznpqFm5,136.9,,,,,,,
 3LRmtOD2Wdi3r817ctoOw8,102.3,,,,,,,
 5Mns2iOEchrw9qvTs6xp7K,72.8,,,,,,,17773339.0
-1OA0i7pCDLbaSoKnTKWpOf,99.2,,,,,,,128436069
+1OA0i7pCDLbaSoKnTKWpOf,99.2,,,,,,,128436069.0
 3yfRDsK74hvMIBLR1VX3nO,81.1,,,,,,,
 4eSYEf13NEsN4VA9kIHjJ8,135.6,,,,,,,
 6QQV71cjjsgOd63d3ir0I0,87.6,,,,,,,
@@ -1417,7 +1419,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 3JKLkQPlQ2Xtc49FWXq3Uh,93.5,,,,,,,
 00GW8H65D98szan4kAntlF,95.7,,,,,,,
 1ayQh7u8m59ZG9C2s2mNDJ,92.7,,,,,,,70866515.0
-4vUkGW1PHw3uUsU4fLipx2,117.5,,,,,,,9855538
+4vUkGW1PHw3uUsU4fLipx2,117.5,,,,,,,9855538.0
 59HAcR0hVejI7Od0kgibFg,92.7,,,,,,,11085504.0
 7bZdbyxBy0UpyxvLsyFFG8,92.7,,,,,,,
 0R0qijVImx5afJce52idld,122.7,,,,,,,3567714.0
@@ -1482,7 +1484,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 3BdUNbgPrWmM7FmSbRLTIv,136.0,,,,,,,
 1fo0083nKePBcIaLgX7yNG,82.3,,,,,,,65245767.0
 5csdrJ0JtFn0qvwlvSh2EI,97.0,,,,,,,
-6agrSbCVGck1ge8Wl1pvhT,126.0,,,,,,,62960838
+6agrSbCVGck1ge8Wl1pvhT,126.0,,,,,,,62960838.0
 5e2h83iw1uov1U8uQvFwhG,131.7,,,,,,,72632220.0
 3EXrtClWmgsM7dw75Mw2M1,93.3,,,,,,,1169594.0
 2uTGX4wxnRGS3i0FSOMGCQ,74.9,,,,,,,
@@ -1894,6 +1896,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 7de91j1ffIrsaQInG9PrzC,106.0,,,,,,,
 6Sdma11BqWLJfnkrOZspRY,124.9,,,,,,,634432752.0
 3E26XqV2an7iMYoEcUVdj4,109.1,,,,,,,3126140.0
+0G0t1aGEN0aekqmSrBDn9z,131.2,,,,,,,68486209
 4EppdPkuuhXNp57I9wMsn0,109.7,,,,,,,
 6VytghyyoU2MHudQ9mSEP0,98.0,,,,,,,
 3d6UefBBvhqHxJLZdm8scF,139.2,,,,,,,
@@ -1968,7 +1971,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 399Hm1oqfzzQaZRu3CtVMb,84.7,,,,,,,
 0eO8MW9YSTK3CjdaTYKlhF,96.2,,,,,,,142339501.0
 6aOFdNRGDwLeMsKCRbtijm,132.9,,,,,,,
-0Pu71wxadDlB8fJXfjIjeJ,98.0,,,,,,,60909328
+0Pu71wxadDlB8fJXfjIjeJ,98.0,,,,,,,60909328.0
 2ThmEM6C0pq6bwKtDz8BBM,133.8,,,,,,,
 3XTqbxPzTWvWrd9SEeN2Bg,80.1,,,,,,,13799859.0
 1J1Wz0UPt4NPp4MMwSJCcz,70.1,,,,,,,
@@ -2076,7 +2079,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 7gCYJznvowkQIMtAafv6ZY,125.3,,,,,,,538707082.0
 6O7QmxB7Euq2MnTdsPdMui,70.3,,,,,,,538708892.0
 36CKza28wMxYdjdzji7ine,72.3,,,,,,,7523851.0
-70gCYpuRthr9sfC3WV8g5P,80.8,,,,,,,139138595
+70gCYpuRthr9sfC3WV8g5P,80.8,,,,,,,139138595.0
 1baagXiIhtwODVbdRI0NcA,85.8,,,,,,,7523848.0
 2fFUtEAjAQ9TIWTx6wbTp6,99.9,,,,,,,139138575.0
 07PIhdmyYIw8dMeDMsx9FU,80.8,,,,,,,350027661.0
@@ -2098,7 +2101,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 7eQmdwNga9AZLFpT0KSfZx,104.1,,,,,,,108475594.0
 6mChWtiEGHF0PoqVDDRZqb,100.1,,,,,,,108475602.0
 52aKslo27ec4e5jOSHgJA9,130.0,,,,,,,538615142.0
-15NLbdCIEdFofMnTBMOGWE,130.0,,,,,,,538615162
+15NLbdCIEdFofMnTBMOGWE,130.0,,,,,,,538615162.0
 4ePHQIfvleRVbVX2p62tvu,130.0,,,,,,,487042402.0
 339xwypXapYkfL6HX9APyk,120.9,,,,,,,538714382.0
 1HvZgqzkwgrucRYehilPee,130.4,,,,,,,538615262.0
@@ -2247,7 +2250,7 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 5WI9s6pQnwXyY4RjUSIUD4,83.7,,,,,,,85849729.0
 0qKpiMZhVBIg4tKKy9sCqm,87.8,,,,,,,61940599.0
 6pzr8U3WumRKVL96djWZx0,87.0,,,,,,,85660582.0
-3kVa0ivYVsN48WHlNZMHDL,83.3,,,,,,,1581465792
+3kVa0ivYVsN48WHlNZMHDL,83.3,,,,,,,1581465792.0
 4ymfw1RB41HNgqzqMnqmL2,114.2,,,,,,,74008020.0
 3vXiR11nl8WZm2ceSpZ9Vb,76.0,,,,,,,445784822.0
 14eng7JPWqbZ3k9EYYcjP4,81.5,,,,,,,445812452.0
@@ -2278,5 +2281,5 @@ track_id,bpm,energy,danceability,valence,key,mode,camelot,deezer_id
 58Omjh8UQKrup5Wu0itGfW,96.6,,,,,,,541624382.0
 25CksEdNcdWHTIBpEGcFDe,131.2,,,,,,,63942825.0
 0q1i6YkEWyp9hvspuPHgA4,92.3,,,,,,,63942833.0
-6DRGQp4rlRB8SBZ5DOfk8g,82.0,,,,,,,32329491
-0GiX25OHmW6WadzPDogdE0,95.9,,,,,,,9767998
+6DRGQp4rlRB8SBZ5DOfk8g,82.0,,,,,,,32329491.0
+0GiX25OHmW6WadzPDogdE0,95.9,,,,,,,9767998.0
