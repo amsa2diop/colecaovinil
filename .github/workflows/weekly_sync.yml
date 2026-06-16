@@ -2,8 +2,8 @@ name: Sync diário Discogs → GitHub Pages
 
 on:
   schedule:
-    # Diariamente às 06:00 UTC (03:00 BRT)
-    - cron: '0 6 * * *'
+    # A cada 3 dias às 06:00 UTC (03:00 BRT)
+    - cron: '0 6 */3 * *'
   workflow_dispatch:   # permite rodar manualmente pela aba Actions
 
 jobs:

@@ -1274,9 +1274,10 @@ body.is-owner.preview-public .glb-stats .owner-only{display:none!important}
 /* ── LP VIEW ── */
 .albums-grid{display:flex;flex-direction:column;gap:.45rem}
 .album-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);
-  overflow:hidden;transition:box-shadow .2s;box-shadow:var(--shadow);position:relative}
+  overflow:hidden;transition:box-shadow .2s;box-shadow:var(--shadow);position:relative;
+  content-visibility:auto;contain-intrinsic-size:0 180px}
 .album-card:hover{box-shadow:var(--shadow-h)}
-.album-card.hidden{display:none}
+.album-card.hidden{display:none;content-visibility:hidden}
 .cover-blur{position:absolute;inset:0;background-size:cover;background-position:center;
   filter:blur(40px) saturate(3) brightness(.5);opacity:.09;transform:scale(1.15);pointer-events:none}
 .album-header{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;
@@ -1331,10 +1332,11 @@ body.is-owner.preview-public .glb-stats .owner-only{display:none!important}
 .track-rows{display:flex;flex-direction:column;gap:0}
 .track-row{display:flex;align-items:center;gap:8px;padding:5px 10px;
   border-bottom:1px solid rgba(0,0,0,.055);flex-wrap:wrap;
-  position:relative;cursor:pointer;transition:filter .1s}
+  position:relative;cursor:pointer;transition:filter .1s;
+  content-visibility:auto;contain-intrinsic-size:0 52px}
 .track-row:last-child{border-bottom:none}
 .track-row:hover{filter:brightness(.96)}
-.track-row.hidden{display:none}
+.track-row.hidden{display:none;content-visibility:hidden}
 /* BPM — left of cover */
 .c-bpm{font-size:.88rem;font-weight:700;min-width:38px;text-align:right;
   flex-shrink:0;letter-spacing:-.5px;color:var(--tc,#111);line-height:1}
@@ -1417,6 +1419,16 @@ body.is-owner.preview-public .glb-stats .owner-only{display:none!important}
   .c-bpm{min-width:32px;font-size:.82rem}
   .ic-btn{width:27px;height:27px}
   .ic-btn svg{width:13px;height:13px}
+}
+/* ── TOUCH DEVICES: remove expensive effects on mobile (Safari/iOS) ────────── */
+@media (hover:none){
+  /* Disable GPU-heavy blur backdrop on album cards */
+  .cover-blur{display:none}
+  /* Remove transition animations — reduces compositing work */
+  .album-card,.track-row,.tab-btn,.ctrl-chip,.filter-toggle-btn{transition:none!important}
+  /* Disable hover filters (not relevant on touch anyway) */
+  .track-row:hover{filter:none}
+  .album-card:hover{box-shadow:var(--shadow)}
 }
 
 /* ── EDIT MODE ──────────────────────────────────────────────────────────────── */
@@ -1675,6 +1687,42 @@ body.is-owner .glb-stats .owner-only{display:inline!important}
   font-size:.65rem;color:var(--text2);cursor:pointer;
   transition:background .15s,color .15s,border-color .15s;white-space:nowrap}
 .sp-expand-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+
+/* ── PLAYLIST FILTER MODAL ─────────────────────────────────────────────────── */
+.pl-modal{position:fixed;inset:0;z-index:9200;background:rgba(0,0,0,.52);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .18s}
+.pl-modal.open{opacity:1;pointer-events:all}
+.pl-modal-box{background:var(--bg);border-radius:var(--r);
+  width:min(94vw,400px);max-height:80vh;display:flex;flex-direction:column;
+  box-shadow:0 8px 40px rgba(0,0,0,.28);overflow:hidden}
+.pl-modal-hdr{padding:.9rem 1.1rem .7rem;font-weight:700;font-size:.88rem;
+  border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.pl-modal-hdr button{background:none;border:none;cursor:pointer;font-size:1.1rem;
+  color:var(--text3);line-height:1;padding:0 .1rem}
+.pl-modal-search{margin:.65rem .85rem .35rem;padding:.42rem .65rem;
+  border:1px solid var(--bdr);border-radius:var(--r-sm);font-size:.82rem;
+  background:var(--bg2);color:var(--text);outline:none;width:calc(100% - 1.7rem)}
+.pl-modal-list{overflow-y:auto;padding:.3rem .85rem .85rem;flex:1}
+.pl-modal-item{display:flex;align-items:center;gap:.5rem;
+  padding:.32rem .25rem;cursor:pointer;border-radius:6px;user-select:none}
+.pl-modal-item:hover{background:var(--bg2)}
+.pl-modal-item input[type=checkbox]{width:15px;height:15px;cursor:pointer;
+  flex-shrink:0;accent-color:var(--acc)}
+.pl-modal-item label{font-size:.82rem;cursor:pointer;flex:1;color:var(--text)}
+.pl-modal-count{font-size:.68rem;color:var(--text3);white-space:nowrap}
+.pl-modal-footer{padding:.65rem 1rem;border-top:1px solid var(--bdr);
+  display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.pl-modal-footer button{padding:.38rem .85rem;border-radius:var(--r-sm);
+  border:1px solid var(--bdr);cursor:pointer;font-size:.8rem;
+  background:var(--bg2);color:var(--text);transition:background .12s}
+.pl-modal-footer .pl-apply-btn{background:var(--acc);color:#fff;border-color:var(--acc)}
+.pl-modal-footer .pl-apply-btn:hover{opacity:.88}
+.pl-filter-btn{position:relative}
+.pl-active-badge{background:var(--acc);color:#fff;border-radius:50%;
+  width:17px;height:17px;font-size:.6rem;display:inline-flex;
+  align-items:center;justify-content:center;font-weight:700;
+  vertical-align:middle;margin-left:.25rem}
 """
 
 JS = r"""
@@ -1955,7 +2003,8 @@ function filterTracks(){
     var recOk=recebidoFilter==='all'||(recebidoFilter==='sim'&&r.dataset.recebido==='Sim')||(recebidoFilter==='nao'&&r.dataset.recebido!=='Sim');
     var inctype=r.dataset.inctype||'';
     var incOk=!incFilterActive||(inctype==='nosp'||inctype==='nobpm'||inctype==='both');
-    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk&&djOk&&paOk&&recOk&&incOk;
+    var plOk=activePlaylists.size===0||(r.dataset.playlists||'').split('|').some(function(p){return p&&activePlaylists.has(p);});
+    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk&&djOk&&paOk&&recOk&&incOk&&plOk;
     r.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-faixas').textContent=vis;
@@ -2050,9 +2099,50 @@ function loadDeezerEmbed(el,did){
   _doEmbed(el,iframe);
 }
 
+// ── PLAYLIST FILTER MODAL ────────────────────────────────────────────────────
+var activePlaylists=new Set();
+function openPlModal(){
+  document.getElementById('pl-modal').classList.add('open');
+  document.getElementById('pl-search').value='';
+  _renderPlList('');
+  setTimeout(function(){document.getElementById('pl-search').focus();},120);
+}
+function closePlModal(){document.getElementById('pl-modal').classList.remove('open');}
+function _renderPlList(q){
+  var items=SP_PLAYLISTS.filter(function(p){
+    return !q||p.toLowerCase().indexOf(q.toLowerCase())!==-1;
+  });
+  var html=items.map(function(p){
+    var chk=activePlaylists.has(p)?' checked':'';
+    var pid='plck_'+p.replace(/[^a-z0-9]/gi,'_');
+    return '<div class="pl-modal-item" onclick="event.stopPropagation()">'
+      +'<input type="checkbox" id="'+pid+'"'+chk+' onchange="_togPl(this,\''+p.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
+      +'<label for="'+pid+'">'+p+'</label>'
+      +'</div>';
+  }).join('');
+  document.getElementById('pl-list').innerHTML=html
+    ||'<div style="padding:.6rem;font-size:.8rem;color:var(--text3)">Nenhuma playlist encontrada</div>';
+}
+function _togPl(cb,name){if(cb.checked)activePlaylists.add(name);else activePlaylists.delete(name);}
+function applyPlFilter(){closePlModal();_updatePlBadge();filterTracks();}
+function clearPlFilter(){activePlaylists.clear();_updatePlBadge();filterTracks();}
+function _updatePlBadge(){
+  var n=activePlaylists.size;
+  var b=document.getElementById('pl-badge');
+  if(b){b.textContent=n;b.style.display=n?'inline-flex':'none';}
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var m=document.getElementById('pl-modal');
+  if(m){
+    m.addEventListener('click',function(e){if(e.target===this)closePlModal();});
+    document.getElementById('pl-search').addEventListener('input',function(){_renderPlList(this.value);});
+  }
+});
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
-var t1;document.getElementById('q-lp').addEventListener('input',function(){searchQuery=this.value;clearTimeout(t1);t1=setTimeout(filterLP,200)});
-var t2;document.getElementById('q-faixas').addEventListener('input',function(){searchQuery=this.value;clearTimeout(t2);t2=setTimeout(filterTracks,200)});
+var _debMs='ontouchstart' in window?350:200;
+var t1;document.getElementById('q-lp').addEventListener('input',function(){searchQuery=this.value;clearTimeout(t1);t1=setTimeout(filterLP,_debMs)});
+var t2;document.getElementById('q-faixas').addEventListener('input',function(){searchQuery=this.value;clearTimeout(t2);t2=setTimeout(filterTracks,_debMs)});
 document.getElementById('cnt-lp').textContent=document.querySelectorAll('#grid-lp .album-card').length;
 document.getElementById('cnt-faixas').textContent=document.querySelectorAll('#grid-faixas .track-row').length;
 // Populate incomplete count on load (don't render yet)
@@ -3374,7 +3464,7 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
 </article>'''
 
 
-def render_track_row(row, country="", color_pastel="", format_data=None, origem="", dj="", recebido="", pa="", notas=""):
+def render_track_row(row, country="", color_pastel="", format_data=None, origem="", dj="", recebido="", pa="", notas="", uri_to_playlists=None):
     """Renderiza uma linha de faixa (Track view)."""
     format_info = format_data or {}
     bpm_f     = safe_float(row.get("bpm"))
@@ -3485,7 +3575,9 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
         f'{row.get("track_title","")} {row.get("artist_clean","")} '
         f'{row.get("album_title","")} {country} {genres_s} {styles_s} {year_s} {fmt_label}'.lower()
     )
-    artist_str = html_module.escape(str(row.get("artist_clean") or ""))
+    artist_str  = html_module.escape(str(row.get("artist_clean") or ""))
+    _uri_key    = str(row.get("spotify_uri") or "").strip()
+    playlists_s = html_module.escape("|".join((uri_to_playlists or {}).get(_uri_key, [])))
 
     return f'''<div class="track-row"{row_style}
   data-bpm="{bpm_int}" data-hasbpm="{has_bpm}" data-hasspotify="{has_spotify}"
@@ -3494,7 +3586,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
   data-search="{search_str}" data-artist="{artist_str}"
   data-country="{esc(country_key)}" data-decade="{decade_key}"
   data-compilation="{fmt_is_compil}" data-format="{esc(fmt_size)}"
-  data-origem="{esc(origem_val)}"
+  data-origem="{esc(origem_val)}" data-playlists="{playlists_s}"
   onclick="toggleDetails(this)">
   {bpm_el}
   {img_tag}
@@ -3734,6 +3826,19 @@ def generate_html(df):
         for rid, g in _sorted_groups
     )
 
+    # ── Playlist map (track URI → lista de playlists do Spotify) ────────────
+    import json as _json
+    _pl_map_path = WORK_DIR / "backup_playlist_map.json"
+    _uri_to_playlists: dict = {}
+    _all_playlist_names: list = []
+    if _pl_map_path.exists():
+        try:
+            _pl_data = _json.loads(_pl_map_path.read_text(encoding="utf-8"))
+            _uri_to_playlists   = _pl_data.get("uri_to_playlists", {})
+            _all_playlist_names = _pl_data.get("playlist_names", [])
+        except Exception:
+            pass
+
     # ── Track view: sorted by BPM (deduplica cópias) ─────────────────────────
     df_tracks = df.drop_duplicates(subset=["release_id","position"]).copy()
     df_tracks["_bpm_sort"] = df_tracks["bpm"].apply(
@@ -3743,20 +3848,29 @@ def generate_html(df):
     tracks_html = "\n".join(
         render_track_row(
             r,
-            country      = country_map.get(str(r.get("release_id","")), ""),
-            color_pastel = colors_map.get(str(r.get("release_id","")), ""),
-            format_data  = format_map.get(str(r.get("release_id","")), {}),
-            origem       = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("Origem", ""),
-            dj           = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("DJ", ""),
-            recebido     = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("Recebido?", ""),
-            pa           = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("PA", ""),
-            notas        = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("Notas", ""),
+            country        = country_map.get(str(r.get("release_id","")), ""),
+            color_pastel   = colors_map.get(str(r.get("release_id","")), ""),
+            format_data    = format_map.get(str(r.get("release_id","")), {}),
+            origem         = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("Origem", ""),
+            dj             = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("DJ", ""),
+            recebido       = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("Recebido?", ""),
+            pa             = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("PA", ""),
+            notas          = (instances_map.get(str(r.get("release_id","")), [{}]) or [{}])[0].get("Notas", ""),
+            uri_to_playlists = _uri_to_playlists,
         )
         for _, r in df_tracks.iterrows()
     )
 
+    sp_playlists_js = _json.dumps(_all_playlist_names, ensure_ascii=False)
+    pl_btn_html = (
+        '<button class="filter-toggle-btn pl-filter-btn" id="pl-filter-btn" '
+        'onclick="openPlModal()" title="Filtrar por playlist Spotify">'
+        '&#127926; Playlist'
+        '<span class="pl-active-badge" id="pl-badge" style="display:none">0</span>'
+        '</button>'
+    ) if _all_playlist_names else ''
+
     # ── Spotify track IDs for random start ───────────────────────────────────
-    import json as _json
     _sp_accepted = df_tracks[df_tracks["status"] == "ACEITO"]["track_id"].dropna()
     sp_track_ids_js = _json.dumps([
         str(t) for t in _sp_accepted if str(t) not in ("", "nan", "None")
@@ -4097,6 +4211,7 @@ def generate_html(df):
         <option value="bpm-desc" id="opt-bpm-desc">BPM &#9662;</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-faixas" onclick="toggleFilterPanel('faixas')">{_SVG_FILTER_LINES} Filtros &#9662;</button>
+      {pl_btn_html}
       <button class="preview-toggle-btn" onclick="togglePreviewPublic()" title="Visualizar como p&#250;blico">&#128065;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
       <button class="sync-btn" onclick="triggerSync(this)" title="Sincronizar agora">&#8635;</button>
@@ -4133,7 +4248,24 @@ def generate_html(df):
 </button>
 
 <footer class="site-credits">BPM data by <a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM</a></footer>
-<script>var STORY_IMAGES={story_json};var SP_TRACK_IDS={sp_track_ids_js};</script>
+
+<!-- ═══ PLAYLIST FILTER MODAL ═══ -->
+<div id="pl-modal" class="pl-modal">
+  <div class="pl-modal-box">
+    <div class="pl-modal-hdr">
+      <span>&#127926; Filtrar por playlist Spotify</span>
+      <button onclick="closePlModal()" title="Fechar">&#10005;</button>
+    </div>
+    <input class="pl-modal-search" id="pl-search" type="search" placeholder="Buscar playlist...">
+    <div class="pl-modal-list" id="pl-list"></div>
+    <div class="pl-modal-footer">
+      <button onclick="clearPlFilter()">Limpar tudo</button>
+      <button class="pl-apply-btn" onclick="applyPlFilter()">Aplicar &#10003;</button>
+    </div>
+  </div>
+</div>
+
+<script>var STORY_IMAGES={story_json};var SP_TRACK_IDS={sp_track_ids_js};var SP_PLAYLISTS={sp_playlists_js};</script>
 <script>{JS}</script>
 </body>
 </html>"""
