@@ -2074,38 +2074,43 @@ function toggleDetails(row){
   if(d)d.classList.toggle('open');
 }
 
-// ── EMBED ──────────────────────────────────────────────────────────────────────
+// ── PLAYER INFERIOR UNIFICADO ─────────────────────────────────────────────────
+function playInBottomPlayer(tid){
+  var wrap=document.getElementById('sp-player-wrap');
+  if(!wrap)return;
+  if(_spHidden){
+    _spHidden=false;wrap.classList.remove('sp-hidden');
+    document.querySelectorAll('.sp-expand-btn').forEach(function(b){b.style.display='none';});
+    setTimeout(updateSpPlayerPadding,350);
+  }
+  var card=wrap.querySelector('.sp-player-card');
+  if(!card)return;
+  var src='https://open.spotify.com/embed/track/'+tid+'?utm_source=generator&autoplay=1&theme=0';
+  var fr=card.querySelector('iframe');
+  if(fr){fr.src=src;}
+  else{
+    fr=document.createElement('iframe');
+    fr.src=src;
+    fr.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+    card.appendChild(fr);
+    setTimeout(updateSpPlayerPadding,500);
+  }
+  card.style.transition='box-shadow .15s';
+  card.style.boxShadow='0 0 0 2px var(--acc)';
+  setTimeout(function(){card.style.boxShadow='';card.style.transition='';},700);
+}
+// Deezer permanece inline (fallback raro sem URI Spotify)
 function _doEmbed(el,iframe){
   var trackRow=el.closest('.track-row');
   var trackLp=el.closest('.track');
-  // Toggle: if embed already present in same context, remove it
-  if(trackRow){
-    var existing=trackRow.querySelector('.embed-below');
-    if(existing){existing.remove();return;}
-  }else if(trackLp){
-    var sib=trackLp.nextSibling;
-    if(sib&&sib.classList&&sib.classList.contains('embed-below')){sib.remove();return;}
-  }
-  var w=document.createElement('div');w.className='embed-below';
-  w.appendChild(iframe);
-  if(trackRow){
-    var details=trackRow.querySelector('.c-details');
-    if(details){details.classList.add('open');details.appendChild(w);}
-    else{trackRow.appendChild(w);}
-  }else if(trackLp){
-    trackLp.parentNode.insertBefore(w,trackLp.nextSibling);
-  }else{
-    el.parentNode.replaceChild(iframe,el);return;
-  }
+  if(trackRow){var ex=trackRow.querySelector('.embed-below');if(ex){ex.remove();return;}}
+  else if(trackLp){var sib=trackLp.nextSibling;if(sib&&sib.classList&&sib.classList.contains('embed-below')){sib.remove();return;}}
+  var w=document.createElement('div');w.className='embed-below';w.appendChild(iframe);
+  if(trackRow){var det=trackRow.querySelector('.c-details');if(det){det.classList.add('open');det.appendChild(w);}else trackRow.appendChild(w);}
+  else if(trackLp){trackLp.parentNode.insertBefore(w,trackLp.nextSibling);}
+  else{el.parentNode.replaceChild(iframe,el);}
 }
-function loadEmbed(el,tid){
-  var iframe=document.createElement('iframe');
-  iframe.src='https://open.spotify.com/embed/track/'+tid+'?utm_source=generator&autoplay=1';
-  iframe.width='100%';iframe.height='80';iframe.frameBorder='0';
-  iframe.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
-  iframe.className='sp-embed';
-  _doEmbed(el,iframe);
-}
+function loadEmbed(el,tid){playInBottomPlayer(tid);}
 function loadDeezerEmbed(el,did){
   var iframe=document.createElement('iframe');
   iframe.src='https://widget.deezer.com/widget/light/track/'+did+'?autoplay=true';
@@ -2264,21 +2269,26 @@ async function _spToken(){
   }
   return null;
 }
-function _countActiveFilters(){
-  var n=0;
-  var qEl=document.getElementById('q-faixas');
-  if(qEl&&qEl.value.trim())n++;
-  if(activePlaylists.size>0)n++;
-  if(activeBpmFilter&&activeBpmFilter.size>0)n++;
-  if(typeof nacionalFilter!=='undefined'&&nacionalFilter!=='all')n++;
-  if(typeof decadeFilter!=='undefined'&&decadeFilter.size>0)n++;
-  if(typeof compilFilter!=='undefined'&&compilFilter!=='all')n++;
-  if(typeof origemFilter!=='undefined'&&origemFilter.size>0)n++;
-  if(typeof djFilter!=='undefined'&&djFilter!=='all')n++;
-  if(typeof paFilter!=='undefined'&&paFilter!=='all')n++;
-  if(typeof recebidoFilter!=='undefined'&&recebidoFilter!=='all')n++;
-  if(typeof incFilterActive!=='undefined'&&incFilterActive)n++;
-  return n;
+function _spDescribeFilters(){
+  var parts=[];
+  var q=((document.getElementById('q-faixas')||{}).value||'').trim();
+  if(q)parts.push('Busca: "'+q+'"');
+  if(activePlaylists.size>0)parts.push('Playlist: '+Array.from(activePlaylists).join(', '));
+  if(typeof activeBpmFilter!=='undefined'&&activeBpmFilter&&activeBpmFilter.size>0)
+    parts.push('BPM '+Array.from(activeBpmFilter).join('/'));
+  if(typeof nacionalFilter!=='undefined'&&nacionalFilter==='nacional')parts.push('Nacional');
+  if(typeof nacionalFilter!=='undefined'&&nacionalFilter==='internacional')parts.push('Internacional');
+  if(typeof decadeFilter!=='undefined'&&decadeFilter.size>0)
+    parts.push('Década: '+Array.from(decadeFilter).join(', '));
+  if(typeof compilFilter!=='undefined'&&compilFilter==='comp')parts.push('Compilações');
+  if(typeof compilFilter!=='undefined'&&compilFilter==='nocomp')parts.push('Sem compilações');
+  if(typeof origemFilter!=='undefined'&&origemFilter.size>0)
+    parts.push('Origem: '+Array.from(origemFilter).join(', '));
+  if(typeof djFilter!=='undefined'&&djFilter==='yes')parts.push('Para discotecar');
+  if(typeof paFilter!=='undefined'&&paFilter==='yes')parts.push('PA');
+  if(typeof recebidoFilter!=='undefined'&&recebidoFilter==='sim')parts.push('Recebido');
+  if(typeof incFilterActive!=='undefined'&&incFilterActive)parts.push('Incompletas');
+  return parts.length?parts.join(' · '):'sem filtros';
 }
 function _spCollectUris(){
   var rows=Array.from(document.querySelectorAll('#grid-faixas .track-row:not(.hidden)'));
@@ -2291,7 +2301,7 @@ async function createSpotifyPlaylist(){
   var uris=_spCollectUris();
   if(!uris.length){_spToast('Nenhuma faixa Spotify visível.');return;}
   localStorage.setItem('_sp_pending',JSON.stringify(uris));
-  localStorage.setItem('_sp_pending_nf',_countActiveFilters());
+  localStorage.setItem('_sp_pending_desc',_spDescribeFilters());
   var tok=await _spToken();
   if(!tok){await _spAuth();return;}
   _spShowNameDialog(uris);
@@ -2316,21 +2326,19 @@ async function _spConfirmCreate(){
   if(!name)return;
   var uris=(nm&&nm._uris)||JSON.parse(localStorage.getItem('_sp_pending')||'[]');
   if(!uris.length)return;
-  var nf=parseInt(localStorage.getItem('_sp_pending_nf')||'0');
-  await _spDoCreate(name,uris,nf);
+  var filterDesc=localStorage.getItem('_sp_pending_desc')||'sem filtros';
+  await _spDoCreate(name,uris,filterDesc);
 }
-async function _spDoCreate(name,uris,nFilters){
+async function _spDoCreate(name,uris,filterDesc){
   var tok=await _spToken();
   if(!tok){_spToast('Sessão Spotify expirada — clique + novamente.');return;}
   var meR=await fetch('https://api.spotify.com/v1/me',{headers:{Authorization:'Bearer '+tok}});
-  if(!meR.ok){localStorage.removeItem('_sp_tok');_spToast('Erro auth Spotify — clique + para reautorizar.');return;}
+  if(!meR.ok){localStorage.removeItem('_sp_tok');_spToast('Erro auth — clique + para reautorizar.');return;}
   var me=await meR.json();
   var d=new Date();
   var dt=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'})
     +' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  var nf=nFilters||0;
-  var desc='Playlist exportada no Discos do Amsa · '+dt+', utilizando '
-    +nf+' filtro'+(nf===1?'':'s');
+  var desc='Playlist exportada no Discos do Amsa · '+dt+' · Filtros: '+(filterDesc||'sem filtros');
   var crR=await fetch('https://api.spotify.com/v1/users/'+me.id+'/playlists',{
     method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},
     body:JSON.stringify({name:name,public:false,description:desc})});
@@ -2342,21 +2350,25 @@ async function _spDoCreate(name,uris,nFilters){
       method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},
       body:JSON.stringify({uris:uris.slice(i,i+100)})});
   }
+  // Capa via canvas (resize para 300x300 JPEG < 256 KB)
   try{
-    var imgR=await fetch('https://amsa2diop.github.io/colecaovinil/preview.jpg');
-    if(imgR.ok){
-      var blob=await imgR.blob();
-      var fr=new FileReader();
-      fr.onload=async function(){
-        var b64=fr.result.split(',')[1];
-        await fetch('https://api.spotify.com/v1/playlists/'+pl.id+'/images',{
-          method:'PUT',headers:{Authorization:'Bearer '+tok,'Content-Type':'image/jpeg'},body:b64});
-      };
-      fr.readAsDataURL(blob);
-    }
+    var img=new Image();img.crossOrigin='anonymous';
+    img.onload=function(){
+      var c=document.createElement('canvas');c.width=300;c.height=300;
+      var ctx=c.getContext('2d');
+      // Crop quadrado centralizado
+      var s=Math.min(img.width,img.height);
+      var ox=(img.width-s)/2,oy=(img.height-s)/2;
+      ctx.drawImage(img,ox,oy,s,s,0,0,300,300);
+      var b64=c.toDataURL('image/jpeg',0.82).split(',')[1];
+      fetch('https://api.spotify.com/v1/playlists/'+pl.id+'/images',{
+        method:'PUT',headers:{Authorization:'Bearer '+tok,'Content-Type':'image/jpeg'},body:b64})
+      .then(function(r){if(!r.ok&&r.status===403)_spToast('Capa: re-autorize o Spotify (clique + novamente).');});
+    };
+    img.src='https://amsa2diop.github.io/colecaovinil/preview.jpg?t='+Date.now();
   }catch(e){}
   localStorage.removeItem('_sp_pending');
-  localStorage.removeItem('_sp_pending_nf');
+  localStorage.removeItem('_sp_pending_desc');
   _spToast('✓ "'+name+'" criada com '+uris.length+' faixas!',5000);
 }
 function _spToast(msg,ms){
@@ -3127,7 +3139,7 @@ def render_track_lp(row):
     ouvir_btn = ""
     if uri and uri != "nan" and "spotify" in uri and status == "ACEITO":
         sp_tid = uri.split(":")[-1]
-        ouvir_btn = f'<div class="trk-btn trk-ouvir-btn" onclick="loadEmbed(this,\'{sp_tid}\')">&#9654; Ouvir</div>'
+        ouvir_btn = f'<div class="trk-btn trk-ouvir-btn" onclick="playInBottomPlayer(\'{sp_tid}\')">&#9654; Ouvir</div>'
     elif deezer_id:
         ouvir_btn = f'<div class="trk-btn trk-ouvir-btn" onclick="loadDeezerEmbed(this,\'{deezer_id}\')">&#9654; Ouvir</div>'
 
@@ -3796,8 +3808,8 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
 
     if uri and "spotify" in uri and status == "ACEITO":
         tid = uri.split(":")[-1]
-        play_btn = (f'<button class="ic-btn" title="Ouvir" '
-                    f'onclick="event.stopPropagation();loadEmbed(this,\'{tid}\')">'
+        play_btn = (f'<button class="ic-btn" title="Ouvir no player" '
+                    f'onclick="event.stopPropagation();playInBottomPlayer(\'{tid}\')">'
                     f'{_SVG_PLAY_IC}</button>')
     elif deezer_id:
         play_btn = (f'<button class="ic-btn" title="Ouvir Deezer" '
