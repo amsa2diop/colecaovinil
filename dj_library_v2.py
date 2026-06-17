@@ -1689,7 +1689,7 @@ body.is-owner .glb-stats .owner-only{display:inline!important}
 .sp-expand-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
 
 /* ── PLAYLIST FILTER MODAL ─────────────────────────────────────────────────── */
-.pl-modal{position:fixed;inset:0;z-index:9200;background:rgba(0,0,0,.52);
+.pl-modal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.52);
   display:flex;align-items:center;justify-content:center;
   opacity:0;pointer-events:none;transition:opacity .18s}
 .pl-modal.open{opacity:1;pointer-events:all}
@@ -1718,11 +1718,18 @@ body.is-owner .glb-stats .owner-only{display:inline!important}
   background:var(--bg2);color:var(--text);transition:background .12s}
 .pl-modal-footer .pl-apply-btn{background:var(--acc);color:#fff;border-color:var(--acc)}
 .pl-modal-footer .pl-apply-btn:hover{opacity:.88}
-.pl-filter-btn{position:relative}
+.pl-filter-btn{position:relative;display:none}
+body.is-owner .pl-filter-btn{display:inline-flex}
 .pl-active-badge{background:var(--acc);color:#fff;border-radius:50%;
   width:17px;height:17px;font-size:.6rem;display:inline-flex;
   align-items:center;justify-content:center;font-weight:700;
   vertical-align:middle;margin-left:.25rem}
+.sp-create-pl-btn{display:none;align-items:center;justify-content:center;
+  width:30px;height:30px;min-width:30px;padding:0;border-radius:50%;
+  background:#1DB954;color:#fff;border:none;cursor:pointer;
+  font-size:1.3rem;font-weight:700;line-height:1;flex-shrink:0}
+.sp-create-pl-btn:hover{opacity:.82}
+body.is-owner .sp-create-pl-btn{display:inline-flex}
 """
 
 JS = r"""
@@ -2112,6 +2119,10 @@ function _renderPlList(q){
   var items=SP_PLAYLISTS.filter(function(p){
     return !q||p.toLowerCase().indexOf(q.toLowerCase())!==-1;
   });
+  items.sort(function(a,b){
+    var ac=activePlaylists.has(a)?0:1,bc=activePlaylists.has(b)?0:1;
+    return ac-bc;
+  });
   var html=items.map(function(p){
     var chk=activePlaylists.has(p)?' checked':'';
     var pid='plck_'+p.replace(/[^a-z0-9]/gi,'_');
@@ -2138,6 +2149,118 @@ document.addEventListener('DOMContentLoaded',function(){
     document.getElementById('pl-search').addEventListener('input',function(){_renderPlList(this.value);});
   }
 });
+
+// ── SPOTIFY CREATE PLAYLIST (owner-only, PKCE) ───────────────────────────────
+var _SP_CID='1ab6d898c52d42a19b737f451ce31e2a';
+var _SP_REDIR=(function(){var u=window.location.href.split('?')[0].split('#')[0];return u.endsWith('/')?u:u+'/';})();
+var _SP_SCOPE='playlist-modify-private';
+
+function _spRandStr(n){
+  var a=new Uint8Array(n);crypto.getRandomValues(a);
+  return btoa(String.fromCharCode.apply(null,a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'').slice(0,n);
+}
+async function _spChallenge(v){
+  var d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));
+  return btoa(String.fromCharCode.apply(null,new Uint8Array(d))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+async function _spAuth(){
+  var v=_spRandStr(64);localStorage.setItem('_sp_v',v);
+  var c=await _spChallenge(v);
+  var p=new URLSearchParams({response_type:'code',client_id:_SP_CID,scope:_SP_SCOPE,
+    redirect_uri:_SP_REDIR,code_challenge_method:'S256',code_challenge:c,state:'cpl'});
+  window.location.href='https://accounts.spotify.com/authorize?'+p;
+}
+async function _spExchange(code){
+  var r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:new URLSearchParams({client_id:_SP_CID,grant_type:'authorization_code',
+      code:code,redirect_uri:_SP_REDIR,code_verifier:localStorage.getItem('_sp_v')})});
+  var d=await r.json();
+  if(d.access_token){
+    localStorage.setItem('_sp_tok',d.access_token);
+    localStorage.setItem('_sp_exp',Date.now()+(d.expires_in||3600)*1000);
+    if(d.refresh_token)localStorage.setItem('_sp_ref',d.refresh_token);
+  }
+  return d;
+}
+async function _spToken(){
+  var tok=localStorage.getItem('_sp_tok'),exp=parseInt(localStorage.getItem('_sp_exp')||'0');
+  if(tok&&Date.now()<exp-60000)return tok;
+  var ref=localStorage.getItem('_sp_ref');
+  if(ref){
+    var r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:new URLSearchParams({client_id:_SP_CID,grant_type:'refresh_token',refresh_token:ref})});
+    var d=await r.json();
+    if(d.access_token){
+      localStorage.setItem('_sp_tok',d.access_token);
+      localStorage.setItem('_sp_exp',Date.now()+(d.expires_in||3600)*1000);
+      if(d.refresh_token)localStorage.setItem('_sp_ref',d.refresh_token);
+      return d.access_token;
+    }
+  }
+  return null;
+}
+async function createSpotifyPlaylist(){
+  if(!document.body.classList.contains('is-owner'))return;
+  var tok=await _spToken();
+  if(!tok){await _spAuth();return;}
+
+  var rows=Array.from(document.querySelectorAll('#grid-faixas .track-row:not(.hidden)'));
+  var uriRows=rows.filter(function(r){
+    var u=r.dataset.uri||'';return u.startsWith('spotify:track:');
+  });
+  uriRows.sort(function(a,b){return (parseFloat(a.dataset.bpm)||0)-(parseFloat(b.dataset.bpm)||0);});
+  var uris=uriRows.map(function(r){return r.dataset.uri;});
+
+  if(!uris.length){_spToast('Nenhuma faixa Spotify visível para criar playlist.');return;}
+
+  var meR=await fetch('https://api.spotify.com/v1/me',{headers:{Authorization:'Bearer '+tok}});
+  if(!meR.ok){localStorage.removeItem('_sp_tok');createSpotifyPlaylist();return;}
+  var me=await meR.json();
+
+  var now=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+  var parts=[];
+  if(activePlaylists.size>0)parts.push(Array.from(activePlaylists).slice(0,2).join(' + '));
+  parts.push('Vinil · '+now);
+  var name=parts.join(' – ');
+  var desc='Discos do Amsa · '+uris.length+' faixas por BPM';
+
+  var crR=await fetch('https://api.spotify.com/v1/users/'+me.id+'/playlists',{
+    method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},
+    body:JSON.stringify({name:name,public:false,description:desc})});
+  if(!crR.ok){_spToast('Erro ao criar playlist Spotify :(');return;}
+  var pl=await crR.json();
+
+  for(var i=0;i<uris.length;i+=100){
+    await fetch('https://api.spotify.com/v1/playlists/'+pl.id+'/tracks',{
+      method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},
+      body:JSON.stringify({uris:uris.slice(i,i+100)})});
+  }
+  _spToast('✓ "'+name+'" criada com '+uris.length+' faixas!',4000);
+}
+function _spToast(msg,ms){
+  var t=document.getElementById('sp-pl-toast');
+  if(!t){t=document.createElement('div');t.id='sp-pl-toast';
+    t.style.cssText='position:fixed;bottom:88px;left:50%;transform:translateX(-50%);'+
+      'background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);'+
+      'padding:.55rem 1rem;font-size:.82rem;z-index:100000;box-shadow:var(--shadow);'+
+      'color:var(--text);pointer-events:none;max-width:90vw;text-align:center';
+    document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._tid);t._tid=setTimeout(function(){t.style.opacity='0';},ms||2500);
+}
+(function(){
+  var p=new URLSearchParams(window.location.search);
+  var code=p.get('code'),state=p.get('state');
+  if(code&&state==='cpl'){
+    history.replaceState({},'',window.location.pathname);
+    _spExchange(code).then(function(d){
+      if(d.access_token)createSpotifyPlaylist();
+      else _spToast('Erro auth Spotify: '+(d.error||'?'));
+    });
+  }
+})();
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 var _debMs='ontouchstart' in window?350:200;
@@ -3586,7 +3709,7 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
   data-search="{search_str}" data-artist="{artist_str}"
   data-country="{esc(country_key)}" data-decade="{decade_key}"
   data-compilation="{fmt_is_compil}" data-format="{esc(fmt_size)}"
-  data-origem="{esc(origem_val)}" data-playlists="{playlists_s}"
+  data-origem="{esc(origem_val)}" data-playlists="{playlists_s}" data-uri="{html_module.escape(_uri_key)}"
   onclick="toggleDetails(this)">
   {bpm_el}
   {img_tag}
@@ -3862,13 +3985,31 @@ def generate_html(df):
     )
 
     sp_playlists_js = _json.dumps(_all_playlist_names, ensure_ascii=False)
+    _sp_icon_btn = (
+        '<svg viewBox="0 0 24 24" width="14" height="14" fill="#1DB954" style="flex-shrink:0">'
+        '<path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0z'
+        'M17.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141'
+        '-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6'
+        ' 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3'
+        '-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48'
+        '.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2z'
+        'M19.08 10.62C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721'
+        '-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719'
+        ' 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>'
+    )
     pl_btn_html = (
         '<button class="filter-toggle-btn pl-filter-btn" id="pl-filter-btn" '
         'onclick="openPlModal()" title="Filtrar por playlist Spotify">'
-        '&#127926; Playlist'
+        + _sp_icon_btn +
+        ' Playlist'
         '<span class="pl-active-badge" id="pl-badge" style="display:none">0</span>'
         '</button>'
-    ) if _all_playlist_names else ''
+        '<button class="sp-create-pl-btn" onclick="createSpotifyPlaylist()" '
+        'title="Criar playlist Spotify das faixas visíveis (por BPM)">+</button>'
+    ) if _all_playlist_names else (
+        '<button class="sp-create-pl-btn" onclick="createSpotifyPlaylist()" '
+        'title="Criar playlist Spotify das faixas visíveis (por BPM)">+</button>'
+    )
 
     # ── Spotify track IDs for random start ───────────────────────────────────
     _sp_accepted = df_tracks[df_tracks["status"] == "ACEITO"]["track_id"].dropna()
