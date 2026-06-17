@@ -1718,6 +1718,14 @@ body.is-owner .glb-stats .owner-only{display:inline!important}
   background:var(--bg2);color:var(--text);transition:background .12s}
 .pl-modal-footer .pl-apply-btn{background:var(--acc);color:#fff;border-color:var(--acc)}
 .pl-modal-footer .pl-apply-btn:hover{opacity:.88}
+.pl-folder-hdr{display:flex;align-items:center;gap:.4rem;padding:.38rem .85rem;
+  cursor:pointer;font-size:.78rem;font-weight:600;color:var(--text2);
+  user-select:none;border-radius:var(--r-sm)}
+.pl-folder-hdr:hover{background:var(--bg2)}
+.pl-folder-arrow{font-size:.65rem;width:10px;flex-shrink:0;color:var(--text3)}
+.pl-folder-name{flex:1}
+.pl-folder-items{padding-left:.85rem}
+.pl-folder-sep{height:1px;background:var(--bdr);margin:.3rem .85rem}
 .pl-filter-btn{position:relative;display:none}
 body.is-owner .pl-filter-btn{display:inline-flex}
 .pl-active-badge{background:var(--acc);color:#fff;border-radius:50%;
@@ -1725,10 +1733,11 @@ body.is-owner .pl-filter-btn{display:inline-flex}
   align-items:center;justify-content:center;font-weight:700;
   vertical-align:middle;margin-left:.25rem}
 .sp-create-pl-btn{display:none;align-items:center;justify-content:center;
-  width:30px;height:30px;min-width:30px;padding:0;border-radius:50%;
-  background:#1DB954;color:#fff;border:none;cursor:pointer;
-  font-size:1.3rem;font-weight:700;line-height:1;flex-shrink:0}
-.sp-create-pl-btn:hover{opacity:.82}
+  width:34px;height:34px;border-radius:20px;
+  border:1px solid var(--bdr);background:var(--bg2);
+  cursor:pointer;font-size:1rem;font-weight:600;flex-shrink:0;
+  transition:background .15s,color .15s,border-color .15s;color:var(--text3)}
+.sp-create-pl-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
 body.is-owner .sp-create-pl-btn{display:inline-flex}
 """
 
@@ -2115,7 +2124,17 @@ function openPlModal(){
   setTimeout(function(){document.getElementById('pl-search').focus();},120);
 }
 function closePlModal(){document.getElementById('pl-modal').classList.remove('open');}
+function _plItemHtml(p){
+  var chk=activePlaylists.has(p)?' checked':'';
+  var pid='plck_'+p.replace(/[^a-z0-9]/gi,'_');
+  return '<div class="pl-modal-item" onclick="event.stopPropagation()">'
+    +'<input type="checkbox" id="'+pid+'"'+chk+' onchange="_togPl(this,\''+p.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
+    +'<label for="'+pid+'">'+p+'</label>'
+    +'</div>';
+}
 function _renderPlList(q){
+  var hasFolders=SP_FOLDERS&&Object.keys(SP_FOLDERS).length>0;
+  if(hasFolders&&!q){_renderPlListFolders();return;}
   var items=SP_PLAYLISTS.filter(function(p){
     return !q||p.toLowerCase().indexOf(q.toLowerCase())!==-1;
   });
@@ -2123,16 +2142,53 @@ function _renderPlList(q){
     var ac=activePlaylists.has(a)?0:1,bc=activePlaylists.has(b)?0:1;
     return ac-bc;
   });
-  var html=items.map(function(p){
-    var chk=activePlaylists.has(p)?' checked':'';
-    var pid='plck_'+p.replace(/[^a-z0-9]/gi,'_');
-    return '<div class="pl-modal-item" onclick="event.stopPropagation()">'
-      +'<input type="checkbox" id="'+pid+'"'+chk+' onchange="_togPl(this,\''+p.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
-      +'<label for="'+pid+'">'+p+'</label>'
-      +'</div>';
-  }).join('');
+  var html=items.map(_plItemHtml).join('');
   document.getElementById('pl-list').innerHTML=html
     ||'<div style="padding:.6rem;font-size:.8rem;color:var(--text3)">Nenhuma playlist encontrada</div>';
+}
+function _renderPlListFolders(){
+  var covered=new Set();
+  var html='';
+  Object.keys(SP_FOLDERS).forEach(function(folder){
+    var pls=SP_FOLDERS[folder].filter(function(p){return SP_PLAYLISTS.indexOf(p)!==-1;});
+    if(!pls.length)return;
+    pls.forEach(function(p){covered.add(p);});
+    pls.sort(function(a,b){var ac=activePlaylists.has(a)?0:1,bc=activePlaylists.has(b)?0:1;return ac-bc;});
+    var nSel=pls.filter(function(p){return activePlaylists.has(p);}).length;
+    var open=nSel>0||localStorage.getItem('_plfold_'+folder)==='1';
+    var safeName=folder.replace(/'/g,"\\'");
+    html+='<div class="pl-folder">'
+      +'<div class="pl-folder-hdr" onclick="_togFolder(this,\''+safeName+'\')">'
+      +'<span class="pl-folder-arrow">'+(open?'▼':'▶')+'</span>'
+      +'<span class="pl-folder-name">'+folder+'</span>'
+      +(nSel?'<span class="pl-active-badge" style="margin-left:auto">'+nSel+'</span>':'')
+      +'</div>'
+      +'<div class="pl-folder-items"'+(open?'':' style="display:none"')+'>'
+      +pls.map(_plItemHtml).join('')
+      +'</div></div>';
+  });
+  var others=SP_PLAYLISTS.filter(function(p){return!covered.has(p);});
+  if(others.length){
+    others.sort(function(a,b){var ac=activePlaylists.has(a)?0:1,bc=activePlaylists.has(b)?0:1;return ac-bc;});
+    var othOpen=localStorage.getItem('_plfold___others__')==='1';
+    if(html)html+='<div class="pl-folder-sep"></div>';
+    html+='<div class="pl-folder">'
+      +'<div class="pl-folder-hdr" onclick="_togFolder(this,\'__others__\')">'
+      +'<span class="pl-folder-arrow">'+(othOpen?'▼':'▶')+'</span>'
+      +'<span class="pl-folder-name">Outras</span>'
+      +'</div>'
+      +'<div class="pl-folder-items"'+(othOpen?'':' style="display:none"')+'>'
+      +others.map(_plItemHtml).join('')
+      +'</div></div>';
+  }
+  document.getElementById('pl-list').innerHTML=html||'<div style="padding:.6rem;font-size:.8rem;color:var(--text3)">Sem playlists</div>';
+}
+function _togFolder(el,name){
+  var items=el.nextElementSibling;
+  var open=items.style.display!=='none';
+  items.style.display=open?'none':'';
+  el.querySelector('.pl-folder-arrow').textContent=open?'▶':'▼';
+  localStorage.setItem('_plfold_'+name,open?'0':'1');
 }
 function _togPl(cb,name){if(cb.checked)activePlaylists.add(name);else activePlaylists.delete(name);}
 function applyPlFilter(){closePlModal();_updatePlBadge();filterTracks();}
@@ -2148,12 +2204,18 @@ document.addEventListener('DOMContentLoaded',function(){
     m.addEventListener('click',function(e){if(e.target===this)closePlModal();});
     document.getElementById('pl-search').addEventListener('input',function(){_renderPlList(this.value);});
   }
+  var nm=document.getElementById('sp-name-modal');
+  if(nm){
+    nm.addEventListener('click',function(e){if(e.target===this)nm.classList.remove('open');});
+    var ni=document.getElementById('sp-pl-name');
+    if(ni)ni.addEventListener('keydown',function(e){if(e.key==='Enter')_spConfirmCreate();});
+  }
 });
 
 // ── SPOTIFY CREATE PLAYLIST (owner-only, PKCE) ───────────────────────────────
 var _SP_CID='1ab6d898c52d42a19b737f451ce31e2a';
 var _SP_REDIR=(function(){var u=window.location.href.split('?')[0].split('#')[0];return u.endsWith('/')?u:u+'/';})();
-var _SP_SCOPE='playlist-modify-private';
+var _SP_SCOPE='playlist-modify-private ugc-image-upload';
 
 function _spRandStr(n){
   var a=new Uint8Array(n);crypto.getRandomValues(a);
@@ -2198,46 +2260,104 @@ async function _spToken(){
       if(d.refresh_token)localStorage.setItem('_sp_ref',d.refresh_token);
       return d.access_token;
     }
+    localStorage.removeItem('_sp_ref');
   }
   return null;
 }
+function _countActiveFilters(){
+  var n=0;
+  var qEl=document.getElementById('q-faixas');
+  if(qEl&&qEl.value.trim())n++;
+  if(activePlaylists.size>0)n++;
+  if(activeBpmFilter&&activeBpmFilter.size>0)n++;
+  if(typeof nacionalFilter!=='undefined'&&nacionalFilter!=='all')n++;
+  if(typeof decadeFilter!=='undefined'&&decadeFilter.size>0)n++;
+  if(typeof compilFilter!=='undefined'&&compilFilter!=='all')n++;
+  if(typeof origemFilter!=='undefined'&&origemFilter.size>0)n++;
+  if(typeof djFilter!=='undefined'&&djFilter!=='all')n++;
+  if(typeof paFilter!=='undefined'&&paFilter!=='all')n++;
+  if(typeof recebidoFilter!=='undefined'&&recebidoFilter!=='all')n++;
+  if(typeof incFilterActive!=='undefined'&&incFilterActive)n++;
+  return n;
+}
+function _spCollectUris(){
+  var rows=Array.from(document.querySelectorAll('#grid-faixas .track-row:not(.hidden)'));
+  var uriRows=rows.filter(function(r){return(r.dataset.uri||'').startsWith('spotify:track:');});
+  uriRows.sort(function(a,b){return(parseFloat(a.dataset.bpm)||0)-(parseFloat(b.dataset.bpm)||0);});
+  return uriRows.map(function(r){return r.dataset.uri;});
+}
 async function createSpotifyPlaylist(){
   if(!document.body.classList.contains('is-owner'))return;
+  var uris=_spCollectUris();
+  if(!uris.length){_spToast('Nenhuma faixa Spotify visível.');return;}
+  localStorage.setItem('_sp_pending',JSON.stringify(uris));
+  localStorage.setItem('_sp_pending_nf',_countActiveFilters());
   var tok=await _spToken();
   if(!tok){await _spAuth();return;}
-
-  var rows=Array.from(document.querySelectorAll('#grid-faixas .track-row:not(.hidden)'));
-  var uriRows=rows.filter(function(r){
-    var u=r.dataset.uri||'';return u.startsWith('spotify:track:');
-  });
-  uriRows.sort(function(a,b){return (parseFloat(a.dataset.bpm)||0)-(parseFloat(b.dataset.bpm)||0);});
-  var uris=uriRows.map(function(r){return r.dataset.uri;});
-
-  if(!uris.length){_spToast('Nenhuma faixa Spotify visível para criar playlist.');return;}
-
+  _spShowNameDialog(uris);
+}
+function _spShowNameDialog(uris){
+  var d=new Date();
+  var ds=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+  var defaultName='Exportada no Discos do Amsa ('+ds+')';
+  var inp=document.getElementById('sp-pl-name');
+  if(inp){inp.value=defaultName;inp.select();}
+  var sub=document.getElementById('sp-name-sub');
+  if(sub)sub.textContent=uris.length+' faixas · ordenadas por BPM';
+  var nm=document.getElementById('sp-name-modal');
+  if(nm){nm._uris=uris;nm.classList.add('open');}
+  setTimeout(function(){if(inp)inp.focus();},120);
+}
+async function _spConfirmCreate(){
+  var nm=document.getElementById('sp-name-modal');
+  if(nm)nm.classList.remove('open');
+  var name=(document.getElementById('sp-pl-name')||{}).value||'';
+  name=name.trim();
+  if(!name)return;
+  var uris=(nm&&nm._uris)||JSON.parse(localStorage.getItem('_sp_pending')||'[]');
+  if(!uris.length)return;
+  var nf=parseInt(localStorage.getItem('_sp_pending_nf')||'0');
+  await _spDoCreate(name,uris,nf);
+}
+async function _spDoCreate(name,uris,nFilters){
+  var tok=await _spToken();
+  if(!tok){_spToast('Sessão Spotify expirada — clique + novamente.');return;}
   var meR=await fetch('https://api.spotify.com/v1/me',{headers:{Authorization:'Bearer '+tok}});
-  if(!meR.ok){localStorage.removeItem('_sp_tok');createSpotifyPlaylist();return;}
+  if(!meR.ok){localStorage.removeItem('_sp_tok');_spToast('Erro auth Spotify — clique + para reautorizar.');return;}
   var me=await meR.json();
-
-  var now=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
-  var parts=[];
-  if(activePlaylists.size>0)parts.push(Array.from(activePlaylists).slice(0,2).join(' + '));
-  parts.push('Vinil · '+now);
-  var name=parts.join(' – ');
-  var desc='Discos do Amsa · '+uris.length+' faixas por BPM';
-
+  var d=new Date();
+  var dt=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'})
+    +' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  var nf=nFilters||0;
+  var desc='Playlist exportada no Discos do Amsa · '+dt+', utilizando '
+    +nf+' filtro'+(nf===1?'':'s');
   var crR=await fetch('https://api.spotify.com/v1/users/'+me.id+'/playlists',{
     method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},
     body:JSON.stringify({name:name,public:false,description:desc})});
-  if(!crR.ok){_spToast('Erro ao criar playlist Spotify :(');return;}
+  if(!crR.ok){_spToast('Erro ao criar playlist :(');return;}
   var pl=await crR.json();
-
+  _spToast('Adicionando '+uris.length+' faixas…');
   for(var i=0;i<uris.length;i+=100){
     await fetch('https://api.spotify.com/v1/playlists/'+pl.id+'/tracks',{
       method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},
       body:JSON.stringify({uris:uris.slice(i,i+100)})});
   }
-  _spToast('✓ "'+name+'" criada com '+uris.length+' faixas!',4000);
+  try{
+    var imgR=await fetch('https://amsa2diop.github.io/colecaovinil/preview.jpg');
+    if(imgR.ok){
+      var blob=await imgR.blob();
+      var fr=new FileReader();
+      fr.onload=async function(){
+        var b64=fr.result.split(',')[1];
+        await fetch('https://api.spotify.com/v1/playlists/'+pl.id+'/images',{
+          method:'PUT',headers:{Authorization:'Bearer '+tok,'Content-Type':'image/jpeg'},body:b64});
+      };
+      fr.readAsDataURL(blob);
+    }
+  }catch(e){}
+  localStorage.removeItem('_sp_pending');
+  localStorage.removeItem('_sp_pending_nf');
+  _spToast('✓ "'+name+'" criada com '+uris.length+' faixas!',5000);
 }
 function _spToast(msg,ms){
   var t=document.getElementById('sp-pl-toast');
@@ -2256,8 +2376,11 @@ function _spToast(msg,ms){
   if(code&&state==='cpl'){
     history.replaceState({},'',window.location.pathname);
     _spExchange(code).then(function(d){
-      if(d.access_token)createSpotifyPlaylist();
-      else _spToast('Erro auth Spotify: '+(d.error||'?'));
+      if(d.access_token){
+        var pending=JSON.parse(localStorage.getItem('_sp_pending')||'[]');
+        if(pending.length)_spShowNameDialog(pending);
+        else _spToast('Auth OK — clique + para criar a playlist.');
+      }else _spToast('Erro auth Spotify: '+(d.error||'?'));
     });
   }
 })();
@@ -3954,6 +4077,7 @@ def generate_html(df):
     _pl_map_path = WORK_DIR / "backup_playlist_map.json"
     _uri_to_playlists: dict = {}
     _all_playlist_names: list = []
+    _pl_data: dict = {}
     if _pl_map_path.exists():
         try:
             _pl_data = _json.loads(_pl_map_path.read_text(encoding="utf-8"))
@@ -3985,6 +4109,8 @@ def generate_html(df):
     )
 
     sp_playlists_js = _json.dumps(_all_playlist_names, ensure_ascii=False)
+    _pl_folders: dict = _pl_data.get("playlist_folders", {}) if _pl_map_path.exists() else {}
+    sp_folders_js = _json.dumps(_pl_folders, ensure_ascii=False)
     _sp_icon_btn = (
         '<svg viewBox="0 0 24 24" width="14" height="14" fill="#1DB954" style="flex-shrink:0">'
         '<path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0z'
@@ -4406,7 +4532,26 @@ def generate_html(df):
   </div>
 </div>
 
-<script>var STORY_IMAGES={story_json};var SP_TRACK_IDS={sp_track_ids_js};var SP_PLAYLISTS={sp_playlists_js};</script>
+<div id="sp-name-modal" class="pl-modal">
+  <div class="pl-modal-box" style="width:min(92vw,360px)">
+    <div class="pl-modal-hdr">
+      <span>Nova playlist Spotify</span>
+      <button onclick="document.getElementById('sp-name-modal').classList.remove('open')" title="Fechar">&#10005;</button>
+    </div>
+    <div style="padding:.75rem 1rem 1rem">
+      <input id="sp-pl-name" class="pl-modal-search" type="text"
+        style="margin:0;width:100%;box-sizing:border-box"
+        placeholder="Nome da playlist...">
+      <div id="sp-name-sub" style="font-size:.72rem;color:var(--text3);margin-top:.45rem;padding-left:.1rem"></div>
+    </div>
+    <div class="pl-modal-footer">
+      <button onclick="document.getElementById('sp-name-modal').classList.remove('open')">Cancelar</button>
+      <button class="pl-apply-btn" onclick="_spConfirmCreate()">Criar &#10003;</button>
+    </div>
+  </div>
+</div>
+
+<script>var STORY_IMAGES={story_json};var SP_TRACK_IDS={sp_track_ids_js};var SP_PLAYLISTS={sp_playlists_js};var SP_FOLDERS={sp_folders_js};</script>
 <script>{JS}</script>
 </body>
 </html>"""

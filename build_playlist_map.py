@@ -142,14 +142,32 @@ def main():
         print(f"{matched} faixas de vinil" if vinyl_uris else f"{len(uris)} faixas")
         time.sleep(0.08)
 
+    # Carrega pastas definidas pelo usuário (opcional)
+    folders_path = WORK_DIR / "playlist_folders.json"
+    playlist_folders: dict = {}
+    if folders_path.exists():
+        try:
+            playlist_folders = json.loads(folders_path.read_text(encoding="utf-8"))
+            print(f"\nPastas carregadas de {folders_path.name}: {len(playlist_folders)} pastas")
+        except Exception as e:
+            print(f"\nAviso: não foi possível carregar {folders_path.name}: {e}")
+    else:
+        # Gera template vazio para o usuário editar
+        template = {"_instrucoes": "Mova playlists para as pastas desejadas. Remova esta chave antes de salvar."}
+        template["Sem pasta"] = all_names
+        folders_path.write_text(json.dumps(template, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"\nTemplate gerado em {folders_path.name} — edite para organizar em pastas e rode novamente.")
+
     result = {
         "uri_to_playlists": uri_to_playlists,
         "playlist_names": all_names,
+        "playlist_folders": playlist_folders,
     }
     OUTPUT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\nSalvo em {OUTPUT.name}")
     print(f"  URIs mapeadas: {len(uri_to_playlists)}")
     print(f"  Playlists: {len(all_names)}")
+    print(f"  Pastas: {len(playlist_folders)}")
 
 
 if __name__ == "__main__":
