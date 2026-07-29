@@ -1651,6 +1651,8 @@ body.is-owner .glb-stats .owner-only{display:inline!important}
   display:inline-flex;align-items:center;gap:.2rem;transition:all .12s}
 .glb-trk-btn-sp{background:#1db954;color:#fff}
 .glb-trk-btn-sp:hover{background:#1aa348}
+.glb-trk-btn-play{background:var(--bg2);color:var(--text);border:1px solid var(--bdr);cursor:pointer}
+.glb-trk-btn-play:hover{background:var(--bg3,var(--bdr))}
 @media(max-width:480px){
   .glb-card{max-height:92vh;border-radius:8px}
   .glb-cover{width:72px;height:72px}
@@ -3358,10 +3360,15 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
         bpm_chip   = (f'<span class="glb-bpm owner-only">{int(bpm_f)}</span>' if bpm_f else "")
         trk_sp_uri = str(row.get("spotify_uri","") or "")
         trk_sp_btn = ""
+        trk_play_btn = ""
         if trk_sp_uri and "spotify:track:" in trk_sp_uri:
-            track_href = trk_sp_uri.replace("spotify:track:","https://open.spotify.com/track/")
+            sp_tid = trk_sp_uri.split(":")[-1]
+            track_href = f"https://open.spotify.com/track/{sp_tid}"
             trk_sp_btn = (f'<a class="glb-trk-btn glb-trk-btn-sp" href="{track_href}" '
                           f'target="_blank" onclick="event.stopPropagation()">Spotify</a>')
+            trk_play_btn = (f'<button class="glb-trk-btn glb-trk-btn-play" '
+                            f'onclick="event.stopPropagation();playInBottomPlayer(\'{sp_tid}\')">'
+                            f'&#9654; Ouvir</button>')
         artist_diff = trk_artist.lower() != (first.get("album_artist","") or "").lower()
         artist_line = f'<div class="glb-trk-artist">{esc(trk_artist)}</div>' if artist_diff else ""
         track_rows.append(
@@ -3370,7 +3377,7 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
             f'<div class="glb-trk-dot"></div>'
             f'<div class="glb-trk-info"><div class="glb-trk-title">{trk_title}</div>{artist_line}</div>'
             f'{bpm_chip}'
-            f'<div class="glb-trk-btns">{trk_sp_btn}</div>'
+            f'<div class="glb-trk-btns">{trk_play_btn}{trk_sp_btn}</div>'
             f'</div>'
         )
 
