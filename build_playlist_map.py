@@ -29,7 +29,7 @@ if not VINYL_CSV.exists():
 
 SP_CLIENT_ID  = "1ab6d898c52d42a19b737f451ce31e2a"
 SP_CLIENT_SEC = "3c8b2f47049b44e2af6937ea835e1f2f"
-CACHE_PATH    = WORK_DIR / ".spotify_cache"
+CACHE_PATH    = WORK_DIR / ".spotify_cache_plmap"
 
 # Playlists geradas automaticamente pelo sync — não incluir no filtro
 SKIP_PLAYLISTS = {
@@ -52,7 +52,7 @@ def get_sp():
 
     scope = "playlist-read-private playlist-read-collaborative"
     refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN", "").strip()
-    if refresh_token and not CACHE_PATH.exists():
+    if refresh_token:
         import json as _json
         cache_data = {
             "access_token": "",
