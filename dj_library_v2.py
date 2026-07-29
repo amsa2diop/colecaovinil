@@ -1651,8 +1651,8 @@ body.is-owner .glb-stats .owner-only{display:inline!important}
   display:inline-flex;align-items:center;gap:.2rem;transition:all .12s}
 .glb-trk-btn-sp{background:#1db954;color:#fff}
 .glb-trk-btn-sp:hover{background:#1aa348}
-.glb-trk-btn-play{background:var(--bg2);color:var(--text);border:1px solid var(--bdr);cursor:pointer}
-.glb-trk-btn-play:hover{background:var(--bg3,var(--bdr))}
+.glb-trk-btn-play{background:var(--bdr);color:var(--text2);border:none;cursor:pointer}
+.glb-trk-btn-play:hover{filter:brightness(1.2)}
 @media(max-width:480px){
   .glb-card{max-height:92vh;border-radius:8px}
   .glb-cover{width:72px;height:72px}
