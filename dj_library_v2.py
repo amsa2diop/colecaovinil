@@ -3137,7 +3137,7 @@ def render_track_lp(row):
 
     # Ouvir button (embed trigger)
     ouvir_btn = ""
-    if uri and uri != "nan" and "spotify" in uri and status == "ACEITO":
+    if uri and "spotify" in uri:
         sp_tid = uri.split(":")[-1]
         ouvir_btn = f'<div class="trk-btn trk-ouvir-btn" onclick="playInBottomPlayer(\'{sp_tid}\')">&#9654; Ouvir</div>'
     elif deezer_id:

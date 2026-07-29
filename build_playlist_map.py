@@ -14,7 +14,7 @@ Apenas playlists cujo dono é o próprio usuário são incluídas.
 Playlists de sistema geradas pelo sync são excluídas.
 """
 from pathlib import Path
-import sys, json, time
+import sys, json, os, time
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -50,13 +50,27 @@ def get_sp():
         import spotipy
         from spotipy.oauth2 import SpotifyOAuth
 
+    scope = "playlist-read-private playlist-read-collaborative"
+    refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN", "").strip()
+    if refresh_token and not CACHE_PATH.exists():
+        import json as _json
+        cache_data = {
+            "access_token": "",
+            "token_type": "Bearer",
+            "expires_in": 3600,
+            "refresh_token": refresh_token,
+            "scope": scope,
+            "expires_at": 0,
+        }
+        CACHE_PATH.write_text(_json.dumps(cache_data), encoding="utf-8")
+
     sp_oauth = SpotifyOAuth(
         client_id=SP_CLIENT_ID,
         client_secret=SP_CLIENT_SEC,
         redirect_uri="http://127.0.0.1:1410/",
-        scope="playlist-read-private playlist-read-collaborative",
+        scope=scope,
         cache_path=str(CACHE_PATH),
-        open_browser=True,
+        open_browser=not bool(refresh_token),
     )
     return spotipy.Spotify(auth_manager=sp_oauth, requests_timeout=30, retries=5)
 
