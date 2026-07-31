@@ -1,49 +1,565 @@
 {
   "uri_to_playlists": {
-    "spotify:track:5aVEnXYAtrxGdbJP8N2mHb": [
-      "help festa",
-      "MPDNM Festa (17/06/26)",
+    "spotify:track:6HhxG1eIAXZLg3LeqOpk6s": [
+      "FATCHIA TOP 2",
       "MPDNM Vinil (17/06/26)",
-      "Festa",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Jun/2019",
+      "Slow Oldies",
+      "Instrumentals",
+      "Top122"
+    ],
+    "spotify:track:0eVnhQNFTRZXOIhHZNLX85": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "MPBonito"
+    ],
+    "spotify:track:6cB3FkRkWm9iJ3xZJ4Tf9p": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Baile Amefricano"
+    ],
+    "spotify:track:4N1xETYUkyYBkXYBCZ3Khv": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:5I5x8mk0xpXBqXIskvl2U5": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:7zf5JVR1AiPa9snspPRUD0": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Dia dos Namorados 264 BR",
+      "Brasil 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Tropí",
+      "Baile Amefricano",
+      "Soul Br",
+      "Yanam"
+    ],
+    "spotify:track:0Jw3cPBXlGnA6DEJrZSTI0": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Tropí",
+      "Jazz"
+    ],
+    "spotify:track:1x2BI28BQUXLNSH7AWvkRK": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:3sD54B3XKbEYKKJPmP2IhG": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:2Kkut4NAV813raj2CZ2A98": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Abr/2026",
+      "Slow Oldies"
+    ],
+    "spotify:track:0yrLDWWxQwmUu0Hx4eENwD": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Soul Br"
+    ],
+    "spotify:track:0ikz6tENMONtK6qGkOrU3c": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:5TfsJFx2y8yRL6YQzyHeLw": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
       "Baile Amefricano",
       "Soul Br"
     ],
-    "spotify:track:5Q2BpkTyjwDYWqTOf6PqgO": [
-      "help festa",
-      "MPDNM Festa (17/06/26)",
+    "spotify:track:4877bJ149OUJZHTiU5Jg8P": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Tropí",
+      "Baile Amefricano"
+    ],
+    "spotify:track:2lnQcP5hr4RKR63TFvnI4k": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA LARYH"
+    ],
+    "spotify:track:6u5DJLTMuHgKqxdtjAWnWP": [
+      "FATCHIA TOP 2",
       "MPDNM Vinil (17/06/26)",
       "FATCHIA TOP",
       "FATCHIA novo",
-      "Festa",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Abr/2023",
+      "Top122",
+      "samples amsa"
+    ],
+    "spotify:track:6hdxy67JqIATUt1EoqS4OW": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:3ApIYu95WxjzpQCnsLBbrv": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Dia dia namorados 264 USA",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Leilane",
+      "Dia dos Namorados La Ricas",
+      "Dez/2017",
+      "Love",
+      "Top122",
+      "Nostalgia",
+      "who sampled"
+    ],
+    "spotify:track:0YojqXjn4xb5hblpFAhqJr": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "samples amsa"
+    ],
+    "spotify:track:5JmBuvUAjNnzSPIOF4Z6ZQ": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Jul/2025",
+      "Baile Amefricano",
       "Soul Br"
     ],
-    "spotify:track:3ZNrJUvfDC5sfDkngVWdmP": [
-      "help MDPNA",
-      "MPDNM Vinil (17/06/26)",
+    "spotify:track:1TX4h6MrIZ0K3r4OOG11WO": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Dia dos Namorados 264 BR"
+    ],
+    "spotify:track:70ctQzBQmXnX5lnHfm2EFp": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Baile Amefricano"
+    ],
+    "spotify:track:6PGJeqVwXZMfmV3Dumvzc9": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:6QQV71cjjsgOd63d3ir0I0": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP"
+    ],
+    "spotify:track:57oZ05Syg4Si8UDHHQ35pq": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:0Dm43YLUlGdePpSbI1ct8h": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA LARYH",
       "Chill Funk"
     ],
-    "spotify:track:2CYL2V0SFBipXlCUTI2sMJ": [
-      "help MDPNA",
+    "spotify:track:2OmW34Xkvsy1VCOZ4OZhKv": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Tropí"
+    ],
+    "spotify:track:3BpiaGyTIb7VIoAYbvSzTH": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Brasil 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Tropí",
+      "Churras da GADG",
+      "Baile Amefricano",
+      "Soul Br"
+    ],
+    "spotify:track:2ea27ZeiVxXTY029nVpcWe": [
+      "FATCHIA TOP 2",
+      "Dia dos Namorados 264 BR",
+      "Mai/2025",
+      "MPBonito"
+    ],
+    "spotify:track:7rLAPi81R7qlVqgXfykdEL": [
+      "FATCHIA TOP 2",
       "MPDNM Vinil (17/06/26)",
       "FATCHIA TOP",
       "FATCHIA novo",
-      "Chill Funk"
+      "Jul/2020",
+      "P-Funk",
+      "Real Soul Wah % Chill"
     ],
-    "spotify:track:1DyjZB553roKl5Vg7ni4rc": [
-      "help MDPNA",
+    "spotify:track:2F2CHbZn5m0nkyB4EPf988": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs Não Encontrados",
+      "Meu Discogs"
+    ],
+    "spotify:track:6eDMElxeeKXs4DHTb0dGP0": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "Dia dos Namorados 264 BR",
+      "Dia dos Namorados La Ricas"
+    ],
+    "spotify:track:6U03Orwr5Dxt8jahLnQpYV": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Tropí",
+      "Baile Amefricano"
+    ],
+    "spotify:track:1ns5RZCzaOIbJ4U0Nsn0RL": [
+      "FATCHIA TOP 2",
+      "Grooves secretos"
+    ],
+    "spotify:track:3O2FlEB1iUnixM3IlwrG5K": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA"
+    ],
+    "spotify:track:7AgMX97ljLm9BzszyyXEYZ": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Nov/2018",
+      "Jazzhop",
+      "Hip Hop origins",
+      "HipHopless"
+    ],
+    "spotify:track:2JbcnywVE16TVEzv5P2RZn": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:2zIZsBJmZtXwYQNpbOiwB0": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Soul Br"
+    ],
+    "spotify:track:3iof6EclqePezHDibBiykI": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs Não Encontrados",
+      "Dia dos Namorados 264 BR",
+      "1mpb Tropicália e outros",
+      "MPBonito"
+    ],
+    "spotify:track:1lwLDZnAFkI1iXt8iSa5qp": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Fev/2026"
+    ],
+    "spotify:track:7ggHwwQS45CLKyRpo4yOfT": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:7gd7BDwZWjGXD6CfX7KQcF": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "MPBonito"
+    ],
+    "spotify:track:0htuSeiUOkAth28py2IfaS": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:2MAaiV0bbeq4FpSwPe2rR8": [
+      "FATCHIA TOP 2",
+      "MPDNM Festa (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Festa Black 264",
+      "Total 264",
+      "Party at Amsa`s",
+      "Abr/2019",
+      "Jazzhop",
+      "HipHopless"
+    ],
+    "spotify:track:60y7477h7umOqSmOyXuEk0": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Baile Amefricano"
+    ],
+    "spotify:track:3GDM3x918Z9o9COKIdf4jc": [
+      "FATCHIA TOP 2",
       "MPDNM Vinil (17/06/26)",
       "FATCHIA TOP",
       "FATCHIA novo",
-      "Chill Funk"
+      "Soul Br"
     ],
-    "spotify:track:28nbxBOPfAup17LExFcTOJ": [
-      "help MDPNA",
+    "spotify:track:4HfxDJ0uLHTLe0fZrx0MbQ": [
+      "FATCHIA TOP 2",
       "MPDNM Vinil (17/06/26)",
       "FATCHIA TOP",
       "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Set/2018",
+      "amsa in BKLYN",
+      "Hip Hop origins",
+      "HipHopless",
+      "Top122",
+      "Brabas DEMAIS Vicio"
+    ],
+    "spotify:track:1iA4JW1NzmcYNG8ZASIjdH": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Jun/2019",
+      "Slow Oldies",
+      "Top122"
+    ],
+    "spotify:track:5YTM7OgQDt9EJAYcfHLniJ": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:65krtHkaYLPr0mEbjL61UP": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Dia dia namorados 264 USA",
+      "Mai/2025",
+      "NeoSoul",
+      "Top122"
+    ],
+    "spotify:track:6kLAiBdaF6dtGbhDTdbP9L": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Soul Br"
+    ],
+    "spotify:track:45XopGhwYSgooiewaZNsSd": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Soul Br"
+    ],
+    "spotify:track:2VInmTmMbqd4YC5zXMJz2J": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:0eEXcw3JLVXcRxYrVYMy68": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "HipHopless"
+    ],
+    "spotify:track:6MCaOLDl0epJPRN76H5S4N": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Dia dos Namorados 264 BR",
+      "Tropí",
+      "MPBonito",
+      "Top122"
+    ],
+    "spotify:track:3bgqIMHNehAZwhjckR3gc1": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Leilane",
+      "Slow Jam Charme",
       "Chill Funk"
     ],
     "spotify:track:4fw0xQu4c91pfDddmRxc4k": [
+      "FATCHIA TOP 2",
       "help MDPNA",
       "MPDNM Vinil (17/06/26)",
       "Meu Discogs BPM",
@@ -51,43 +567,145 @@
       "Meu Discogs",
       "Chill Funk"
     ],
-    "spotify:track:1ouKmXh90ek9tLLS6JxFv5": [
-      "help MDPNA",
-      "MPDNM Vinil (17/06/26)",
-      "MPDNM",
-      "Mai/2026",
-      "Chill Funk"
-    ],
-    "spotify:track:0WPsU2ixvxUPpXiNt6n5N2": [
-      "help MDPNA",
-      "MPDNM Vinil (17/06/26)",
-      "Mai/2026",
-      "Chill Funk"
-    ],
-    "spotify:track:0fDKkPHtT4KdiOUvVtTF91": [
-      "help MDPNA",
-      "MPDNM Vinil (17/06/26)",
-      "Grooves secretos",
-      "Mai/2026",
-      "Chill Funk"
-    ],
-    "spotify:track:1EEzTblhbT1FxxNc8SSVvW": [
-      "MPDNM Festa (17/06/26)",
-      "Festa",
-      "mpbeats",
-      "br House",
-      "R&Brasil"
-    ],
-    "spotify:track:2KDF5lrsQNBN0a89SwkwDg": [
-      "MPDNM Festa (17/06/26)",
+    "spotify:track:7lTJO95ldKZYGV8dwCZxwo": [
+      "FATCHIA TOP 2",
       "MPDNM Vinil (17/06/26)",
       "FATCHIA TOP",
       "PRAINHA TOP",
-      "Festa",
+      "Real Soul Wah % Chill"
+    ],
+    "spotify:track:5J9Xzqe3CiBPBbs67TA8nL": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:1HibhNhwk2tljwC4BGGLXV": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Ayra Aziza",
+      "Real Soul Wah % Chill",
+      "Real n Black"
+    ],
+    "spotify:track:1HCo7W2RtTWbaJTIa25Mz8": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP"
+    ],
+    "spotify:track:1XWIZv5nDOPH80qPlTQjxE": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP"
+    ],
+    "spotify:track:57rdTDz1qdo7Pfqx8jWB5e": [
+      "FATCHIA TOP 2",
+      "R&Brasil"
+    ],
+    "spotify:track:4N0TP4Rmj6QQezWV88ARNJ": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP 2",
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "Mar/2026",
+      "Real Funk"
+    ],
+    "spotify:track:4QPoCJSGDSig70rrzt8ZLi": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Dia dos Namorados 264 BR",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Tropí",
       "Baile Amefricano",
+      "MPBonito",
+      "Top122",
+      "Yanam",
+      "samples amsa"
+    ],
+    "spotify:track:1jhluel6ujMGZirTF9aBWN": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "MPBonito"
+    ],
+    "spotify:track:05dII0s9eSLlgaBiDa8JO1": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA"
+    ],
+    "spotify:track:0VOTHJFg4WNqO08vyu7usH": [
+      "FATCHIA TOP 2",
+      "MPDNM Festa (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA LARYH",
+      "Festa",
       "Soul Br"
     ],
+    "spotify:track:6a899bXlCuViXW2Qs8Rdqo": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Chill Funk",
+      "Nostalgia"
+    ],
+    "spotify:track:0x9cIYWlzLyWfQNLUpCmj1": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Soul Br"
+    ],
+    "spotify:track:4NBzFOhtVta7Dk3mWa7jL2": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP"
+    ],
+    "spotify:track:6QWE5mVCTKkViVIFHFBlgz": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Soul Br"
+    ],
+    "spotify:track:0uugJPMMuIpugFh2aXN6m9": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
     "spotify:track:2koS4fD3kzizdnzWzyrxyT": [
+      "FATCHIA TOP 2",
       "MPDNM Festa (17/06/26)",
       "MPDNM Vinil (17/06/26)",
       "Festa Black 264",
@@ -103,72 +721,471 @@
       "Soul Br",
       "Faixas do Shazam"
     ],
-    "spotify:track:12oiJJC32zB0mjAuRmfktB": [
-      "MPDNM Festa (17/06/26)",
-      "Funkão",
-      "Festa",
-      "R&Brasil"
-    ],
-    "spotify:track:7upgDi9C0pQn9HZzGfksJq": [
-      "MPDNM Festa (17/06/26)",
-      "MPDNM Festa (17/06/26)",
-      "PATUA",
-      "Badalos 90s",
-      "Total 264",
-      "Leilane",
-      "ITA",
-      "Party at the Smith's",
-      "Fev/2020",
-      "Pose",
-      "Charme & Good Vibe",
-      "Top122"
-    ],
-    "spotify:track:2MAaiV0bbeq4FpSwPe2rR8": [
-      "MPDNM Festa (17/06/26)",
+    "spotify:track:3mRM4NM8iO7UBqrSigCQFH": [
+      "FATCHIA TOP 2",
       "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Festa Black 264",
-      "Total 264",
-      "Party at Amsa`s",
-      "Abr/2019",
-      "Jazzhop",
-      "HipHopless"
+      "FATCHIA novo"
     ],
-    "spotify:track:0VOTHJFg4WNqO08vyu7usH": [
+    "spotify:track:3yp0RiFwofJptvIcvJ3KUW": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:5JNvoqCQjjIAQga86EiRqb": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA"
+    ],
+    "spotify:track:2JoZzpdeP2G6Csfdq5aLXP": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:5Q2BpkTyjwDYWqTOf6PqgO": [
+      "FATCHIA TOP 2",
+      "help festa",
       "MPDNM Festa (17/06/26)",
       "MPDNM Vinil (17/06/26)",
       "FATCHIA TOP",
       "FATCHIA novo",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA LARYH",
       "Festa",
       "Soul Br"
     ],
-    "spotify:track:0jatcRk16ATM6EskYTDH5r": [
-      "MPDNM Festa (17/06/26)",
+    "spotify:track:6jo2Yy7YkEHR8xKT1RtnpM": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:2cE8TW1RiEJoezQv7pbyoa": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:6udIYp7fdnP9GbEJORZzlP": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs Não Encontrados",
+      "Jul/2025",
+      "Baile Amefricano",
+      "Soul Br"
+    ],
+    "spotify:track:3ZNrJUvfDC5sfDkngVWdmP": [
+      "FATCHIA TOP 2",
+      "help MDPNA",
+      "MPDNM Vinil (17/06/26)",
+      "Chill Funk"
+    ],
+    "spotify:track:0FXknLgZs98w79JvULexcH": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Brasil 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Jul/2019",
+      "Baile Amefricano",
+      "Soul Br",
+      "samples amsa"
+    ],
+    "spotify:track:4XRkQloZFcRrCONN7ZQ49Y": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Real Funk"
+    ],
+    "spotify:track:4fquZvrjr14AEcb2YZPQ0Q": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA"
+    ],
+    "spotify:track:7g79Krd40M9zNc271Hn9K7": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
       "PATUA",
       "Meu Discogs BPM",
       "Meu Discogs Total",
       "Meu Discogs",
-      "Party at the Smith's"
-    ],
-    "spotify:track:4P91jW5QmEkhoLgdMujp82": [
-      "MPDNM Festa (17/06/26)",
+      "Festa Black 264",
+      "Brasil 264",
+      "Disco Funk 264",
+      "Aquecimento Soul RnB 264",
       "Total 264",
-      "Party at the Smith's",
-      "Real Disco",
+      "Tropí",
+      "Baile Amefricano",
+      "Soul Br"
+    ],
+    "spotify:track:15pYj5ZiUJgBydzD7w6NbJ": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Ayra Aziza",
+      "Black Excelence",
+      "Slow Oldies",
+      "Top122"
+    ],
+    "spotify:track:1GI3BPlK6KGJ6Vwv9z7Ww4": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Fev/2026"
+    ],
+    "spotify:track:6KIS5YIZAyeiFNx1aE1OhY": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA"
+    ],
+    "spotify:track:3LoudraTgQznUCa6n09eyR": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Brasil 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Baile Amefricano",
+      "Soul Br"
+    ],
+    "spotify:track:3pbtBomO4Zt5gGiqsYeiBH": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA LARYH"
+    ],
+    "spotify:track:5VJjhHyG8NZ5xdgG6uTb3P": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA LARYH",
+      "Disco Funk 264",
+      "Total 264",
+      "Disco Soul Boogie 70s",
+      "Real Soul Wah % Chill",
+      "Real Funk"
+    ],
+    "spotify:track:5KgbyD2lQQlIupAaPjgiXg": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:2KDF5lrsQNBN0a89SwkwDg": [
+      "FATCHIA TOP 2",
+      "MPDNM Festa (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "Festa",
+      "Baile Amefricano",
+      "Soul Br"
+    ],
+    "spotify:track:2R6ryTnnqOci2Ms19wMNzB": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Real Funk"
+    ],
+    "spotify:track:63DTXKZi7YdJ4tzGti1Dtr": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Mar/2026",
+      "Slow Jam Charme",
+      "Chill Funk"
+    ],
+    "spotify:track:4cLXNwNqXWT1CTR5Gyr7ei": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:6KUjwoHktuX3du8laPVfO8": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs Não Encontrados"
+    ],
+    "spotify:track:5gaUkg5JNk8c4mr2jnpX8H": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Top122",
+      "Nostalgia"
+    ],
+    "spotify:track:1S6VzdwEzMFICgNpwxPwlD": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA"
+    ],
+    "spotify:track:3SnGymj6ijE2iuUfWxLo1q": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA LARYH",
+      "Pose"
+    ],
+    "spotify:track:2H5nsVLjDwWsxfyajm0lVS": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Disco Funk 264",
+      "Total 264",
+      "Real Funk",
+      "Nostalgia"
+    ],
+    "spotify:track:0C4zk034TFnI2z8eorbv4K": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Brasil 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Jun/2021",
+      "Baile Amefricano",
+      "Soul Br",
+      "Faixas do Shazam"
+    ],
+    "spotify:track:41dDygR3r7e926oGUXfrLt": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Top122",
+      "Nostalgia"
+    ],
+    "spotify:track:5qqz0pUTUTenMGr9Hlr43a": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Brasil 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Soul Br",
+      "Faixas do Shazam"
+    ],
+    "spotify:track:0G3fbPbE1vGeABDEZF0jeG": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Disco Funk 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Disco Soul Boogie 70s",
+      "Real Boogie",
+      "Top122"
+    ],
+    "spotify:track:6QILZRCxgZDjhzJ4fmbmX1": [
+      "FATCHIA TOP 2",
+      "Abr/2026",
+      "Real Soul Wah % Chill"
+    ],
+    "spotify:track:1ZWVUWNY40bbEWX9P833Z3": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP"
+    ],
+    "spotify:track:06WWnCfoJveGUvYQWK7nGf": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP"
+    ],
+    "spotify:track:5aVEnXYAtrxGdbJP8N2mHb": [
+      "FATCHIA TOP 2",
+      "help festa",
+      "MPDNM Festa (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "Festa",
+      "Baile Amefricano",
+      "Soul Br"
+    ],
+    "spotify:track:3EqXUkR4x6l5UzzV9Jwi5i": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Soul Br"
+    ],
+    "spotify:track:3Hya20ZNnlLzGLCpzJR6bv": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:5si4dKq85jNXC71SqlCSaj": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Brasil 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Soul Br"
+    ],
+    "spotify:track:5WwRKYnVy9dekqXAGPbAvU": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Disco Funk 264",
+      "Total 264",
       "Real Boogie"
     ],
-    "spotify:track:7eheoW4hxrH51ww2QePVwF": [
-      "MPDNM Festa (17/06/26)",
-      "Party at the Smith's"
+    "spotify:track:42MAEkamRaomzO3UWqGdh3": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:3AsdJX0jmrMVeUbOEmPubM": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Brasil 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Baile Amefricano",
+      "Soul Br"
+    ],
+    "spotify:track:0fDKkPHtT4KdiOUvVtTF91": [
+      "FATCHIA TOP 2",
+      "help MDPNA",
+      "MPDNM Vinil (17/06/26)",
+      "Grooves secretos",
+      "Mai/2026",
+      "Chill Funk"
+    ],
+    "spotify:track:6P28ijEvVb3md1QPSMFgxX": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Total 264",
+      "Disco Soul Boogie 70s",
+      "Real Disco",
+      "Real Funk",
+      "Chill Funk"
+    ],
+    "spotify:track:1DyjZB553roKl5Vg7ni4rc": [
+      "FATCHIA TOP 2",
+      "help MDPNA",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Chill Funk"
+    ],
+    "spotify:track:1oFiPGBafH9Woo9AMwgBSl": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Disco Funk 264",
+      "Total 264",
+      "Pose",
+      "Disco Soul Boogie 70s",
+      "Real Disco"
     ],
     "spotify:track:7oOOI85fVQvVnK5ynNMdW7": [
+      "FATCHIA TOP 2",
       "MPDNM Festa (17/06/26)",
       "MPDNM Festa (17/06/26)",
       "MPDNM Vinil (17/06/26)",
@@ -189,7 +1206,208 @@
       "Pop",
       "Top122"
     ],
+    "spotify:track:5hXEcqQhEjfZdbIZLO8mf2": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:5JjdJK0uGRUk4skRTuQdUZ": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Dez/2019"
+    ],
+    "spotify:track:0wn1zutdePYlXV0H8WfQGn": [
+      "FATCHIA TOP 2",
+      "Mai/2026",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Chill Funk"
+    ],
+    "spotify:track:2CYL2V0SFBipXlCUTI2sMJ": [
+      "FATCHIA TOP 2",
+      "help MDPNA",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Chill Funk"
+    ],
+    "spotify:track:1Gnufs5iuI3h5ow29J7tOO": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Festa Black 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Slow Oldies",
+      "Top122",
+      "samples amsa",
+      "Olha esses acordes"
+    ],
+    "spotify:track:1ouKmXh90ek9tLLS6JxFv5": [
+      "FATCHIA TOP 2",
+      "help MDPNA",
+      "MPDNM Vinil (17/06/26)",
+      "MPDNM",
+      "Mai/2026",
+      "Chill Funk"
+    ],
+    "spotify:track:65Qj6C1VypRzkpypONWBNb": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:17EVu5b0l5uo2gErSfqEt1": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:62CwLKItrExftm04nk4uh7": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Real Soul Wah % Chill"
+    ],
+    "spotify:track:11d9oUiwHuYt216EFA2tiz": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP"
+    ],
+    "spotify:track:17OzfblzUJ5XHBeBUb95av": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Brasil 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Baile Amefricano",
+      "Soul Br"
+    ],
+    "spotify:track:3vbVSxq7PUcXD149jQcvQI": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Chill Funk"
+    ],
+    "spotify:track:6mRWYqhRPJVyYpLOLvbtRg": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Disco Funk 264",
+      "Total 264",
+      "Real Funk"
+    ],
+    "spotify:track:0fUVO6KRTLHOkmFf0NavBq": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA AMSA"
+    ],
+    "spotify:track:5mZeHfyr6zNK7hOhN0qfsr": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:09IOYvKTycZ5C5KiitKOhU": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Chill Funk"
+    ],
+    "spotify:track:28nbxBOPfAup17LExFcTOJ": [
+      "FATCHIA TOP 2",
+      "help MDPNA",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Chill Funk"
+    ],
+    "spotify:track:6w9g12jpHCPCuvYVX7vLLG": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Festa Black 264",
+      "Disco Funk 264",
+      "Total 264",
+      "Out/2017",
+      "Disco Soul Boogie 70s",
+      "Real Soul Wah % Chill",
+      "Real Boogie"
+    ],
+    "spotify:track:4ryETHfBqsXORG98n6gMwD": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP"
+    ],
+    "spotify:track:5gTDFWt595lQhckoDfXcWN": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Real Soul Wah % Chill"
+    ],
+    "spotify:track:0WPsU2ixvxUPpXiNt6n5N2": [
+      "FATCHIA TOP 2",
+      "help MDPNA",
+      "MPDNM Vinil (17/06/26)",
+      "Mai/2026",
+      "Chill Funk"
+    ],
+    "spotify:track:3YEBLCtsk29qrhZ4AF6BD4": [
+      "FATCHIA TOP 2",
+      "Grooves secretos"
+    ],
+    "spotify:track:3DIe90xqHuUDtyuapTwCAR": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Chill Funk"
+    ],
+    "spotify:track:1Hv1VTm8zeOeybub15mA2R": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Dia dia namorados 264 USA",
+      "CALOURADA DACS",
+      "NeoSoul",
+      "Love"
+    ],
     "spotify:track:46eu3SBuFCXWsPT39Yg3tJ": [
+      "FATCHIA TOP 2",
       "MPDNM Festa (17/06/26)",
       "MPDNM Festa (17/06/26)",
       "MPDNM Vinil (17/06/26)",
@@ -219,6 +1437,7 @@
       "Faixas do Shazam"
     ],
     "spotify:track:3zYpRGnnoegSpt3SguSo3W": [
+      "FATCHIA TOP 2",
       "MPDNM Festa (17/06/26)",
       "MPDNM Festa (17/06/26)",
       "MPDNM Vinil (17/06/26)",
@@ -239,7 +1458,34 @@
       "Pop",
       "Top122"
     ],
+    "spotify:track:2mmqUU64P1BhJNvH1jtofT": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA AMSA"
+    ],
+    "spotify:track:2Gkf6q9Mqai9wNhcsKCM4e": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Dia dos Namorados 264 BR",
+      "MPBonito"
+    ],
+    "spotify:track:6VeAUISn8bNaW4OUa2oWi2": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "MPBonito"
+    ],
     "spotify:track:4t0UsYzmmmZRMTWn77jiGF": [
+      "FATCHIA TOP 2",
       "MPDNM Festa (17/06/26)",
       "FATCHIA TOP",
       "PRAINHA TOP",
@@ -256,6 +1502,502 @@
       "Party at the Smith's",
       "Real Disco",
       "Defected House"
+    ],
+    "spotify:track:6VZdUa8JjaGF2LGsiRG9lC": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Total 264",
+      "Mar/2020",
+      "Disco Soul Boogie 70s",
+      "Real Soul Wah % Chill",
+      "Top122"
+    ],
+    "spotify:track:7fYozX6MaNmfHoGW7bFTdK": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Chill Funk"
+    ],
+    "spotify:track:2zMJN9JvDlvGP4jB03l1Bz": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA LARYH"
+    ],
+    "spotify:track:66i1lieIMso7ef4P7KdWcE": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Chill Funk"
+    ],
+    "spotify:track:13v3siPyvy5TTEZYmGPPse": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Pose",
+      "Disco Soul Boogie 70s",
+      "Real Funk"
+    ],
+    "spotify:track:6oMolJKWnbXvI5rzI7YN1M": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Total 264",
+      "Disco Soul Boogie 70s",
+      "Real Funk",
+      "Chill Funk"
+    ],
+    "spotify:track:5rShS5dwU8nIe21jlQnbxK": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:1ibRqifchaAfeNdQGpbRVW": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA LARYH",
+      "Pose"
+    ],
+    "spotify:track:4ADW3HBraqvlFcxRlcRyoK": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Real Soul Wah % Chill",
+      "samples amsa"
+    ],
+    "spotify:track:7MHoNRLIc9cnomR6I5nrQi": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:6tqRmQeGuM0n8nrcch3gp0": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs Não Encontrados"
+    ],
+    "spotify:track:1SvET7grrtsHT0CkyJjJcZ": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA"
+    ],
+    "spotify:track:2nasQgcUOpz7HCapLgoCiG": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Real Soul Wah % Chill"
+    ],
+    "spotify:track:4JmZyfkzXWN7pHJsJpN6XP": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:2HvuyQEnKR82zwfIuCBaWH": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Dia dos Namorados 264 BR",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Tropí",
+      "Yanam"
+    ],
+    "spotify:track:6tXCw4NYlgQufigIAwb2HP": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Soul Br"
+    ],
+    "spotify:track:3c1vwtaUfS88rR4UuiaMoZ": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Real Soul Wah % Chill"
+    ],
+    "spotify:track:1Rl9GHgsflyIVqBRyO45Zo": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "Disco Funk 264",
+      "Total 264",
+      "Real Boogie"
+    ],
+    "spotify:track:78XG7U0UueeC86XpzF9O7f": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:7BhJEUC5B3pXb5ZgCIS2gy": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:3yDhZq8f17SmumVmEyCaRN": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:3koCCeSaVUyrRo3N2gHrd8": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Meu Discogs",
+      "Festa Black 264",
+      "Disco Funk 264",
+      "Total 264",
+      "Disco Soul Boogie 70s",
+      "Real Disco",
+      "Real Boogie"
+    ],
+    "spotify:track:0dMd4rilfd6gPbXaLpNYhu": [
+      "FATCHIA TOP 2",
+      "MPDNM Festa (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "Party at Amsa`s",
+      "Real Funk"
+    ],
+    "spotify:track:1i01coCdrJQTyTkdY0GClx": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:6vgKWE1KV4E7p1Dv75z0kL": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Dia dos Namorados 264 BR",
+      "Tropí",
+      "Baile Amefricano",
+      "MPBonito"
+    ],
+    "spotify:track:2TI0STKG1kgevz10OxF3Pm": [
+      "FATCHIA TOP 2",
+      "MPDNM Festa (17/06/26)",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "Festa Black 264",
+      "Brasil 264",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Tropí",
+      "Festa",
+      "Soul Br"
+    ],
+    "spotify:track:2grjqo0Frpf2okIBiifQKs": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Meu Discogs"
+    ],
+    "spotify:track:2qcfKvkTopzpSOeLW9AvyM": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Rock Nacional"
+    ],
+    "spotify:track:5Pn7ldcp8uOZmwPJ3rUf7b": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:2ffCT6Pe2LYriwN2Y5ObIg": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:3PZW66625MiyEmZaat7tce": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:3vE6VYTG7LytVOvVTc3PBb": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:74HjVGhoRX36jqyh0KN9X3": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Tropí",
+      "Festa Weyni",
+      "Mai/2019",
+      "Slow Oldies",
+      "Top122"
+    ],
+    "spotify:track:0owfjF5QLxBzenEU3zHrYD": [
+      "FATCHIA TOP 2",
+      "Grooves secretos"
+    ],
+    "spotify:track:5MmRVDYiijI0HQj7ifYVlX": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Jazz"
+    ],
+    "spotify:track:05jjChWlvR8JAvSZoY3wBn": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Mar/2026",
+      "Slow Oldies"
+    ],
+    "spotify:track:7kdqNN89dD1rvNpPLKZJjK": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo"
+    ],
+    "spotify:track:1if44NIoppKXZYjhlcotdb": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Real Soul Wah % Chill"
+    ],
+    "spotify:track:6yhFMqKCmwmyYhhXHb4OQc": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA"
+    ],
+    "spotify:track:4ySIlRhVHfoH4uK3BL74Ql": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs"
+    ],
+    "spotify:track:6mTfOxORhYlpnTvm7VrL6b": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Dez/2018",
+      "MPBonito"
+    ],
+    "spotify:track:4eSYEf13NEsN4VA9kIHjJ8": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "FATCHIA TOP",
+      "Baile Amefricano",
+      "Soul Br"
+    ],
+    "spotify:track:6wpDQGn3Gl0j9Wt6D6mYvQ": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "Festa Black 264",
+      "Disco Funk 264",
+      "Total 264",
+      "Tropí",
+      "Rock Nacional",
+      "Baile Amefricano"
+    ],
+    "spotify:track:5oiueCPkJCU9wCmQO5HDTj": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "MPBonito"
+    ],
+    "spotify:track:2XJMcgIzo2cR0BSLYWDrMC": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "1mpb Tropicália e outros"
+    ],
+    "spotify:track:31kHJvp9ZHNr8exYnUfhzE": [
+      "FATCHIA TOP 2",
+      "MPDNM Vinil (17/06/26)",
+      "Dia dos Namorados 264 BR",
+      "Aquecimento Soul RnB 264",
+      "Total 264",
+      "Tropí",
+      "Jun/2022",
+      "Baile Amefricano",
+      "MPBonito",
+      "Top122",
+      "Yanam"
+    ],
+    "spotify:track:2FSmesZ0BLPGOoEzS75Flc": [
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "PRAINHA TOP",
+      "PRAINHA SELECAO",
+      "PRAINHA B2B",
+      "PRAINHA AMSA"
+    ],
+    "spotify:track:1EEzTblhbT1FxxNc8SSVvW": [
+      "MPDNM Festa (17/06/26)",
+      "Festa",
+      "mpbeats",
+      "br House",
+      "R&Brasil"
+    ],
+    "spotify:track:12oiJJC32zB0mjAuRmfktB": [
+      "MPDNM Festa (17/06/26)",
+      "Funkão",
+      "Festa",
+      "R&Brasil"
+    ],
+    "spotify:track:7upgDi9C0pQn9HZzGfksJq": [
+      "MPDNM Festa (17/06/26)",
+      "MPDNM Festa (17/06/26)",
+      "PATUA",
+      "Badalos 90s",
+      "Total 264",
+      "Leilane",
+      "ITA",
+      "Party at the Smith's",
+      "Fev/2020",
+      "Pose",
+      "Charme & Good Vibe",
+      "Top122"
+    ],
+    "spotify:track:0jatcRk16ATM6EskYTDH5r": [
+      "MPDNM Festa (17/06/26)",
+      "PATUA",
+      "Meu Discogs BPM",
+      "Meu Discogs Total",
+      "Meu Discogs",
+      "Party at the Smith's"
+    ],
+    "spotify:track:4P91jW5QmEkhoLgdMujp82": [
+      "MPDNM Festa (17/06/26)",
+      "Total 264",
+      "Party at the Smith's",
+      "Real Disco",
+      "Real Boogie"
+    ],
+    "spotify:track:7eheoW4hxrH51ww2QePVwF": [
+      "MPDNM Festa (17/06/26)",
+      "Party at the Smith's"
     ],
     "spotify:track:21qnJAMtzC6S5SESuqQLEK": [
       "MPDNM Festa (17/06/26)",
@@ -277,704 +2019,12 @@
       "Rock Nacional",
       "Baile Amefricano"
     ],
-    "spotify:track:0dMd4rilfd6gPbXaLpNYhu": [
-      "MPDNM Festa (17/06/26)",
-      "MPDNM Vinil (17/06/26)",
-      "Party at Amsa`s",
-      "Real Funk"
-    ],
-    "spotify:track:2TI0STKG1kgevz10OxF3Pm": [
-      "MPDNM Festa (17/06/26)",
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "Festa Black 264",
-      "Brasil 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Tropí",
-      "Festa",
-      "Soul Br"
-    ],
     "spotify:track:0BhdLRHzJKgzCLS13ltjZL": [
       "MPDNM Festa (17/06/26)",
       "Dia dos Namorados 264 BR",
       "Festa"
     ],
-    "spotify:track:7g79Krd40M9zNc271Hn9K7": [
-      "MPDNM Vinil (17/06/26)",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Festa Black 264",
-      "Brasil 264",
-      "Disco Funk 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Tropí",
-      "Baile Amefricano",
-      "Soul Br"
-    ],
-    "spotify:track:6udIYp7fdnP9GbEJORZzlP": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs Não Encontrados",
-      "Jul/2025",
-      "Baile Amefricano",
-      "Soul Br"
-    ],
-    "spotify:track:66i1lieIMso7ef4P7KdWcE": [
-      "MPDNM Vinil (17/06/26)",
-      "Chill Funk"
-    ],
-    "spotify:track:0x9cIYWlzLyWfQNLUpCmj1": [
-      "MPDNM Vinil (17/06/26)",
-      "Soul Br"
-    ],
-    "spotify:track:6kLAiBdaF6dtGbhDTdbP9L": [
-      "MPDNM Vinil (17/06/26)",
-      "Soul Br"
-    ],
-    "spotify:track:1HibhNhwk2tljwC4BGGLXV": [
-      "MPDNM Vinil (17/06/26)",
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Ayra Aziza",
-      "Real Soul Wah % Chill",
-      "Real n Black"
-    ],
-    "spotify:track:09IOYvKTycZ5C5KiitKOhU": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Chill Funk"
-    ],
-    "spotify:track:31kHJvp9ZHNr8exYnUfhzE": [
-      "MPDNM Vinil (17/06/26)",
-      "Dia dos Namorados 264 BR",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Tropí",
-      "Jun/2022",
-      "Baile Amefricano",
-      "MPBonito",
-      "Top122",
-      "Yanam"
-    ],
-    "spotify:track:3LoudraTgQznUCa6n09eyR": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Brasil 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Baile Amefricano",
-      "Soul Br"
-    ],
-    "spotify:track:6u5DJLTMuHgKqxdtjAWnWP": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Abr/2023",
-      "Top122",
-      "samples amsa"
-    ],
-    "spotify:track:0yrLDWWxQwmUu0Hx4eENwD": [
-      "MPDNM Vinil (17/06/26)",
-      "Soul Br"
-    ],
-    "spotify:track:5TfsJFx2y8yRL6YQzyHeLw": [
-      "MPDNM Vinil (17/06/26)",
-      "Baile Amefricano",
-      "Soul Br"
-    ],
-    "spotify:track:3ApIYu95WxjzpQCnsLBbrv": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Dia dia namorados 264 USA",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Leilane",
-      "Dia dos Namorados La Ricas",
-      "Dez/2017",
-      "Love",
-      "Top122",
-      "Nostalgia",
-      "who sampled"
-    ],
-    "spotify:track:5JmBuvUAjNnzSPIOF4Z6ZQ": [
-      "MPDNM Vinil (17/06/26)",
-      "Jul/2025",
-      "Baile Amefricano",
-      "Soul Br"
-    ],
-    "spotify:track:7rLAPi81R7qlVqgXfykdEL": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Jul/2020",
-      "P-Funk",
-      "Real Soul Wah % Chill"
-    ],
-    "spotify:track:3BpiaGyTIb7VIoAYbvSzTH": [
-      "MPDNM Vinil (17/06/26)",
-      "Brasil 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Tropí",
-      "Churras da GADG",
-      "Baile Amefricano",
-      "Soul Br"
-    ],
-    "spotify:track:5gTDFWt595lQhckoDfXcWN": [
-      "MPDNM Vinil (17/06/26)",
-      "Real Soul Wah % Chill"
-    ],
-    "spotify:track:2zIZsBJmZtXwYQNpbOiwB0": [
-      "MPDNM Vinil (17/06/26)",
-      "Soul Br"
-    ],
-    "spotify:track:3GDM3x918Z9o9COKIdf4jc": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Soul Br"
-    ],
-    "spotify:track:1iA4JW1NzmcYNG8ZASIjdH": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Jun/2019",
-      "Slow Oldies",
-      "Top122"
-    ],
-    "spotify:track:4HfxDJ0uLHTLe0fZrx0MbQ": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Set/2018",
-      "amsa in BKLYN",
-      "Hip Hop origins",
-      "HipHopless",
-      "Top122",
-      "Brabas DEMAIS Vicio"
-    ],
-    "spotify:track:45XopGhwYSgooiewaZNsSd": [
-      "MPDNM Vinil (17/06/26)",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Soul Br"
-    ],
-    "spotify:track:65krtHkaYLPr0mEbjL61UP": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Dia dia namorados 264 USA",
-      "Mai/2025",
-      "NeoSoul",
-      "Top122"
-    ],
-    "spotify:track:3bgqIMHNehAZwhjckR3gc1": [
-      "MPDNM Vinil (17/06/26)",
-      "Leilane",
-      "Slow Jam Charme",
-      "Chill Funk"
-    ],
-    "spotify:track:7lTJO95ldKZYGV8dwCZxwo": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "Real Soul Wah % Chill"
-    ],
-    "spotify:track:4N0TP4Rmj6QQezWV88ARNJ": [
-      "MPDNM Vinil (17/06/26)",
-      "MPDNM Vinil (17/06/26)",
-      "MPDNM Vinil (17/06/26)",
-      "Mar/2026",
-      "Real Funk"
-    ],
-    "spotify:track:4QPoCJSGDSig70rrzt8ZLi": [
-      "MPDNM Vinil (17/06/26)",
-      "Dia dos Namorados 264 BR",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Tropí",
-      "Baile Amefricano",
-      "MPBonito",
-      "Top122",
-      "Yanam",
-      "samples amsa"
-    ],
-    "spotify:track:6a899bXlCuViXW2Qs8Rdqo": [
-      "MPDNM Vinil (17/06/26)",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Chill Funk",
-      "Nostalgia"
-    ],
-    "spotify:track:6QWE5mVCTKkViVIFHFBlgz": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Soul Br"
-    ],
-    "spotify:track:0FXknLgZs98w79JvULexcH": [
-      "MPDNM Vinil (17/06/26)",
-      "Brasil 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Jul/2019",
-      "Baile Amefricano",
-      "Soul Br",
-      "samples amsa"
-    ],
-    "spotify:track:4XRkQloZFcRrCONN7ZQ49Y": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Real Funk"
-    ],
-    "spotify:track:15pYj5ZiUJgBydzD7w6NbJ": [
-      "MPDNM Vinil (17/06/26)",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Ayra Aziza",
-      "Black Excelence",
-      "Slow Oldies",
-      "Top122"
-    ],
-    "spotify:track:2R6ryTnnqOci2Ms19wMNzB": [
-      "MPDNM Vinil (17/06/26)",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Real Funk"
-    ],
-    "spotify:track:5VJjhHyG8NZ5xdgG6uTb3P": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA LARYH",
-      "Disco Funk 264",
-      "Total 264",
-      "Disco Soul Boogie 70s",
-      "Real Soul Wah % Chill",
-      "Real Funk"
-    ],
-    "spotify:track:2H5nsVLjDwWsxfyajm0lVS": [
-      "MPDNM Vinil (17/06/26)",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Disco Funk 264",
-      "Total 264",
-      "Real Funk",
-      "Nostalgia"
-    ],
-    "spotify:track:0C4zk034TFnI2z8eorbv4K": [
-      "MPDNM Vinil (17/06/26)",
-      "Brasil 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Jun/2021",
-      "Baile Amefricano",
-      "Soul Br",
-      "Faixas do Shazam"
-    ],
-    "spotify:track:63DTXKZi7YdJ4tzGti1Dtr": [
-      "MPDNM Vinil (17/06/26)",
-      "MPDNM Vinil (17/06/26)",
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Mar/2026",
-      "Slow Jam Charme",
-      "Chill Funk"
-    ],
-    "spotify:track:41dDygR3r7e926oGUXfrLt": [
-      "MPDNM Vinil (17/06/26)",
-      "MPDNM Vinil (17/06/26)",
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Top122",
-      "Nostalgia"
-    ],
-    "spotify:track:5gaUkg5JNk8c4mr2jnpX8H": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Top122",
-      "Nostalgia"
-    ],
-    "spotify:track:5qqz0pUTUTenMGr9Hlr43a": [
-      "MPDNM Vinil (17/06/26)",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Brasil 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Soul Br",
-      "Faixas do Shazam"
-    ],
-    "spotify:track:0G3fbPbE1vGeABDEZF0jeG": [
-      "MPDNM Vinil (17/06/26)",
-      "Disco Funk 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Disco Soul Boogie 70s",
-      "Real Boogie",
-      "Top122"
-    ],
-    "spotify:track:3AsdJX0jmrMVeUbOEmPubM": [
-      "MPDNM Vinil (17/06/26)",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Brasil 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Baile Amefricano",
-      "Soul Br"
-    ],
-    "spotify:track:5si4dKq85jNXC71SqlCSaj": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Brasil 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Soul Br"
-    ],
-    "spotify:track:3EqXUkR4x6l5UzzV9Jwi5i": [
-      "MPDNM Vinil (17/06/26)",
-      "Soul Br"
-    ],
-    "spotify:track:6P28ijEvVb3md1QPSMFgxX": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Total 264",
-      "Disco Soul Boogie 70s",
-      "Real Disco",
-      "Real Funk",
-      "Chill Funk"
-    ],
-    "spotify:track:1Gnufs5iuI3h5ow29J7tOO": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Festa Black 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Slow Oldies",
-      "Top122",
-      "samples amsa",
-      "Olha esses acordes"
-    ],
-    "spotify:track:3DIe90xqHuUDtyuapTwCAR": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Chill Funk"
-    ],
-    "spotify:track:62CwLKItrExftm04nk4uh7": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Real Soul Wah % Chill"
-    ],
-    "spotify:track:6mRWYqhRPJVyYpLOLvbtRg": [
-      "MPDNM Vinil (17/06/26)",
-      "Disco Funk 264",
-      "Total 264",
-      "Real Funk"
-    ],
-    "spotify:track:3vbVSxq7PUcXD149jQcvQI": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Chill Funk"
-    ],
-    "spotify:track:17OzfblzUJ5XHBeBUb95av": [
-      "MPDNM Vinil (17/06/26)",
-      "Brasil 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Baile Amefricano",
-      "Soul Br"
-    ],
-    "spotify:track:6w9g12jpHCPCuvYVX7vLLG": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Festa Black 264",
-      "Disco Funk 264",
-      "Total 264",
-      "Out/2017",
-      "Disco Soul Boogie 70s",
-      "Real Soul Wah % Chill",
-      "Real Boogie"
-    ],
-    "spotify:track:6VZdUa8JjaGF2LGsiRG9lC": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Total 264",
-      "Mar/2020",
-      "Disco Soul Boogie 70s",
-      "Real Soul Wah % Chill",
-      "Top122"
-    ],
-    "spotify:track:13v3siPyvy5TTEZYmGPPse": [
-      "MPDNM Vinil (17/06/26)",
-      "Pose",
-      "Disco Soul Boogie 70s",
-      "Real Funk"
-    ],
-    "spotify:track:7fYozX6MaNmfHoGW7bFTdK": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Chill Funk"
-    ],
-    "spotify:track:4ADW3HBraqvlFcxRlcRyoK": [
-      "MPDNM Vinil (17/06/26)",
-      "Real Soul Wah % Chill",
-      "samples amsa"
-    ],
-    "spotify:track:6oMolJKWnbXvI5rzI7YN1M": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Total 264",
-      "Disco Soul Boogie 70s",
-      "Real Funk",
-      "Chill Funk"
-    ],
-    "spotify:track:2nasQgcUOpz7HCapLgoCiG": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Real Soul Wah % Chill"
-    ],
-    "spotify:track:6tXCw4NYlgQufigIAwb2HP": [
-      "MPDNM Vinil (17/06/26)",
-      "Soul Br"
-    ],
-    "spotify:track:74HjVGhoRX36jqyh0KN9X3": [
-      "MPDNM Vinil (17/06/26)",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Tropí",
-      "Festa Weyni",
-      "Mai/2019",
-      "Slow Oldies",
-      "Top122"
-    ],
-    "spotify:track:6HhxG1eIAXZLg3LeqOpk6s": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Jun/2019",
-      "Slow Oldies",
-      "Instrumentals",
-      "Top122"
-    ],
-    "spotify:track:4eSYEf13NEsN4VA9kIHjJ8": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "Baile Amefricano",
-      "Soul Br"
-    ],
-    "spotify:track:6MCaOLDl0epJPRN76H5S4N": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Dia dos Namorados 264 BR",
-      "Tropí",
-      "MPBonito",
-      "Top122"
-    ],
-    "spotify:track:7zf5JVR1AiPa9snspPRUD0": [
-      "MPDNM Vinil (17/06/26)",
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Dia dos Namorados 264 BR",
-      "Brasil 264",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Tropí",
-      "Baile Amefricano",
-      "Soul Br",
-      "Yanam"
-    ],
-    "spotify:track:3YEBLCtsk29qrhZ4AF6BD4": [
-      "Grooves secretos"
-    ],
-    "spotify:track:0owfjF5QLxBzenEU3zHrYD": [
-      "Grooves secretos"
-    ],
     "spotify:track:0W8hsSIggpSWEKuIibFjue": [
-      "Grooves secretos"
-    ],
-    "spotify:track:1ns5RZCzaOIbJ4U0Nsn0RL": [
       "Grooves secretos"
     ],
     "spotify:track:6gykAGQS4WKGmkzkMQ3dCj": [
@@ -998,145 +2048,11 @@
       "Baile Amefricano",
       "MPBonito"
     ],
-    "spotify:track:0wn1zutdePYlXV0H8WfQGn": [
-      "Mai/2026",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Chill Funk"
-    ],
     "spotify:track:2MddJi3XeknnPQ0cyfLLIA": [
       "Mai/2026",
       "1mpb Tropicália e outros",
       "Baile Amefricano",
       "MPBonito"
-    ],
-    "spotify:track:0eVnhQNFTRZXOIhHZNLX85": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "MPBonito"
-    ],
-    "spotify:track:7BhJEUC5B3pXb5ZgCIS2gy": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:5Pn7ldcp8uOZmwPJ3rUf7b": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:3PZW66625MiyEmZaat7tce": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:5MmRVDYiijI0HQj7ifYVlX": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Jazz"
-    ],
-    "spotify:track:05jjChWlvR8JAvSZoY3wBn": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Mar/2026",
-      "Slow Oldies"
-    ],
-    "spotify:track:6mTfOxORhYlpnTvm7VrL6b": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Dez/2018",
-      "MPBonito"
-    ],
-    "spotify:track:5oiueCPkJCU9wCmQO5HDTj": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "MPBonito"
-    ],
-    "spotify:track:2XJMcgIzo2cR0BSLYWDrMC": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "1mpb Tropicália e outros"
-    ],
-    "spotify:track:2FSmesZ0BLPGOoEzS75Flc": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA"
-    ],
-    "spotify:track:6cB3FkRkWm9iJ3xZJ4Tf9p": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Baile Amefricano"
-    ],
-    "spotify:track:4N1xETYUkyYBkXYBCZ3Khv": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:5I5x8mk0xpXBqXIskvl2U5": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:0Jw3cPBXlGnA6DEJrZSTI0": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Tropí",
-      "Jazz"
-    ],
-    "spotify:track:3sD54B3XKbEYKKJPmP2IhG": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
     ],
     "spotify:track:4mhOigdD9sBN0vRo2ltbB8": [
       "FATCHIA TOP",
@@ -1145,176 +2061,6 @@
       "PRAINHA B2B",
       "PRAINHA AMSA",
       "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:1x2BI28BQUXLNSH7AWvkRK": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:0YojqXjn4xb5hblpFAhqJr": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "samples amsa"
-    ],
-    "spotify:track:2Kkut4NAV813raj2CZ2A98": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Abr/2026",
-      "Slow Oldies"
-    ],
-    "spotify:track:0ikz6tENMONtK6qGkOrU3c": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:4877bJ149OUJZHTiU5Jg8P": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Tropí",
-      "Baile Amefricano"
-    ],
-    "spotify:track:2lnQcP5hr4RKR63TFvnI4k": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA LARYH"
-    ],
-    "spotify:track:6hdxy67JqIATUt1EoqS4OW": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:1TX4h6MrIZ0K3r4OOG11WO": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Dia dos Namorados 264 BR"
-    ],
-    "spotify:track:70ctQzBQmXnX5lnHfm2EFp": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Baile Amefricano"
-    ],
-    "spotify:track:6PGJeqVwXZMfmV3Dumvzc9": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:0Dm43YLUlGdePpSbI1ct8h": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA LARYH",
-      "Chill Funk"
-    ],
-    "spotify:track:6QQV71cjjsgOd63d3ir0I0": [
-      "FATCHIA TOP"
-    ],
-    "spotify:track:57oZ05Syg4Si8UDHHQ35pq": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:2OmW34Xkvsy1VCOZ4OZhKv": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Tropí"
-    ],
-    "spotify:track:2F2CHbZn5m0nkyB4EPf988": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs Não Encontrados",
-      "Meu Discogs"
-    ],
-    "spotify:track:6eDMElxeeKXs4DHTb0dGP0": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "Dia dos Namorados 264 BR",
-      "Dia dos Namorados La Ricas"
-    ],
-    "spotify:track:6U03Orwr5Dxt8jahLnQpYV": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Tropí",
-      "Baile Amefricano"
-    ],
-    "spotify:track:3O2FlEB1iUnixM3IlwrG5K": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA"
-    ],
-    "spotify:track:7AgMX97ljLm9BzszyyXEYZ": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Nov/2018",
-      "Jazzhop",
-      "Hip Hop origins",
-      "HipHopless"
-    ],
-    "spotify:track:2JbcnywVE16TVEzv5P2RZn": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
       "Meu Discogs BPM",
       "Meu Discogs Total",
       "Meu Discogs"
@@ -1329,539 +2075,6 @@
       "Jef Macq2",
       "Jazzhop",
       "HipHopless"
-    ],
-    "spotify:track:3iof6EclqePezHDibBiykI": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs Não Encontrados",
-      "Dia dos Namorados 264 BR",
-      "1mpb Tropicália e outros",
-      "MPBonito"
-    ],
-    "spotify:track:1lwLDZnAFkI1iXt8iSa5qp": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Fev/2026"
-    ],
-    "spotify:track:7ggHwwQS45CLKyRpo4yOfT": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:7gd7BDwZWjGXD6CfX7KQcF": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "MPBonito"
-    ],
-    "spotify:track:0htuSeiUOkAth28py2IfaS": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:60y7477h7umOqSmOyXuEk0": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Baile Amefricano"
-    ],
-    "spotify:track:5YTM7OgQDt9EJAYcfHLniJ": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:2VInmTmMbqd4YC5zXMJz2J": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:0eEXcw3JLVXcRxYrVYMy68": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "HipHopless"
-    ],
-    "spotify:track:5J9Xzqe3CiBPBbs67TA8nL": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:1HCo7W2RtTWbaJTIa25Mz8": [
-      "FATCHIA TOP",
-      "PRAINHA TOP"
-    ],
-    "spotify:track:1XWIZv5nDOPH80qPlTQjxE": [
-      "FATCHIA TOP",
-      "PRAINHA TOP"
-    ],
-    "spotify:track:1jhluel6ujMGZirTF9aBWN": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "MPBonito"
-    ],
-    "spotify:track:05dII0s9eSLlgaBiDa8JO1": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA"
-    ],
-    "spotify:track:4NBzFOhtVta7Dk3mWa7jL2": [
-      "FATCHIA TOP"
-    ],
-    "spotify:track:0uugJPMMuIpugFh2aXN6m9": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:3mRM4NM8iO7UBqrSigCQFH": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:3yp0RiFwofJptvIcvJ3KUW": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:5JNvoqCQjjIAQga86EiRqb": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA"
-    ],
-    "spotify:track:2JoZzpdeP2G6Csfdq5aLXP": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:6jo2Yy7YkEHR8xKT1RtnpM": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:2cE8TW1RiEJoezQv7pbyoa": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:4fquZvrjr14AEcb2YZPQ0Q": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA"
-    ],
-    "spotify:track:1GI3BPlK6KGJ6Vwv9z7Ww4": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Fev/2026"
-    ],
-    "spotify:track:6KIS5YIZAyeiFNx1aE1OhY": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA"
-    ],
-    "spotify:track:3pbtBomO4Zt5gGiqsYeiBH": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA LARYH"
-    ],
-    "spotify:track:5KgbyD2lQQlIupAaPjgiXg": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:4cLXNwNqXWT1CTR5Gyr7ei": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:6KUjwoHktuX3du8laPVfO8": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs Não Encontrados"
-    ],
-    "spotify:track:1S6VzdwEzMFICgNpwxPwlD": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA"
-    ],
-    "spotify:track:3SnGymj6ijE2iuUfWxLo1q": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA LARYH",
-      "Pose"
-    ],
-    "spotify:track:1ZWVUWNY40bbEWX9P833Z3": [
-      "FATCHIA TOP",
-      "PRAINHA TOP"
-    ],
-    "spotify:track:06WWnCfoJveGUvYQWK7nGf": [
-      "FATCHIA TOP",
-      "PRAINHA TOP"
-    ],
-    "spotify:track:3Hya20ZNnlLzGLCpzJR6bv": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:5WwRKYnVy9dekqXAGPbAvU": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Disco Funk 264",
-      "Total 264",
-      "Real Boogie"
-    ],
-    "spotify:track:42MAEkamRaomzO3UWqGdh3": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:1oFiPGBafH9Woo9AMwgBSl": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Disco Funk 264",
-      "Total 264",
-      "Pose",
-      "Disco Soul Boogie 70s",
-      "Real Disco"
-    ],
-    "spotify:track:5hXEcqQhEjfZdbIZLO8mf2": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:5JjdJK0uGRUk4skRTuQdUZ": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Dez/2019"
-    ],
-    "spotify:track:65Qj6C1VypRzkpypONWBNb": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:17EVu5b0l5uo2gErSfqEt1": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:11d9oUiwHuYt216EFA2tiz": [
-      "FATCHIA TOP",
-      "PRAINHA TOP"
-    ],
-    "spotify:track:0fUVO6KRTLHOkmFf0NavBq": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA AMSA"
-    ],
-    "spotify:track:5mZeHfyr6zNK7hOhN0qfsr": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:4ryETHfBqsXORG98n6gMwD": [
-      "FATCHIA TOP",
-      "PRAINHA TOP"
-    ],
-    "spotify:track:1Hv1VTm8zeOeybub15mA2R": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Dia dia namorados 264 USA",
-      "CALOURADA DACS",
-      "NeoSoul",
-      "Love"
-    ],
-    "spotify:track:2mmqUU64P1BhJNvH1jtofT": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA AMSA"
-    ],
-    "spotify:track:2Gkf6q9Mqai9wNhcsKCM4e": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Dia dos Namorados 264 BR",
-      "MPBonito"
-    ],
-    "spotify:track:6VeAUISn8bNaW4OUa2oWi2": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "MPBonito"
-    ],
-    "spotify:track:2zMJN9JvDlvGP4jB03l1Bz": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA LARYH"
-    ],
-    "spotify:track:5rShS5dwU8nIe21jlQnbxK": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:1ibRqifchaAfeNdQGpbRVW": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA LARYH",
-      "Pose"
-    ],
-    "spotify:track:7MHoNRLIc9cnomR6I5nrQi": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:6tqRmQeGuM0n8nrcch3gp0": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs Não Encontrados"
-    ],
-    "spotify:track:1SvET7grrtsHT0CkyJjJcZ": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA"
-    ],
-    "spotify:track:4JmZyfkzXWN7pHJsJpN6XP": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:2HvuyQEnKR82zwfIuCBaWH": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Dia dos Namorados 264 BR",
-      "Aquecimento Soul RnB 264",
-      "Total 264",
-      "Tropí",
-      "Yanam"
-    ],
-    "spotify:track:3c1vwtaUfS88rR4UuiaMoZ": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Real Soul Wah % Chill"
-    ],
-    "spotify:track:1Rl9GHgsflyIVqBRyO45Zo": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "Disco Funk 264",
-      "Total 264",
-      "Real Boogie"
-    ],
-    "spotify:track:78XG7U0UueeC86XpzF9O7f": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:3yDhZq8f17SmumVmEyCaRN": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:3koCCeSaVUyrRo3N2gHrd8": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Meu Discogs",
-      "Festa Black 264",
-      "Disco Funk 264",
-      "Total 264",
-      "Disco Soul Boogie 70s",
-      "Real Disco",
-      "Real Boogie"
-    ],
-    "spotify:track:1i01coCdrJQTyTkdY0GClx": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:6vgKWE1KV4E7p1Dv75z0kL": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Dia dos Namorados 264 BR",
-      "Tropí",
-      "Baile Amefricano",
-      "MPBonito"
-    ],
-    "spotify:track:2grjqo0Frpf2okIBiifQKs": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs Total",
-      "Meu Discogs",
-      "Meu Discogs"
-    ],
-    "spotify:track:2qcfKvkTopzpSOeLW9AvyM": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "Rock Nacional"
-    ],
-    "spotify:track:2ffCT6Pe2LYriwN2Y5ObIg": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:3vE6VYTG7LytVOvVTc3PBb": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:7kdqNN89dD1rvNpPLKZJjK": [
-      "FATCHIA TOP",
-      "FATCHIA novo"
-    ],
-    "spotify:track:1if44NIoppKXZYjhlcotdb": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Real Soul Wah % Chill"
-    ],
-    "spotify:track:6yhFMqKCmwmyYhhXHb4OQc": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "PRAINHA SELECAO",
-      "PRAINHA B2B",
-      "PRAINHA AMSA",
-      "PATUA"
-    ],
-    "spotify:track:4ySIlRhVHfoH4uK3BL74Ql": [
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Meu Discogs BPM",
-      "Meu Discogs Total",
-      "Meu Discogs"
-    ],
-    "spotify:track:6wpDQGn3Gl0j9Wt6D6mYvQ": [
-      "FATCHIA TOP",
-      "PRAINHA TOP",
-      "Festa Black 264",
-      "Disco Funk 264",
-      "Total 264",
-      "Tropí",
-      "Rock Nacional",
-      "Baile Amefricano"
     ],
     "spotify:track:4LUMpe4ZSzLItvb5dAx6Ic": [
       "PRAINHA SELECAO",
@@ -5051,6 +5264,7 @@
       "1mpb Tropicália e outros",
       "Churras da GADG",
       "Rock Nacional",
+      "Madeleine's Birthday",
       "Madeleine's Birthday"
     ],
     "spotify:track:1XSum2KcsGysxMYznpqFm5": [
@@ -5535,11 +5749,6 @@
       "Dia dos Namorados 264 BR",
       "MPBonito"
     ],
-    "spotify:track:2ea27ZeiVxXTY029nVpcWe": [
-      "Dia dos Namorados 264 BR",
-      "Mai/2025",
-      "MPBonito"
-    ],
     "spotify:track:5PJZbd8I7PrQDDDcehVU6M": [
       "Dia dos Namorados 264 BR",
       "MPBonito"
@@ -5721,10 +5930,6 @@
     "spotify:track:4UfneNUjsKYL1wiEVr1pYN": [
       "Abr/2026",
       "MPBonito"
-    ],
-    "spotify:track:6QILZRCxgZDjhzJ4fmbmX1": [
-      "Abr/2026",
-      "Real Soul Wah % Chill"
     ],
     "spotify:track:0Tv1iehgHE6m8ddw4EScU9": [
       "Abr/2026",
@@ -5934,9 +6139,6 @@
     "spotify:track:2inn5cjvCCTZvoOB0UsPzi": [
       "Soul Br"
     ],
-    "spotify:track:57rdTDz1qdo7Pfqx8jWB5e": [
-      "R&Brasil"
-    ],
     "spotify:track:2erhUFGpL85eP1NuTSuuig": [
       "R&Brasil"
     ],
@@ -6120,6 +6322,7 @@
     "Escurecer",
     "Evolution",
     "FATCHIA TOP",
+    "FATCHIA TOP 2",
     "FATCHIA novo",
     "FLORA",
     "Faixas do Shazam",
@@ -6184,7 +6387,6 @@
     "Jun/2023",
     "Jun/2024",
     "Ladies in The Cabaret",
-    "Ladies in The Cabaret",
     "Leilane",
     "Louder",
     "Love",
@@ -6192,6 +6394,7 @@
     "MPDNM",
     "MPDNM Festa (17/06/26)",
     "MPDNM Vinil (17/06/26)",
+    "Madeleine's Birthday",
     "Madeleine's Birthday",
     "Mai/2017",
     "Mai/2018",
