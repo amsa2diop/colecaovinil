@@ -2204,8 +2204,10 @@ function applyPlFilter(){closePlModal();_updatePlBadge();filterTracks();filterLP
 function clearPlFilter(){activePlaylists.clear();_updatePlBadge();filterTracks();filterLP();}
 function _updatePlBadge(){
   var n=activePlaylists.size;
-  var b=document.getElementById('pl-badge');
-  if(b){b.textContent=n;b.style.display=n?'inline-flex':'none';}
+  ['pl-badge','pl-badge-lp'].forEach(function(id){
+    var b=document.getElementById(id);
+    if(b){b.textContent=n;b.style.display=n?'inline-flex':'none';}
+  });
 }
 document.addEventListener('DOMContentLoaded',function(){
   var m=document.getElementById('pl-modal');
@@ -4162,19 +4164,20 @@ def generate_html(df):
         '-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719'
         ' 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>'
     )
-    pl_btn_html = (
-        '<button class="filter-toggle-btn pl-filter-btn" id="pl-filter-btn" '
+    _pl_filter_btn_tpl = (
+        '<button class="filter-toggle-btn pl-filter-btn" id="{bid}" '
         'onclick="openPlModal()" title="Filtrar por playlist Spotify">'
         + _sp_icon_btn +
         ' Playlist'
-        '<span class="pl-active-badge" id="pl-badge" style="display:none">0</span>'
+        '<span class="pl-active-badge" id="{badge}" style="display:none">0</span>'
         '</button>'
-        '<button class="sp-create-pl-btn" onclick="createSpotifyPlaylist()" '
-        'title="Criar playlist Spotify das faixas visíveis (por BPM)">+</button>'
-    ) if _all_playlist_names else (
-        '<button class="sp-create-pl-btn" onclick="createSpotifyPlaylist()" '
-        'title="Criar playlist Spotify das faixas visíveis (por BPM)">+</button>'
+    ) if _all_playlist_names else ''
+    pl_btn_html = (
+        _pl_filter_btn_tpl.format(bid='pl-filter-btn', badge='pl-badge')
+        + '<button class="sp-create-pl-btn" onclick="createSpotifyPlaylist()" '
+          'title="Criar playlist Spotify das faixas visíveis (por BPM)">+</button>'
     )
+    pl_btn_html_lp = _pl_filter_btn_tpl.format(bid='pl-filter-btn-lp', badge='pl-badge-lp')
 
     # ── Spotify track IDs for random start ───────────────────────────────────
     _sp_accepted = df_tracks[df_tracks["status"] == "ACEITO"]["track_id"].dropna()
@@ -4460,6 +4463,7 @@ def generate_html(df):
         <option value="" selected>Artista A&#8594;Z</option>
       </select>
       <button class="filter-toggle-btn" id="fp-btn-lp" onclick="toggleFilterPanel('lp')">{_SVG_FILTER_LINES} Filtros &#9662;</button>
+      {pl_btn_html_lp}
       <button class="preview-toggle-btn" onclick="togglePreviewPublic()" title="Visualizar como p&#250;blico">&#128065;</button>
       <button class="pencil-mode-btn" onclick="toggleEditMode()" title="Modo edi&#231;&#227;o">&#9998;</button>
       <button class="sync-btn" onclick="triggerSync(this)" title="Sincronizar agora">&#8635;</button>
