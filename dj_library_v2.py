@@ -501,20 +501,19 @@ def get_album_tracks(sp, album_id):
 def match_disc_to_album(disc_tracks_df, sp_tracks, album_artist):
     """
     Tenta fazer match das faixas Discogs com as faixas do álbum Spotify.
-    Retorna dict {idx: match_dict} e lista de índices não encontrados.
+    Usa atribuição greedy (maior score primeiro) para garantir que cada URI
+    Spotify é usada no máximo uma vez dentro do mesmo álbum.
+    Retorna (dict {idx: match_dict}, lista de índices não encontrados, set de URIs usadas).
     """
-    matched, unmatched = {}, []
-
+    # Pontua todos os pares (faixa_disc × faixa_sp)
+    all_pairs = []
     for idx, row in disc_tracks_df.iterrows():
-        best_score, best_sp = 0, None
         for sp_t in sp_tracks:
             sp_name   = sp_t.get("name", "")
             sp_artist = sp_t["artists"][0]["name"] if sp_t.get("artists") else ""
-            # Dentro do álbum: peso maior para título
             sc_title  = fuzz.token_sort_ratio(normalize(row["track_title"]), normalize(sp_name))
             sc_artist = fuzz.token_sort_ratio(normalize(row["artist_clean"]), normalize(sp_artist))
             sc = sc_title * 0.80 + sc_artist * 0.20
-            # Penalizações
             if re.search(r"\blive\b|ao vivo|concert", sp_name.lower()) and \
                not re.search(r"live|ao vivo|concert", row["track_title"].lower()):
                 sc -= 20
@@ -522,27 +521,43 @@ def match_disc_to_album(disc_tracks_df, sp_tracks, album_artist):
                not re.search(r"remix|edit|rework", row["track_title"].lower()):
                 sc -= 15
             sc = max(0, sc)
-            if sc > best_score:
-                best_score, best_sp = sc, sp_t
+            all_pairs.append((sc, idx, sp_t))
 
-        if best_sp and best_score >= LIMIAR_ACEITO:
-            matched[idx] = dict(
-                spotify_uri     = best_sp["uri"],
-                found_name      = best_sp["name"],
-                found_artist    = best_sp["artists"][0]["name"] if best_sp.get("artists") else "",
-                track_id        = best_sp["id"],
-                match_score     = round(best_score, 1),
-                search_strategy = "album_first",
-            )
-        else:
-            unmatched.append(idx)
+    # Atribuição greedy: melhor par primeiro, URI e faixa usadas no máximo uma vez
+    all_pairs.sort(key=lambda x: x[0], reverse=True)
+    used_uris = set()
+    used_idxs = set()
+    matched   = {}
 
-    return matched, unmatched
+    for sc, idx, sp_t in all_pairs:
+        if sc < LIMIAR_ACEITO:
+            break  # lista ordenada desc — nada abaixo do limiar serve
+        if idx in used_idxs or sp_t["uri"] in used_uris:
+            continue
+        matched[idx] = dict(
+            spotify_uri     = sp_t["uri"],
+            found_name      = sp_t["name"],
+            found_artist    = sp_t["artists"][0]["name"] if sp_t.get("artists") else "",
+            track_id        = sp_t["id"],
+            match_score     = round(sc, 1),
+            search_strategy = "album_first",
+        )
+        used_uris.add(sp_t["uri"])
+        used_idxs.add(idx)
+
+    unmatched = [idx for idx in disc_tracks_df.index if idx not in matched]
+    return matched, unmatched, used_uris
 
 
-def search_track_fallback(sp, artist, album_artist, title):
-    """Busca individual de faixa — fallback para faixas não encontradas no álbum."""
+def search_track_fallback(sp, artist, album_artist, title, used_uris=None):
+    """
+    Busca individual de faixa — fallback para faixas não encontradas no álbum.
+    Aceita um set de URIs já usadas no release para evitar duplicação.
+    Só define spotify_uri quando score >= LIMIAR_ACEITO.
+    """
     time.sleep(0.3)
+    if used_uris is None:
+        used_uris = set()
 
     def run(q, limit=5):
         return sp_search(sp, q, stype="track", limit=limit)
@@ -559,13 +574,15 @@ def search_track_fallback(sp, artist, album_artist, title):
 
     best_score, best = -1, empty
     for item in items[:5]:
+        if item["uri"] in used_uris:
+            continue
         sp_name   = item.get("name", "")
         sp_artist = item["artists"][0]["name"] if item.get("artists") else ""
         sc = match_score(title, artist, sp_name, sp_artist, album_artist)
         if sc > best_score:
             best_score = sc
             best = dict(
-                spotify_uri     = item["uri"],
+                spotify_uri     = item["uri"] if sc >= LIMIAR_ACEITO else None,
                 found_name      = sp_name,
                 found_artist    = sp_artist,
                 track_id        = item["id"],
@@ -601,11 +618,14 @@ def run_album_first_matching(sp, df):
         n_tracks   = len(group)
 
         if is_va(alb_artist):
-            # V.A.: busca individual
+            # V.A.: busca individual com dedup de URI por release
+            used_uris = set()
             for idx, row in group.iterrows():
-                res = search_track_fallback(sp, row["artist_clean"], alb_artist, row["track_title"])
+                res = search_track_fallback(sp, row["artist_clean"], alb_artist, row["track_title"], used_uris)
                 for k, v in res.items():
                     df.at[idx, k] = v
+                if res.get("spotify_uri"):
+                    used_uris.add(res["spotify_uri"])
                 done_tracks += 1
         else:
             # Álbum normal: tenta album-first
@@ -613,26 +633,31 @@ def run_album_first_matching(sp, df):
 
             if sp_album:
                 sp_tracks = get_album_tracks(sp, sp_album["id"])
-                matched, unmatched = match_disc_to_album(group, sp_tracks, alb_artist)
+                matched, unmatched, used_uris = match_disc_to_album(group, sp_tracks, alb_artist)
 
                 for idx, res in matched.items():
                     for k, v in res.items():
                         df.at[idx, k] = v
                     done_tracks += 1
 
-                # Fallback individual para não encontrados no álbum
+                # Fallback individual para não encontrados no álbum (herda used_uris do album_first)
                 for idx in unmatched:
                     row = df.loc[idx]
-                    res = search_track_fallback(sp, row["artist_clean"], alb_artist, row["track_title"])
+                    res = search_track_fallback(sp, row["artist_clean"], alb_artist, row["track_title"], used_uris)
                     for k, v in res.items():
                         df.at[idx, k] = v
+                    if res.get("spotify_uri"):
+                        used_uris.add(res["spotify_uri"])
                     done_tracks += 1
             else:
-                # Álbum não encontrado: busca individual para todas as faixas
+                # Álbum não encontrado: busca individual para todas as faixas com dedup por release
+                used_uris = set()
                 for idx, row in group.iterrows():
-                    res = search_track_fallback(sp, row["artist_clean"], alb_artist, row["track_title"])
+                    res = search_track_fallback(sp, row["artist_clean"], alb_artist, row["track_title"], used_uris)
                     for k, v in res.items():
                         df.at[idx, k] = v
+                    if res.get("spotify_uri"):
+                        used_uris.add(res["spotify_uri"])
                     done_tracks += 1
 
         done_albums += 1
@@ -882,6 +907,22 @@ def main():
         all_ids      = set(df["release_id"].dropna().astype(int).unique())
         new_to_match = all_ids - matched_ids
 
+        # Limpar URIs de matches ruins (score < limiar) herdados de algoritmo anterior.
+        # Esses URIs errados podem fazer faixas aparecerem no filtro de playlists indevidamente.
+        if "match_score" in df_matched.columns and "spotify_uri" in df_matched.columns:
+            bad_uri_mask = (
+                df_matched["spotify_uri"].notna() &
+                df_matched["spotify_uri"].astype(str).str.startswith("spotify:track:") &
+                (df_matched["match_score"].apply(safe_float) < LIMIAR_ACEITO)
+            )
+            if bad_uri_mask.any():
+                bad_releases = set(df_matched.loc[bad_uri_mask, "release_id"].dropna().astype(int).unique())
+                df_matched.loc[bad_uri_mask, "spotify_uri"] = None
+                df_matched.loc[df_matched["release_id"].isin(bad_releases), "status"] = "PENDENTE"
+                df_matched.to_csv(backup_v2_path, index=False)
+                print(f"  ⚠ {bad_uri_mask.sum()} URI(s) com score baixo removidas → "
+                      f"{len(bad_releases)} release(s) marcado(s) PENDENTE para re-matching")
+
         if new_to_match:
             print(f"Matching {len(new_to_match)} novo(s) release(s) no Spotify...")
             df_new_tracks  = df[df["release_id"].isin(new_to_match)].copy()
@@ -892,7 +933,7 @@ def main():
         else:
             print(f"✓ Spotify matching completo ({len(df_matched)} faixas, sem novos releases)")
 
-        # Re-match releases that are still PENDENTE (never matched yet)
+        # Re-match releases que estão PENDENTE (matching ruim ou nunca matchados)
         pendente_ids = set(
             df_matched[df_matched["status"] == "PENDENTE"]["release_id"].dropna().astype(int).unique()
         )
