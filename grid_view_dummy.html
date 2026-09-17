@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Grid View — Dummy v2</title>
+<style>
+:root{
+  --bg:#f5f3ef;--card:#fff;--text:#111;--text2:#555;--text3:#999;
+  --bdr:#e0dcd5;--acc:#8b6f47;--r:14px;--sp:#1db954;
+  --player-h:0px; /* atualizado via JS */
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--text)}
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.site-header{
+  position:sticky;top:0;z-index:800;
+  background:rgba(245,243,239,.95);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;gap:.6rem;padding:.6rem 1.2rem;
+}
+.site-title{font-size:.85rem;font-weight:700}
+.site-stats{font-size:.65rem;color:var(--text3)}
+.hdr-spacer{flex:1}
+.ctrl-input{height:34px;padding:0 .75rem;border-radius:20px;
+  border:1px solid var(--bdr);background:#fff;font-size:.78rem;
+  width:180px;outline:none}
+.ctrl-input:focus{border-color:var(--acc)}
+
+/* ── RESULTS BAR ─────────────────────────────────────────── */
+.results-bar{
+  display:flex;align-items:center;gap:.5rem;
+  font-size:.68rem;color:var(--text3);letter-spacing:.06em;
+  text-transform:uppercase;padding:.75rem 1.2rem .5rem;
+}
+.rb-left{flex:1}
+.view-toggle{display:flex;gap:2px}
+.vt-btn{width:30px;height:28px;border-radius:6px;border:1px solid var(--bdr);
+  background:transparent;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;color:var(--text3);transition:all .15s}
+.vt-btn.active{background:var(--text);border-color:var(--text);color:#fff}
+
+/* ── GRID ────────────────────────────────────────────────── */
+#view-grid{
+  display:grid;
+  /* desktop: cards maiores, mínimo 200px */
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:1rem;padding:0 1.2rem;
+  padding-bottom:calc(var(--player-h) + 1.8rem);
+}
+
+/* mobile: exatamente 2 colunas */
+@media(max-width:560px){
+  #view-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;padding:0 .75rem;
+    padding-bottom:calc(var(--player-h) + 1.5rem);}
+}
+
+.grid-card{
+  border-radius:var(--r);overflow:hidden;cursor:pointer;
+  box-shadow:0 3px 16px rgba(0,0,0,.13);
+  transition:transform .18s,box-shadow .18s;
+  /* sem borda, sem fundo branco — a cor vem do card-bg */
+}
+.grid-card:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,.19)}
+.grid-card:active{transform:scale(.97)}
+
+/* Sem moldura lateral/superior — capa vai até a borda do card */
+.grid-frame{padding:0}
+.grid-cover{
+  width:100%;aspect-ratio:1/1;object-fit:cover;
+  display:block;border-radius:0;
+  background:#ddd;
+}
+.grid-info{
+  /* mesmo fundo colorido do frame */
+  padding:.45rem .6rem .55rem;
+}
+.grid-artist{
+  font-size:.53rem;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:rgba(0,0,0,.45);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:.18rem;
+}
+.grid-title{
+  font-size:.72rem;font-weight:800;color:rgba(0,0,0,.78);
+  line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden;
+}
+.grid-year{
+  font-size:.62rem;font-weight:400;color:rgba(0,0,0,.4);
+  margin-left:.25rem;font-style:italic;
+}
+
+/* ── LIST VIEW ───────────────────────────────────────────── */
+#view-list{
+  display:flex;flex-direction:column;gap:.4rem;
+  padding:0 1.2rem;
+  padding-bottom:calc(var(--player-h) + 1.8rem);
+}
+.list-card{
+  background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);
+  display:flex;align-items:center;gap:.7rem;padding:.5rem .75rem;
+  cursor:pointer;transition:background .12s;
+}
+.list-card:hover{background:#f0ece5}
+.list-cover{width:48px;height:48px;object-fit:cover;border-radius:7px;flex-shrink:0;background:#ddd}
+.list-info{flex:1;min-width:0}
+.list-artist{font-size:.58rem;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.08rem}
+.list-title{font-size:.79rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-meta{font-size:.61rem;color:var(--text3);margin-top:.1rem}
+
+/* ── LIGHTBOX — estilo card expandido (dark) ─────────────── */
+#lightbox{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;padding:1rem}
+#lightbox.open{display:flex}
+.lb-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(12px)}
+.lb-card{
+  position:relative;z-index:1;
+  background:#1c1c1c;border-radius:12px;
+  width:100%;max-width:700px;max-height:calc(100vh - 80px);
+  overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 28px 80px rgba(0,0,0,.6);color:#e8e8e8;
+}
+.lb-close{
+  position:absolute;top:.6rem;right:.6rem;z-index:10;
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.12);color:#ccc;border:none;cursor:pointer;
+  font-size:.8rem;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.lb-close:hover{background:rgba(255,255,255,.25)}
+
+/* Header */
+.lb-header{
+  position:relative;flex-shrink:0;overflow:hidden;
+}
+.lb-blur-bg{
+  position:absolute;inset:0;background-size:cover;background-position:center;
+  filter:blur(40px) saturate(.55);opacity:.38;transform:scale(1.1);
+}
+.lb-header-inner{
+  position:relative;z-index:1;
+  display:flex;gap:.85rem;align-items:flex-start;
+  padding:.9rem 1rem .85rem;padding-right:9rem; /* espaço para btns */
+}
+.lb-cover{width:90px;height:90px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#333}
+.lb-meta{flex:1;min-width:0}
+.lb-artist{font-size:.95rem;font-weight:700;color:#e8e8e8;margin-bottom:.1rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-title{font-size:1.1rem;font-weight:800;color:#fff;line-height:1.22;margin-bottom:.3rem}
+.lb-meta-row{font-size:.63rem;color:rgba(255,255,255,.42);margin-bottom:.25rem;line-height:1.5}
+.lb-stats{font-size:.62rem;color:rgba(255,255,255,.38);margin-top:.22rem}
+/* Botões no canto superior direito do header */
+.lb-btn-col{
+  position:absolute;top:.9rem;right:.85rem;z-index:2;
+  display:flex;flex-direction:column;gap:.28rem;
+}
+.lb-btn{font-size:.66rem;font-weight:600;padding:.28rem .6rem;border-radius:6px;
+  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);
+  color:#e0e0e0;cursor:pointer;
+  text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;
+  transition:all .12s;white-space:nowrap}
+.lb-btn:hover{background:rgba(255,255,255,.22);color:#fff}
+
+/* Body / track list */
+.lb-divider{height:1px;background:rgba(255,255,255,.07);flex-shrink:0}
+.lb-body{overflow-y:auto;flex:1;padding:.3rem 0 .6rem}
+.lb-tracks-title{font-size:.57rem;font-weight:700;color:rgba(255,255,255,.3);
+  text-transform:uppercase;letter-spacing:.08em;padding:.5rem 1rem .3rem}
+.lb-track{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.3rem 1rem;border-bottom:1px solid rgba(255,255,255,.05);
+  font-size:.73rem;transition:background .1s;cursor:default;
+}
+.lb-track:last-child{border-bottom:none}
+.lb-track:hover{background:rgba(255,255,255,.04)}
+.lb-track-pos{width:24px;flex-shrink:0;font-size:.6rem;color:rgba(255,255,255,.28);font-weight:600;text-align:right}
+.lb-track-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0}
+.lb-track-info{flex:1;min-width:0}
+.lb-track-title{color:#e8e8e8;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-track-artist{font-size:.6rem;color:rgba(255,255,255,.38);margin-top:.03rem}
+.lb-track-bpm{font-size:.62rem;font-weight:700;color:rgba(255,255,255,.7);
+  background:rgba(255,255,255,.1);border-radius:5px;padding:.06rem .32rem;
+  flex-shrink:0;letter-spacing:.02em}
+.lb-track-btns{display:flex;gap:.22rem;flex-shrink:0}
+.lb-trk-btn{font-size:.6rem;font-weight:600;padding:.18rem .42rem;border-radius:4px;
+  border:none;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:.2rem;transition:all .12s}
+.lb-trk-btn-sp{background:#1db954;color:#fff}
+.lb-trk-btn-sp:hover{background:#1aa348}
+.lb-trk-btn-ouv{background:rgba(255,255,255,.1);color:#e0e0e0;border:1px solid rgba(255,255,255,.18)}
+.lb-trk-btn-ouv:hover{background:rgba(255,255,255,.2)}
+
+/* ── SPOTIFY PLAYER — flutuante nativo ───────────────────── */
+#sp-wrap{
+  position:fixed;
+  bottom:.6rem;left:50%;transform:translateX(-50%);
+  width:min(400px,calc(100vw - 2rem));
+  z-index:9500;
+  transition:bottom .3s ease;
+}
+#sp-wrap.hidden{bottom:-110px}
+
+.sp-card{
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,.1);
+  box-shadow:0 8px 32px rgba(0,0,0,.2);
+  overflow:hidden;
+  position:relative;
+}
+.sp-card iframe{
+  width:100%;height:80px;border:none;display:block;
+}
+/* Botão collapse — pequeno, acima do canto direito do card */
+.sp-collapse-btn{
+  position:absolute;top:-11px;right:6px;
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.1);
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:.58rem;color:var(--text3);transition:color .15s;
+}
+.sp-collapse-btn:hover{color:var(--sp)}
+#sp-wrap.hidden .sp-collapse-btn svg{transform:scaleY(-1)}
+.sp-collapse-btn svg{transition:transform .3s}
+
+@media(max-width:480px){
+  .lb-card{max-height:92vh}
+  .lb-cover{width:72px;height:72px}
+  .lb-title{font-size:.9rem}
+  .ctrl-input{width:130px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <span class="site-title">Discos do Amsa</span>
+  <span class="site-stats">245 discos · 2528 faixas</span>
+  <div class="hdr-spacer"></div>
+  <input class="ctrl-input" type="search" placeholder="Buscar…" oninput="filterCards(this.value)">
+</header>
+
+<!-- RESULTS BAR -->
+<div class="results-bar">
+  <span class="rb-left"><strong id="cnt">24</strong> únicos &nbsp;·&nbsp; 8 duplicados</span>
+  <div class="view-toggle">
+    <button class="vt-btn active" id="btn-grid" title="Grade" onclick="setView('grid')">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
+        <rect x="0" y="0" width="5.5" height="5.5" rx="1"/><rect x="7.5" y="0" width="5.5" height="5.5" rx="1"/>
+        <rect x="0" y="7.5" width="5.5" height="5.5" rx="1"/><rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"/>
+      </svg>
+    </button>
+    <button class="vt-btn" id="btn-list" title="Lista" onclick="setView('list')">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
+        <rect x="0" y="1" width="13" height="2" rx="1"/>
+        <rect x="0" y="5.5" width="13" height="2" rx="1"/>
+        <rect x="0" y="10" width="13" height="2" rx="1"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- GRID -->
+<div id="view-grid"></div>
+
+<!-- LIST -->
+<div id="view-list" style="display:none"></div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <div class="lb-backdrop" onclick="closeLightbox()"></div>
+  <div class="lb-card">
+    <button class="lb-close" onclick="closeLightbox()">✕</button>
+    <div class="lb-header" id="lb-header">
+      <!-- preenchido via JS -->
+    </div>
+    <div class="lb-divider"></div>
+    <div class="lb-body" id="lb-body"></div>
+  </div>
+</div>
+
+<!-- SPOTIFY PLAYER FLUTUANTE -->
+<div id="sp-wrap">
+  <div style="position:relative">
+    <button class="sp-collapse-btn" onclick="togglePlayer()" title="Recolher/Expandir">
+      <svg width="9" height="6" viewBox="0 0 9 6" fill="none">
+        <path d="M1 5L4.5 1.5L8 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="sp-card">
+      <iframe id="sp-iframe"
+        src="https://open.spotify.com/embed/playlist/05ler2wgODLDCUTzCTyoip?utm_source=generator&theme=0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PALETA DE CORES PASTÉIS (simula a extração de cor da capa) ────────────
+var PASTELS = [
+  '#e8d5c4','#cfdae0','#d4cde8','#d9e4d0','#e8d4c9',
+  '#d4e0cc','#e0cdd4','#ccd4e0','#e4dcc8','#d0e0d8',
+  '#e8c9c9','#c8d8e8','#e0e4c8','#d8c8e4','#c8e4d8',
+  '#ead6b8','#b8d6d6','#d6b8ea','#d6d6b8','#b8ead6',
+  '#e2d0c0','#c0d4e2','#d0e2c0','#e2c0d0','#c0e2d4',
+];
+
+// ── DADOS ─────────────────────────────────────────────────────────────────
+var ALBUMS = [
+  {id:"2635366",artist:"Sandra De Sá",title:"Vale Tudo",year:"1983",cover:"https://i.discogs.com/vleTaCsI1RNYKcdv3pZ4GWjemYp0xA2EBHPn8vQ0dSc/rs:fit/g:sm/q:90/h:500/w:500/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI2MzUz/NjYtMTI5NDMyNzE5/Mi5qcGVn.jpeg",tracks:[{pos:"A",title:"Vale Tudo",artist:"Sandra De Sá",bpm:""},{pos:"B",title:"Quero Ver Você Dançar",artist:"Sandra De Sá",bpm:""}]},
+  {id:"2839717",artist:"Ivan Lins",title:"A Noite",year:"1979",cover:"https://i.discogs.com/nj8uvM4t6gdZC7NCFwfg57bjvRGxHmY_QPkAVEretWI/rs:fit/g:sm/q:90/h:480/w:484/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI4Mzk3/MTctMTMwMzQxMTU5/MC5qcGVn.jpeg",tracks:[{pos:"A1",title:"A Noite",artist:"Ivan Lins",bpm:""},{pos:"A2",title:"Desesperar, Jamais",artist:"Ivan Lins",bpm:""},{pos:"A3",title:"Começar De Novo",artist:"Ivan Lins",bpm:""},{pos:"B1",title:"Antes Que Seja Tarde",artist:"Ivan Lins",bpm:""},{pos:"B2",title:"Saindo De Mim",artist:"Ivan Lins",bpm:""}]},
+  {id:"3549733",artist:"James Brown",title:"Revolution Of The Mind",year:"1971",cover:"https://i.discogs.com/voqQq5HGJ-sb62N4hlU4pxCAh8Z6KAW1eu_PeEt9rcA/rs:fit/g:sm/q:90/h:600/w:589/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM1NDk3/MzMtMTM0MDM1MjMx/NS01NDI1LmpwZWc.jpeg",tracks:[{pos:"A1",title:"It's A New Day",artist:"James Brown",bpm:""},{pos:"A2",title:"Bewildered",artist:"James Brown",bpm:""},{pos:"A3",title:"Sex Machine",artist:"James Brown",bpm:""},{pos:"B1",title:"Escape-Ism",artist:"James Brown",bpm:""},{pos:"B2",title:"Make It Funky",artist:"James Brown",bpm:""}]},
+  {id:"2407203",artist:"Various",title:"Lembranças Internacional",year:"",cover:"https://i.discogs.com/fsP_9J2Q_1_J52cR4W_t3JJU6r1s-Ly88KYDu6K-O0A/rs:fit/g:sm/q:90/h:600/w:595/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI0MDcy/MDMtMTU1NTE4NDQ5/MS03OTg0LnBuZw.jpeg",tracks:[{pos:"A1",title:"Music And Me",artist:"Michael Jackson",bpm:""},{pos:"A2",title:"Three Times A Lady",artist:"Commodores",bpm:""},{pos:"A3",title:"I'll Be There",artist:"The Jackson 5",bpm:""},{pos:"B1",title:"Ben",artist:"Michael Jackson",bpm:""},{pos:"B2",title:"Touch Me In The Morning",artist:"Diana Ross",bpm:""}]},
+  {id:"3063887",artist:"Agepê",title:"Canto Pra Gente Cantar",year:"1988",cover:"https://i.discogs.com/H2_YkH5IMns2AuA69PgMX1DleC_ptAs1NwxWHwYVDQU/rs:fit/g:sm/q:90/h:280/w:280/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTMwNjM4/ODctMTMxNDAyNDE0/Ny5qcGVn.jpeg",tracks:[{pos:"A1",title:"À Mercê Do Teu Amor",artist:"Agepê",bpm:""},{pos:"A2",title:"Vozes D'África",artist:"Agepê",bpm:""},{pos:"A3",title:"Flor Da Minha Paixão",artist:"Agepê",bpm:""}]},
+  {id:"34768091",artist:"João Donato",title:"Síntese Do Lance",year:"2025",cover:"https://i.discogs.com/QqZJuSf3-8EqAiIBha5Pn4q9wj5wWGlflpKWBDtQtW8/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM0NzY4/MDkxLTE3NTQ2NjYy/NTUtMjkzNy5qcGVn.jpeg",tracks:[{pos:"A1",title:"Côco Táxi",artist:"João Donato",bpm:""},{pos:"A2",title:"Dona Castorina",artist:"João Donato",bpm:""},{pos:"B1",title:"Síntese Do Lance",artist:"João Donato",bpm:""}]},
+  {id:"35700658",artist:"Lincoln Olivetti & Robson Jorge",title:"Robson Jorge & Lincoln Olivetti",year:"2025",cover:"https://i.discogs.com/PXnxG3GOTODSLx0id8HaoE1FS-FrXoA30ymo1Fs5Bl0/rs:fit/g:sm/q:90/h:580/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM1NzAw/NjU4LTE3NjM2NzQx/MDgtNDIyNC5qcGVn.jpeg",tracks:[{pos:"A1",title:"Jorgeia Corisco",artist:"Lincoln Olivetti",bpm:"92"},{pos:"A2",title:"No Bom Sentido",artist:"Lincoln Olivetti",bpm:"96"},{pos:"A3",title:"Aleluia",artist:"Lincoln Olivetti",bpm:"104"},{pos:"B1",title:"Eva",artist:"Lincoln Olivetti",bpm:"88"}]},
+  {id:"4566191",artist:"Bebeto",title:"Fases",year:"1985",cover:"https://i.discogs.com/sa2DHe-Mae9DcqZkoex2Lx6ZQeM8gDR_4zexveBiVVU/rs:fit/g:sm/q:90/h:595/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQ1NjYx/OTEtMTU1Njk3MzAw/OS00NzY5LmpwZWc.jpeg",tracks:[{pos:"A1",title:"Com Você Sou",artist:"Bebeto",bpm:""},{pos:"A2",title:"Ato Sensual",artist:"Bebeto",bpm:""},{pos:"B1",title:"Fases",artist:"Bebeto",bpm:""}]},
+  {id:"5620693",artist:"Sérgio Mendes & Brasil '66",title:"Fool On The Hill",year:"1968",cover:"https://i.discogs.com/LFVuzt_TmxIzVN_w5tfgk84diq7UmeomATJZ4hA_FQs/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLDU2MjA2/OTMtMTM5ODE4ODgw/My0xNTE1LmpwZWc.jpeg",tracks:[{pos:"A1",title:"Fool On The Hill",artist:"Sérgio Mendes",bpm:""},{pos:"A2",title:"Festa",artist:"Sérgio Mendes",bpm:""},{pos:"B1",title:"Lapinha",artist:"Sérgio Mendes",bpm:""}]},
+  {id:"7040190",artist:"Ivan Lins",title:"Saindo de Mim",year:"1985",cover:"https://i.discogs.com/9uQ6TBCdeROLO791fF8EnrjUfS47DDpd_FZorQHom4Y/rs:fit/g:sm/q:90/h:600/w:592/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTcwNDAx/OTAtMTQzMjMxNjA1/OS03NzczLmpwZWc.jpeg",tracks:[{pos:"A1",title:"Somos Todos Iguais Nesta Noite",artist:"Ivan Lins",bpm:""},{pos:"A2",title:"A Noite",artist:"Ivan Lins",bpm:""},{pos:"B1",title:"Saindo de Mim",artist:"Ivan Lins",bpm:""}]},
+  {id:"6484114",artist:"Afrika Bambaataa & Soulsonic Force",title:"Frantic Situation",year:"1984",cover:"https://i.discogs.com/DQ8OpA_gvA-u549UJX-4LolWg0ba3j154oaPLUQspPE/rs:fit/g:sm/q:90/h:600/w:597/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY0ODQx/MTQtMTQyMDMyMzYw/OC0yMDY0LmpwZWc.jpeg",tracks:[{pos:"A1",title:"Frantic Situation (Vocal)",artist:"Afrika Bambaataa",bpm:"120"},{pos:"B1",title:"Frantic Situation (Frantic Mix)",artist:"Afrika Bambaataa",bpm:"120"}]},
+  {id:"497427",artist:"Tim Maia",title:"O Melhor De Tim Maia",year:"1985",cover:"https://i.discogs.com/dgQWb85tvqlR0FPfk0_HcY4iGWd882YbX53utcos5IU/rs:fit/g:sm/q:90/h:596/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQ5NzQy/Ny0xNjU5MjgyMjc2/LTcwMzUuanBlZw.jpeg",tracks:[{pos:"A1",title:"Réu Confesso",artist:"Tim Maia",bpm:""},{pos:"A2",title:"Gostava Tanto De Você",artist:"Tim Maia",bpm:""},{pos:"B1",title:"Me Dê Motivo",artist:"Tim Maia",bpm:""},{pos:"B2",title:"Azul Da Cor Do Mar",artist:"Tim Maia",bpm:""}]},
+  {id:"4257538",artist:"Various",title:"D.J.'s 77 Discoteca",year:"1977",cover:"https://i.discogs.com/h6p6UoAH1aDgiRymSNQPhay_S4_jy3vqEnODyib8IyM/rs:fit/g:sm/q:90/h:598/w:597/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQyNTc1/MzgtMTM5OTgzMDI2/NS01OTI5LmpwZWc.jpeg",tracks:[{pos:"A1",title:"Uptown Festival",artist:"Shalamar",bpm:""},{pos:"A2",title:"I Gotta Keep Dancin'",artist:"Carrie Lucas",bpm:""},{pos:"B1",title:"My Cherie Amour",artist:"Soul Train Gang",bpm:""},{pos:"B2",title:"Ripped Off",artist:"Loleatta Holloway",bpm:""}]},
+  {id:"5254593",artist:"Cheryl Lynn",title:"Instant Love",year:"1982",cover:"https://i.discogs.com/H9AjLTnDH69WkV1RzITvAzDFI2jX3-L-yYwc44AlSA0/rs:fit/g:sm/q:90/h:600/w:594/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTUyNTQ1/OTMtMTUwMDc3MDgx/MC04MjE5LmpwZWc.jpeg",tracks:[{pos:"A1",title:"Instant Love",artist:"Cheryl Lynn",bpm:"116"},{pos:"A2",title:"Sleep Walkin'",artist:"Cheryl Lynn",bpm:"110"},{pos:"B1",title:"Say You'll Be Mine",artist:"Cheryl Lynn",bpm:""}]},
+  {id:"1467087",artist:"Hubert Laws",title:"Land Of Passion",year:"1979",cover:"https://i.discogs.com/7hBoKl-HQQafbKm7oFdfvoHEgLBAZgm90sS37x7UB8E/rs:fit/g:sm/q:90/h:439/w:446/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE0Njcw/ODctMTIzNTg2ODI3/OS5qcGVn.jpeg",tracks:[{pos:"A1",title:"Music Forever",artist:"Hubert Laws",bpm:""},{pos:"A2",title:"Land Of Passion",artist:"Hubert Laws",bpm:""},{pos:"B1",title:"Heartbeats",artist:"Hubert Laws",bpm:""}]},
+  {id:"20706427",artist:"Various",title:"Funk Montagem",year:"1994",cover:"https://i.discogs.com/cIqdZKC0lXht6GzleFp0YBxtDrUB5IMp0tq1gu9js3o/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTIwNzA2/NDI3LTE2MzUwMzIy/MzEtNDk5MC5qcGVn.jpeg",tracks:[{pos:"A1",title:"808 Volt Mix",artist:"DJ Battery Brain",bpm:""},{pos:"B1",title:"Ring My Phone",artist:"Shantell & Dwayne",bpm:""}]},
+  {id:"2388225",artist:"Milton Nascimento",title:"Journey To Dawn",year:"1979",cover:"https://i.discogs.com/ax0Evx7x8eqqPy4ghinACzFyJi5A8xqXKy0LHGp9838/rs:fit/g:sm/q:90/h:600/w:595/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTIzODgy/MjUtMTQyMTk4Mjg4/NC0yNjQ3LmpwZWc.jpeg",tracks:[{pos:"A1",title:"Pablo",artist:"Milton Nascimento",bpm:""},{pos:"A2",title:"Idolatrada",artist:"Milton Nascimento",bpm:""},{pos:"B1",title:"Maria Maria",artist:"Milton Nascimento",bpm:""}]},
+  {id:"1464053",artist:"Gilberto Gil",title:"A Gente Precisa Ver O Luar",year:"1989",cover:"https://i.discogs.com/-z0k4aMtPT0e_wsX5vbCK7G912M9kd7xCmk8XX4qdMQ/rs:fit/g:sm/q:90/h:597/w:589/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE0NjQw/NTMtMTM3MDIyNTgw/MC0zODAyLmpwZWc.jpeg",tracks:[{pos:"A1",title:"A Linha E O Linho",artist:"Gilberto Gil",bpm:""},{pos:"A2",title:"Super-Homem",artist:"Gilberto Gil",bpm:""},{pos:"B1",title:"A Gente Precisa Ver O Luar",artist:"Gilberto Gil",bpm:""}]},
+  {id:"11180494",artist:"Jorge Ben",title:"Ao Vivo",year:"1993",cover:"https://i.discogs.com/x3a360PhpCytptRVNOGqhYOFHY-rRwwTOgY4OOK_YZs/rs:fit/g:sm/q:90/h:594/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExMTgw/NDk0LTE1MTE4ODAz/MDUtOTQ2Mi5qcGVn.jpeg",tracks:[{pos:"A1",title:"Salve Simpatia",artist:"Jorge Ben",bpm:""},{pos:"A2",title:"País Tropical",artist:"Jorge Ben",bpm:""},{pos:"B1",title:"Taj Mahal",artist:"Jorge Ben",bpm:""}]},
+  {id:"9693349",artist:"Michael Jackson",title:"Off The Wall",year:"1979",cover:"https://i.discogs.com/iEqsVWhwlWQ647aFJ9Itp1ukmmMzbTZR7hZ7jM6-BEg/rs:fit/g:sm/q:90/h:594/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTk2OTMz/NDktMTY4MzA0OTQ1/OC03MzY5LmpwZWc.jpeg",tracks:[{pos:"A1",title:"Don't Stop 'Til You Get Enough",artist:"Michael Jackson",bpm:"117"},{pos:"A2",title:"Rock With You",artist:"Michael Jackson",bpm:"114"},{pos:"B1",title:"Off The Wall",artist:"Michael Jackson",bpm:""},{pos:"B2",title:"She's Out Of My Life",artist:"Michael Jackson",bpm:""}]},
+  {id:"35814406",artist:"Milton Nascimento",title:"Travessia",year:"2025",cover:"https://i.discogs.com/2K_RCnEoOo983AWSBAT2Fp4v6SHP-Oj7QxCAHdWtOcU/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM1ODE0/NDA2LTE3NzAwODU0/NzEtOTM0Ny5qcGVn.jpeg",tracks:[{pos:"A1",title:"Travessia",artist:"Milton Nascimento",bpm:""},{pos:"B1",title:"Morro Velho",artist:"Milton Nascimento",bpm:""}]},
+  {id:"2240765",artist:"Rita Lee",title:"Rita Lee",year:"1980",cover:"https://i.discogs.com/q4fFXOPcrRtdd61NHcLFFWxBgzrnDUhyk0kYv-8J5UY/rs:fit/g:sm/q:90/h:595/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTIyNDA3/NjUtMTY0MDAyMDU3/MC0yMDU0LmpwZWc.jpeg",tracks:[{pos:"A1",title:"Lança Perfume",artist:"Rita Lee",bpm:"120"},{pos:"A2",title:"Baila Comigo",artist:"Rita Lee",bpm:"116"},{pos:"B1",title:"Caso Sério",artist:"Rita Lee",bpm:""}]},
+  {id:"457276",artist:"Chaka Khan",title:"Chaka",year:"1978",cover:"https://i.discogs.com/HrfZEHnmg_uI5eHUKhY9qnlZEJFnKoRht2i5hhS1DV0/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQ1NzI3/Ni0xNDA2MjI0MDcz/LTk1MTMuanBlZw.jpeg",tracks:[{pos:"A1",title:"I'm Every Woman",artist:"Chaka Khan",bpm:"118"},{pos:"A2",title:"Life Is A Dance",artist:"Chaka Khan",bpm:""},{pos:"B1",title:"We Got The Love",artist:"Chaka Khan",bpm:""}]},
+  {id:"16206051",artist:"Francy Boland And Orchestra",title:"White Heat",year:"1978",cover:"https://i.discogs.com/_bCTEERwsevloy7pch4Dx0vlf5rrxpQM2wkFAWVLoJ8/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2MjA2/MDUxLTE2MDUyOTI4/NjEtMTg2OS5qcGVn.jpeg",tracks:[{pos:"A1",title:"Daffodils",artist:"Francy Boland",bpm:""},{pos:"A2",title:"Everything I Have Is Yours",artist:"Francy Boland",bpm:""},{pos:"B1",title:"Nargileh",artist:"Francy Boland",bpm:""}]}
+];
+
+var allAlbums = ALBUMS.slice();
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// ── GRID RENDER ───────────────────────────────────────────────────────────
+function renderGrid(albums){
+  var g = document.getElementById('view-grid');
+  g.innerHTML = albums.map(function(a, i){
+    var bg = PASTELS[i % PASTELS.length];
+    var titleYearHtml = esc(a.title)
+      + (a.year && a.year!=='0'
+        ? '<span class="grid-year"> · '+esc(a.year)+'</span>' : '');
+    return '<div class="grid-card" onclick="openLightbox(\''+esc(a.id)+'\')" style="--card-bg:'+bg+'">'
+         + '<div class="grid-frame" style="background:'+bg+'">'
+         + '<img class="grid-cover" src="'+esc(a.cover)+'" alt="" loading="lazy">'
+         + '</div>'
+         + '<div class="grid-info" style="background:'+bg+'">'
+         + '<div class="grid-artist">'+esc(a.artist)+'</div>'
+         + '<div class="grid-title">'+titleYearHtml+'</div>'
+         + '</div>'
+         + '</div>';
+  }).join('');
+}
+
+// ── LIST RENDER ───────────────────────────────────────────────────────────
+function renderList(albums){
+  var l = document.getElementById('view-list');
+  l.innerHTML = albums.map(function(a){
+    var nBpm = a.tracks.filter(function(t){return t.bpm;}).length;
+    return '<div class="list-card" onclick="openLightbox(\''+esc(a.id)+'\')">'
+         + '<img class="list-cover" src="'+esc(a.cover)+'" alt="" loading="lazy">'
+         + '<div class="list-info">'
+         + '<div class="list-artist">'+esc(a.artist)+'</div>'
+         + '<div class="list-title">'+esc(a.title)+(a.year&&a.year!=='0'?' · '+esc(a.year):'')+'</div>'
+         + '<div class="list-meta">'+a.tracks.length+' faixas'+(nBpm?' · '+nBpm+' com BPM':'')+'</div>'
+         + '</div></div>';
+  }).join('');
+}
+
+function setView(v){
+  document.getElementById('view-grid').style.display = v==='grid'?'grid':'none';
+  document.getElementById('view-list').style.display = v==='list'?'flex':'none';
+  document.getElementById('btn-grid').classList.toggle('active',v==='grid');
+  document.getElementById('btn-list').classList.toggle('active',v==='list');
+}
+
+function filterCards(q){
+  var s = q.toLowerCase().trim();
+  var filtered = s ? allAlbums.filter(function(a){
+    return (a.artist+' '+a.title+' '+a.year+' '
+           +a.tracks.map(function(t){return t.title+' '+t.artist}).join(' '))
+           .toLowerCase().includes(s);
+  }) : allAlbums;
+  document.getElementById('cnt').textContent = filtered.length;
+  renderGrid(filtered);
+  renderList(filtered);
+}
+
+// ── LIGHTBOX ──────────────────────────────────────────────────────────────
+var SVG_DISC = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="opacity:.8"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="#1c1c1c"/></svg>';
+var SVG_SP   = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="color:#1db954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>';
+
+function openLightbox(id){
+  var idx = allAlbums.findIndex(function(x){return x.id===id;});
+  if(idx<0) return;
+  var a = allAlbums[idx];
+
+  var discUrl = 'https://www.discogs.com/release/'+esc(a.id);
+  var spUrl   = 'https://open.spotify.com/playlist/05ler2wgODLDCUTzCTyoip';
+
+  // BPM range (from tracks)
+  var bpmVals = a.tracks.filter(function(t){return t.bpm;}).map(function(t){return parseInt(t.bpm);});
+  var bpmRangeStr = bpmVals.length
+    ? (Math.min.apply(null,bpmVals)===Math.max.apply(null,bpmVals)
+        ? bpmVals[0]+' BPM'
+        : Math.min.apply(null,bpmVals)+'–'+Math.max.apply(null,bpmVals)+' BPM')
+    : '';
+  var nBpm = bpmVals.length;
+
+  // Header: cover-blur background + content
+  var hdr = document.getElementById('lb-header');
+  hdr.innerHTML =
+    '<div class="lb-blur-bg" style="background-image:url(\''+esc(a.cover)+'\')"></div>'
+    +'<div class="lb-header-inner">'
+    +'<img class="lb-cover" src="'+esc(a.cover)+'" alt="" loading="lazy">'
+    +'<div class="lb-meta">'
+    +'<div class="lb-artist">'+esc(a.artist)+'</div>'
+    +'<div class="lb-title">'+esc(a.title)+'</div>'
+    +(a.year&&a.year!=='0'?'<div class="lb-meta-row">'+esc(a.year)+(bpmRangeStr?' &middot; '+bpmRangeStr:'')+'</div>':'')
+    +'<div class="lb-stats">'+a.tracks.length+' faixas'+(nBpm?' &middot; '+nBpm+' com BPM':'')+'</div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="lb-btn-col">'
+    +'<a class="lb-btn" href="'+discUrl+'" target="_blank" onclick="event.stopPropagation()">'+SVG_DISC+' Discogs</a>'
+    +'<a class="lb-btn" href="'+spUrl+'" target="_blank" onclick="event.stopPropagation()">'+SVG_SP+' Spotify</a>'
+    +'</div>';
+
+  // Track list
+  document.getElementById('lb-body').innerHTML =
+    '<div class="lb-tracks-title">'+a.tracks.length+' Faixas</div>'
+    + a.tracks.map(function(t){
+        return '<div class="lb-track">'
+          +'<span class="lb-track-pos">'+esc(t.pos)+'</span>'
+          +'<div class="lb-track-dot"></div>'
+          +'<div class="lb-track-info">'
+          +'<div class="lb-track-title">'+esc(t.title)+'</div>'
+          +(t.artist!==a.artist?'<div class="lb-track-artist">'+esc(t.artist)+'</div>':'')
+          +'</div>'
+          +(t.bpm?'<span class="lb-track-bpm">'+esc(t.bpm)+'</span>':'')
+          +'<div class="lb-track-btns">'
+          +'<a class="lb-trk-btn lb-trk-btn-sp" href="'+spUrl+'" target="_blank" onclick="event.stopPropagation()">'+SVG_SP+' Spotify</a>'
+          +'<span class="lb-trk-btn lb-trk-btn-ouv">&#9654; Ouvir</span>'
+          +'</div>'
+          +'</div>';
+      }).join('');
+
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox()});
+
+var spHidden = false;
+function togglePlayer(){
+  spHidden = !spHidden;
+  document.getElementById('sp-wrap').classList.toggle('hidden', spHidden);
+}
+
+// ── PADDING DINÂMICO para o último card não ficar atrás do player ─────────
+function updatePlayerPadding(){
+  var wrap = document.getElementById('sp-wrap');
+  var h = wrap.offsetHeight;
+  document.documentElement.style.setProperty('--player-h', h+'px');
+}
+window.addEventListener('resize', updatePlayerPadding);
+setTimeout(updatePlayerPadding, 300);
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+renderGrid(allAlbums);
+renderList(allAlbums);
+</script>
+
+
+</body>
+</html>

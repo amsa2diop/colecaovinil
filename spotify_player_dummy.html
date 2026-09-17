@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Player Spotify — Versões</title>
+<style>
+  :root {
+    --sp: #1db954;
+    --sp-dark: #158a3e;
+    --bg: #f5f3ef;
+    --card: #fff;
+    --text: #111;
+    --text2: #555;
+    --text3: #999;
+    --bdr: #e0dcd5;
+    --r: 12px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: var(--bg); color: var(--text); min-height: 200vh;
+         padding-bottom: 160px; }
+
+  .page-title {
+    padding: 2rem 2rem 1rem;
+    font-size: 1.1rem; font-weight: 700; letter-spacing: .03em;
+  }
+  .selector {
+    display: flex; gap: .5rem; padding: 0 2rem 2rem; flex-wrap: wrap;
+  }
+  .sel-btn {
+    padding: .4rem 1rem; border-radius: 20px; border: 1.5px solid var(--bdr);
+    background: var(--card); font-size: .8rem; cursor: pointer; font-weight: 600;
+    transition: all .15s;
+  }
+  .sel-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
+
+  .fake-content {
+    padding: 1.5rem 2rem;
+    display: flex; flex-wrap: wrap; gap: 1rem;
+  }
+  .fake-card {
+    width: 160px; height: 200px; background: var(--card);
+    border-radius: var(--r); border: 1px solid var(--bdr);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3); font-size: .75rem;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     VERSÃO A — Barra fina no rodapé (estilo "Now Playing")
+  ═══════════════════════════════════════════════════ */
+  #player-a {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 72px;
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--bdr);
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0 1rem 0 .75rem;
+    z-index: 9999;
+    box-shadow: 0 -4px 20px rgba(0,0,0,.07);
+    transition: transform .3s ease;
+  }
+  #player-a.collapsed { transform: translateY(calc(100% - 4px)); }
+  #player-a .sp-label {
+    font-size: .55rem; color: var(--sp); font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; white-space: nowrap;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    opacity: .7; flex-shrink: 0;
+  }
+  #player-a .embed-wrap {
+    flex: 1; height: 80px; margin-top: 0; overflow: hidden; border-radius: 8px;
+  }
+  #player-a .embed-wrap iframe { width: 100%; height: 80px; border: none; }
+  #player-a .toggle-a {
+    position: absolute; top: -26px; right: 14px;
+    width: 52px; height: 26px;
+    background: rgba(255,255,255,.96); backdrop-filter: blur(12px);
+    border: 1px solid var(--bdr); border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    display: flex; align-items: center; justify-content: center; gap: .3rem;
+    cursor: pointer; font-size: .65rem; color: var(--text2);
+    transition: color .15s;
+  }
+  #player-a .toggle-a:hover { color: var(--sp); }
+  #player-a .toggle-a svg { transition: transform .3s; }
+  #player-a.collapsed .toggle-a svg { transform: scaleY(-1); }
+
+  /* ═══════════════════════════════════════════════════
+     VERSÃO B — Card flutuante canto direito
+  ═══════════════════════════════════════════════════ */
+  #player-b {
+    position: fixed; bottom: 1.2rem; right: 1.2rem;
+    width: 320px;
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--bdr);
+    box-shadow: 0 8px 32px rgba(0,0,0,.12);
+    overflow: hidden;
+    z-index: 9999;
+    transition: all .3s ease;
+  }
+  #player-b.collapsed { width: 52px; height: 52px; border-radius: 50%; }
+  #player-b .b-header {
+    display: flex; align-items: center; gap: .6rem;
+    padding: .65rem .75rem .5rem;
+    cursor: pointer;
+  }
+  #player-b .b-sp-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--sp); flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  #player-b .b-title {
+    font-size: .65rem; font-weight: 700; color: var(--text2); letter-spacing: .08em;
+    text-transform: uppercase; flex: 1;
+  }
+  #player-b .b-close {
+    font-size: .9rem; color: var(--text3); cursor: pointer; line-height: 1;
+    padding: .1rem .2rem;
+  }
+  #player-b .b-close:hover { color: var(--text); }
+  #player-b .b-embed { padding: 0 .6rem .6rem; }
+  #player-b .b-embed iframe { width: 100%; border: none; border-radius: 10px; display: block; }
+  #player-b.collapsed .b-header,
+  #player-b.collapsed .b-embed { display: none; }
+  #player-b.collapsed::after {
+    content: '♫';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; color: var(--sp);
+  }
+
+  /* ═══════════════════════════════════════════════════
+     VERSÃO C — Pill minimalista canto esquerdo (expande verticalmente)
+  ═══════════════════════════════════════════════════ */
+  #player-c {
+    position: fixed; bottom: 1.2rem; left: 1.2rem;
+    width: 300px;
+    background: #111;
+    border-radius: 14px;
+    overflow: hidden;
+    z-index: 9999;
+    box-shadow: 0 6px 24px rgba(0,0,0,.22);
+    transition: all .35s cubic-bezier(.4,0,.2,1);
+  }
+  #player-c.collapsed { width: 200px; border-radius: 30px; }
+  #player-c .c-bar {
+    display: flex; align-items: center; gap: .7rem;
+    padding: .55rem .75rem;
+    cursor: pointer;
+  }
+  #player-c .c-dot {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--sp);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: .85rem; color: #fff;
+  }
+  #player-c .c-info { flex: 1; overflow: hidden; }
+  #player-c .c-track {
+    font-size: .72rem; font-weight: 600; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #player-c .c-artist {
+    font-size: .6rem; color: rgba(255,255,255,.5); margin-top: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #player-c .c-toggle {
+    font-size: .75rem; color: rgba(255,255,255,.5); flex-shrink: 0; transition: transform .3s;
+  }
+  #player-c.collapsed .c-toggle { transform: rotate(180deg); }
+  #player-c .c-embed { overflow: hidden; transition: height .35s cubic-bezier(.4,0,.2,1); }
+  #player-c .c-embed iframe { width: 100%; border: none; display: block; }
+  #player-c.collapsed .c-embed { height: 0 !important; }
+  #player-c .c-sp-link {
+    display: block; text-align: center; padding: .4rem;
+    font-size: .58rem; color: rgba(255,255,255,.35); text-decoration: none;
+    letter-spacing: .06em;
+  }
+  #player-c.collapsed .c-sp-link { display: none; }
+
+  /* ── version switcher overlay ── */
+  .ver-overlay {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(255,255,255,.97); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--bdr);
+    padding: .8rem 1.5rem;
+    display: flex; align-items: center; gap: .75rem; z-index: 99999;
+    flex-wrap: wrap;
+  }
+  .ver-overlay .vo-label {
+    font-size: .7rem; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text3);
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Selector fixo no topo ── -->
+<div class="ver-overlay">
+  <span class="vo-label">Versão</span>
+  <button class="sel-btn active" onclick="showVersion('a',this)">A — Barra rodapé</button>
+  <button class="sel-btn"        onclick="showVersion('b',this)">B — Card flutuante</button>
+  <button class="sel-btn"        onclick="showVersion('c',this)">C — Pill escuro</button>
+</div>
+
+<!-- ── Conteúdo fictício da página ── -->
+<div style="height:60px"></div>
+<div class="page-title">Discos do Amsa — prévia do player</div>
+<div class="fake-content">
+  <div class="fake-card">LP 1</div><div class="fake-card">LP 2</div>
+  <div class="fake-card">LP 3</div><div class="fake-card">LP 4</div>
+  <div class="fake-card">LP 5</div><div class="fake-card">LP 6</div>
+  <div class="fake-card">LP 7</div><div class="fake-card">LP 8</div>
+  <div class="fake-card">LP 9</div><div class="fake-card">LP 10</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     VERSÃO A — Barra fina no rodapé
+═══════════════════════════════════════════════════════ -->
+<div id="player-a">
+  <div class="toggle-a" onclick="toggleA()">
+    <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+      <path d="M1 5L5 1L9 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <span class="sp-label">Spotify</span>
+  <div class="embed-wrap" id="embed-a">
+    <!-- preenchido pelo JS -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     VERSÃO B — Card flutuante canto direito
+═══════════════════════════════════════════════════════ -->
+<div id="player-b" style="display:none">
+  <div class="b-header" onclick="toggleB()">
+    <div class="b-sp-dot"></div>
+    <span class="b-title">Tocando agora</span>
+    <span class="b-close" onclick="event.stopPropagation();document.getElementById('player-b').style.display='none'">✕</span>
+  </div>
+  <div class="b-embed" id="embed-b">
+    <!-- preenchido pelo JS -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     VERSÃO C — Pill escuro canto esquerdo
+═══════════════════════════════════════════════════════ -->
+<div id="player-c" style="display:none">
+  <div class="c-bar" onclick="toggleC()">
+    <div class="c-dot">♫</div>
+    <div class="c-info">
+      <div class="c-track" id="c-track-name">Carregando...</div>
+      <div class="c-artist" id="c-artist-name">—</div>
+    </div>
+    <span class="c-toggle">▲</span>
+  </div>
+  <div class="c-embed" id="embed-c">
+    <!-- preenchido pelo JS -->
+  </div>
+  <a class="c-sp-link" href="https://open.spotify.com/playlist/05ler2wgODLDCUTzCTyoip" target="_blank">
+    Abrir playlist no Spotify ↗
+  </a>
+</div>
+
+<script>
+// ── Faixas da coleção (amostra de 50) ──────────────────────────────────────
+var TRACKS = [
+  {"uri":"spotify:track:2moGHNaU8a4j1iowyOiYnF","name":"Samba da Benção","artist":"Maria Bethânia"},
+  {"uri":"spotify:track:5ptIPKFq6obzhdd4LGwkKS","name":"Boi Guitarreiro","artist":"Dona Onete"},
+  {"uri":"spotify:track:2flivK5ivlprHRE7YNcRrj","name":"La maladie d'amour","artist":"Michel Sardou"},
+  {"uri":"spotify:track:4zK1pYVKMB13es6Bim0muF","name":"Run To Me","artist":"Bee Gees"},
+  {"uri":"spotify:track:2nzkP2GOLROei3I7vx8Vo1","name":"Roll Me Through the Rushes","artist":"Chaka Khan"},
+  {"uri":"spotify:track:3mQTPYezPCB9uUM3WpkIff","name":"Machine Gun","artist":"Commodores"},
+  {"uri":"spotify:track:5ruF1Y5naexriqC9dBxrtS","name":"Hora De União","artist":"Lady Zu"},
+  {"uri":"spotify:track:1so4YHyuzUFCKIre6zVUPP","name":"Ring My Phone","artist":"Shantell & Dwayne"},
+  {"uri":"spotify:track:1OA0i7pCDLbaSoKnTKWpOf","name":"Arroxo","artist":"Sandra De Sá"},
+  {"uri":"spotify:track:0vYIs7hTxARinOojEDZEBk","name":"Explosion","artist":"I.C. Bell"},
+  {"uri":"spotify:track:3bfoLDSsg15N9up4bvtrNz","name":"A Loba Comeu o Canário","artist":"Jorge Ben Jor"},
+  {"uri":"spotify:track:1PzRUebfJ1pzob7q5VhxB6","name":"Sararah Miolo","artist":"Gilberto Gil"},
+  {"uri":"spotify:track:1c85KhnMikLxbE14zT5Ro1","name":"There It Is","artist":"Smoke"},
+  {"uri":"spotify:track:5dCEowk6vjd2wXTXm8d02U","name":"Spiritual Walkers","artist":"Stevie Wonder"},
+  {"uri":"spotify:track:7lM1UzajLd21s1ZuRfpGgA","name":"Break Up To Make Up","artist":"The Stylistics"},
+  {"uri":"spotify:track:1UWLUEAdn9qtaqwYo2RhQV","name":"Que Pena","artist":"Jorge Ben Jor"},
+  {"uri":"spotify:track:4eORAD7cw10CUOPyjcD6b4","name":"Samba do avião","artist":"Gilberto Gil"},
+  {"uri":"spotify:track:2tJlmd4NX5hTHqFhrcG2Ak","name":"Takin It To The Streets","artist":"Quincy Jones"},
+  {"uri":"spotify:track:7Atp5zN7oVlyXMoSJYrmXR","name":"Get Satisfied","artist":"The Eliminators"},
+  {"uri":"spotify:track:6r8k1vznHrzlEKYxL4dZEe","name":"La Isla Bonita","artist":"Madonna"},
+  {"uri":"spotify:track:4lFy8bmX24jDMYgKNu3RLq","name":"Mordaça","artist":"MPB4"},
+  {"uri":"spotify:track:6EE2qDWHBBrm7fOrKXnNaQ","name":"Boato","artist":"Severino Araújo"},
+  {"uri":"spotify:track:5BLT6LB4kqEMVbOrG2EgrP","name":"Casa No Campo","artist":"Elis Regina"},
+  {"uri":"spotify:track:3BpiaGyTIb7VIoAYbvSzTH","name":"Réu Confesso","artist":"Tim Maia"},
+  {"uri":"spotify:track:3Xl4Tt4Q3Oj11KOBV6BAjL","name":"Surf e Coca-Cola","artist":"Bebeto"},
+  {"uri":"spotify:track:0DG6f7Dmp6BdK4K32bojAp","name":"Menino Jesus de Praga","artist":"Jorge Ben Jor"},
+  {"uri":"spotify:track:5UiXhxtl69RyixaI8g7pcu","name":"Anjo Vaidoso","artist":"Sandra De Sá"},
+  {"uri":"spotify:track:6AzE7uTCgHmUdJsyjPlk9W","name":"Nassau Day","artist":"George Benson"},
+  {"uri":"spotify:track:5DPqSxmATwYNzayEGfPxmq","name":"Tell Me Tell Me","artist":"Curtis Mayfield"},
+  {"uri":"spotify:track:2F52OEPt6Xw1KCASg57xzn","name":"Welcome into My World","artist":"George Benson"},
+  {"uri":"spotify:track:3ZOrFDc8rAArYYouQDsxsh","name":"Contacto Com o Mundo Racional","artist":"Tim Maia"},
+  {"uri":"spotify:track:7HeobGU4GKRwVZ7dmFWUVr","name":"I Believe In Love","artist":"Carola"},
+  {"uri":"spotify:track:1TZzwEmqDQeZq7LAqLwfnY","name":"Bons Momentos","artist":"Tim Maia"},
+  {"uri":"spotify:track:3uYCW95dZt9gYig2vFQpiR","name":"No Reino Encantado do Amor","artist":"Jorge Ben Jor"},
+  {"uri":"spotify:track:23IK8TF2MSiLnuEjaYPfVV","name":"Nightshift","artist":"Commodores"},
+  {"uri":"spotify:track:35qQUvCeigzOTwQsuRx9Sq","name":"Luz Do Sol - Ao Vivo","artist":"Gal Costa"},
+  {"uri":"spotify:track:5jW8jD6jaIPZnnPmJE1woY","name":"Choro Para Metronome","artist":"Baden Powell"},
+  {"uri":"spotify:track:0FkUIysh68ZdHTgJkvmogL","name":"Love Fever","artist":"Gayle Adams"},
+  {"uri":"spotify:track:5sgIcGEqWDM3GBLhPbC1MT","name":"Pledging My Love","artist":"Diana Ross"},
+  {"uri":"spotify:track:6DQtVbl8NaxVsmxirL67Sv","name":"Frantic Situation","artist":"Afrika Bambaataa"},
+  {"uri":"spotify:track:6O0y2cYkPw0Vzki8GKNfZe","name":"Labios De Mel","artist":"Maria Bethânia"},
+  {"uri":"spotify:track:6cxzThwFgdjBZYPjIbQT63","name":"Adagio","artist":"Baden Powell"},
+  {"uri":"spotify:track:3K5BNWjAjNsu3blI2ieP2L","name":"I'm Stone In Love With You","artist":"The Stylistics"},
+  {"uri":"spotify:track:0zQhqYMeAJO4n8CXpZNz5Y","name":"Love's Been Good to Me","artist":"Rod McKuen"},
+  {"uri":"spotify:track:3b87pz57bXeDFzdEr7I5Ia","name":"Castleers","artist":"Tony! Toni! Toné!"},
+  {"uri":"spotify:track:0xK4N7r3aSDSWZfteFDzGq","name":"I Don't Know What I'd Do","artist":"Sweet Cream"},
+  {"uri":"spotify:track:0LdxOkBMsp3MpPxb8MyuYM","name":"Fica Mal Com Deus","artist":"Geraldo Vandre"},
+  {"uri":"spotify:track:2jDnG859AyqV6Bdj6Zi4vc","name":"Lately","artist":"Surface"},
+  {"uri":"spotify:track:1ouKmXh90ek9tLLS6JxFv5","name":"Sleep Walkin'","artist":"Cheryl Lynn"}
+];
+
+var PLAYLIST_ID = '05ler2wgODLDCUTzCTyoip';
+
+// Escolhe faixa aleatória ao carregar
+var randTrack = TRACKS[Math.floor(Math.random() * TRACKS.length)];
+var trackId   = randTrack.uri.replace('spotify:track:', '');
+
+// ── Constrói embeds ────────────────────────────────────────────────────────
+
+function makeEmbed(trackId, height, theme) {
+  // theme=0 = compacto, theme=1 = normal (escuro)
+  var t = (theme === undefined ? 0 : theme);
+  return '<iframe src="https://open.spotify.com/embed/track/' + trackId
+       + '?utm_source=generator&theme=' + t + '" '
+       + 'width="100%" height="' + height + '" frameborder="0" '
+       + 'allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" '
+       + 'loading="eager"></iframe>';
+}
+
+document.getElementById('embed-a').innerHTML = makeEmbed(trackId, 80, 0);
+document.getElementById('embed-b').innerHTML = makeEmbed(trackId, 152, 0);
+document.getElementById('embed-c').innerHTML = makeEmbed(trackId, 152, 1);
+document.getElementById('c-embed').style.height = '152px';
+
+document.getElementById('c-track-name').textContent  = randTrack.name;
+document.getElementById('c-artist-name').textContent = randTrack.artist;
+
+// ── Versão switcher ────────────────────────────────────────────────────────
+
+var current = 'a';
+
+function showVersion(v, btn) {
+  ['a','b','c'].forEach(function(x) {
+    document.getElementById('player-' + x).style.display = 'none';
+  });
+  document.querySelectorAll('.sel-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('player-' + v).style.display = '';
+  btn.classList.add('active');
+  current = v;
+}
+
+// ── Toggles ────────────────────────────────────────────────────────────────
+
+var aCollapsed = false;
+function toggleA() {
+  aCollapsed = !aCollapsed;
+  document.getElementById('player-a').classList.toggle('collapsed', aCollapsed);
+}
+
+var bCollapsed = false;
+function toggleB() {
+  bCollapsed = !bCollapsed;
+  document.getElementById('player-b').classList.toggle('collapsed', bCollapsed);
+}
+
+var cCollapsed = true;
+function toggleC() {
+  cCollapsed = !cCollapsed;
+  var el = document.getElementById('player-c');
+  el.classList.toggle('collapsed', cCollapsed);
+  document.getElementById('c-embed').style.height = cCollapsed ? '0' : '152px';
+}
+
+// Versão C começa expandida
+document.getElementById('player-c').classList.remove('collapsed');
+cCollapsed = false;
+</script>
+</body>
+</html>
