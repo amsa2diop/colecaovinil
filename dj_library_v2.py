@@ -3124,7 +3124,11 @@ def render_track_lp(row):
     bpm_f      = safe_float(row.get("bpm"))
     uri        = _clean(row.get("spotify_uri"))
     status     = str(row.get("status") or "REJEITADO")
-    deezer_id  = _clean(row.get("deezer_id"))
+    _did_raw   = _clean(row.get("deezer_id"))
+    try:
+        deezer_id = str(int(float(_did_raw))) if _did_raw else ""
+    except (ValueError, TypeError):
+        deezer_id = _did_raw
     release_id = _clean(row.get("release_id"))
 
     bpm_txt = f"{bpm_f:.0f}" if bpm_f else "—"
@@ -3747,7 +3751,11 @@ def render_track_row(row, country="", color_pastel="", format_data=None, origem=
     uri       = _clean(row.get("spotify_uri"))
     status    = str(row.get("status") or "REJEITADO")
     thumb     = esc(row.get("thumb_url") or row.get("cover_url") or "")
-    deezer_id  = _clean(row.get("deezer_id"))
+    _did_raw  = _clean(row.get("deezer_id"))
+    try:
+        deezer_id = str(int(float(_did_raw))) if _did_raw else ""
+    except (ValueError, TypeError):
+        deezer_id = _did_raw
     release_id = row.get("release_id", "")
     year_s     = str(int(row["year"])) if safe_float(row.get("year")) else ""
     styles_s   = str(row.get("styles") or "")
