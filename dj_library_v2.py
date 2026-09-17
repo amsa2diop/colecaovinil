@@ -1684,12 +1684,12 @@ body.is-owner .glb-stats .owner-only{display:inline!important}
 .sp-expand-btn{
   position:fixed;bottom:.6rem;left:50%;transform:translateX(-50%);
   z-index:9501;display:none;align-items:center;gap:.3rem;
-  background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.12);
-  box-shadow:0 2px 10px rgba(0,0,0,.15);border-radius:20px;
-  padding:.28rem .85rem .28rem .65rem;
-  font-size:.65rem;color:var(--text2);cursor:pointer;
-  transition:background .15s,color .15s,border-color .15s;white-space:nowrap}
-.sp-expand-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+  background:var(--acc);border:none;
+  box-shadow:0 2px 12px rgba(0,0,0,.28);border-radius:20px;
+  padding:.34rem 1rem .34rem .75rem;
+  font-size:.7rem;font-weight:600;color:#fff;cursor:pointer;
+  transition:filter .15s;white-space:nowrap}
+.sp-expand-btn:hover{filter:brightness(1.15)}
 
 /* ── PLAYLIST FILTER MODAL ─────────────────────────────────────────────────── */
 .pl-modal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.52);
