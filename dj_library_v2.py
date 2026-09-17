@@ -1637,7 +1637,7 @@ body.is-owner .glb-stats .owner-only{display:inline!important}
   font-size:.73rem;cursor:default}
 .glb-track:last-child{border-bottom:none}
 .glb-track:hover{background:var(--bdr2)}
-.glb-track.pl-match{background:var(--bdr2);outline:1.5px solid var(--acc);outline-offset:-1px;border-radius:4px}
+.glb-track.pl-match{background:var(--bdr2)}
 .glb-trk-pos{width:24px;flex-shrink:0;font-size:.6rem;color:var(--text3);font-weight:600;text-align:right}
 .glb-trk-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0}
 .glb-trk-info{flex:1;min-width:0}
@@ -2300,7 +2300,11 @@ function _spDescribeFilters(){
 function _spCollectUris(){
   var rows=Array.from(document.querySelectorAll('#grid-faixas .track-row:not(.hidden)'));
   var uriRows=rows.filter(function(r){return(r.dataset.uri||'').startsWith('spotify:track:');});
-  uriRows.sort(function(a,b){return(parseFloat(a.dataset.bpm)||0)-(parseFloat(b.dataset.bpm)||0);});
+  uriRows.sort(function(a,b){
+    var ba=a.dataset.hasbpm==='0'?99999:(parseFloat(a.dataset.bpm)||99999);
+    var bb=b.dataset.hasbpm==='0'?99999:(parseFloat(b.dataset.bpm)||99999);
+    return ba-bb;
+  });
   var seen=new Set();
   return uriRows.map(function(r){return r.dataset.uri;}).filter(function(u){
     if(seen.has(u))return false;seen.add(u);return true;
@@ -4195,7 +4199,11 @@ def generate_html(df):
         + '<button class="sp-create-pl-btn" onclick="createSpotifyPlaylist()" '
           'title="Criar playlist Spotify das faixas visíveis (por BPM)">+</button>'
     )
-    pl_btn_html_lp = _pl_filter_btn_tpl.format(bid='pl-filter-btn-lp', badge='pl-badge-lp')
+    pl_btn_html_lp = (
+        _pl_filter_btn_tpl.format(bid='pl-filter-btn-lp', badge='pl-badge-lp')
+        + '<button class="sp-create-pl-btn" onclick="createSpotifyPlaylist()" '
+          'title="Criar playlist Spotify das faixas visíveis (por BPM)">+</button>'
+    )
 
     # ── Spotify track IDs for random start ───────────────────────────────────
     _sp_accepted = df_tracks[df_tracks["status"] == "ACEITO"]["track_id"].dropna()
@@ -4572,7 +4580,7 @@ def generate_html(df):
 {sp_html}
 <button class="sp-expand-btn" onclick="toggleSpPlayer()" title="Mostrar player Spotify">
   <svg width="9" height="6" viewBox="0 0 9 6" fill="none"><path d="M1 5L4.5 1.5L8 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-  &#9834; Spotify
+  Spotify
 </button>
 
 <footer class="site-credits">BPM data by <a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM</a></footer>
