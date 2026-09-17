@@ -1779,6 +1779,9 @@ var incFilterActive=false;
 function _normQ(s){
   return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s]/g,' ').toLowerCase().replace(/\s+/g,' ').trim();
 }
+function _normCompact(s){
+  return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/gi,'').toLowerCase();
+}
 // Busca por múltiplos termos em qualquer ordem: "quincy garden" casa com
 // "Quincy Jones ... The Secret Garden" mesmo não sendo um trecho contínuo.
 function _searchMatch(raw,q){
@@ -2144,9 +2147,10 @@ function _plItemHtml(p){
 }
 function _renderPlList(q){
   var hasFolders=SP_FOLDERS&&Object.keys(SP_FOLDERS).length>0;
-  if(hasFolders&&!q){_renderPlListFolders();return;}
+  var nq=_normCompact(q);
+  if(hasFolders&&!nq){_renderPlListFolders();return;}
   var items=SP_PLAYLISTS.filter(function(p){
-    return !q||p.toLowerCase().indexOf(q.toLowerCase())!==-1;
+    return !nq||_normCompact(p).indexOf(nq)!==-1;
   });
   items.sort(function(a,b){
     var ac=activePlaylists.has(a)?0:1,bc=activePlaylists.has(b)?0:1;
@@ -2297,13 +2301,20 @@ function _spDescribeFilters(){
   if(typeof incFilterActive!=='undefined'&&incFilterActive)parts.push('Incompletas');
   return parts.length?parts.join(' · '):'sem filtros';
 }
-function _spCollectUris(){
+function _spCollectUris(sortVal){
+  var sort=sortVal||document.getElementById('sp-pl-sort').value||'bpm-asc';
   var rows=Array.from(document.querySelectorAll('#grid-faixas .track-row:not(.hidden)'));
   var uriRows=rows.filter(function(r){return(r.dataset.uri||'').startsWith('spotify:track:');});
   uriRows.sort(function(a,b){
-    var ba=a.dataset.hasbpm==='0'?99999:(parseFloat(a.dataset.bpm)||99999);
-    var bb=b.dataset.hasbpm==='0'?99999:(parseFloat(b.dataset.bpm)||99999);
-    return ba-bb;
+    if(sort==='bpm-asc'||sort==='bpm-desc'){
+      var ba=a.dataset.hasbpm==='0'?99999:(parseFloat(a.dataset.bpm)||99999);
+      var bb=b.dataset.hasbpm==='0'?99999:(parseFloat(b.dataset.bpm)||99999);
+      return sort==='bpm-desc'?(bb-ba):(ba-bb);
+    }
+    if(sort==='az') return (a.dataset.artist||'').localeCompare(b.dataset.artist||'','pt');
+    if(sort==='year-asc') return (parseInt(a.dataset.year)||0)-(parseInt(b.dataset.year)||0);
+    if(sort==='year-desc') return (parseInt(b.dataset.year)||0)-(parseInt(a.dataset.year)||0);
+    return 0;
   });
   var seen=new Set();
   return uriRows.map(function(r){return r.dataset.uri;}).filter(function(u){
@@ -2312,24 +2323,32 @@ function _spCollectUris(){
 }
 async function createSpotifyPlaylist(){
   if(!document.body.classList.contains('is-owner'))return;
-  var uris=_spCollectUris();
-  if(!uris.length){_spToast('Nenhuma faixa Spotify visível.');return;}
-  localStorage.setItem('_sp_pending',JSON.stringify(uris));
+  var previewUris=_spCollectUris();
+  if(!previewUris.length){_spToast('Nenhuma faixa Spotify visível.');return;}
   localStorage.setItem('_sp_pending_desc',_spDescribeFilters());
   var tok=await _spToken();
   if(!tok){await _spAuth();return;}
-  _spShowNameDialog(uris);
+  _spShowNameDialog();
 }
-function _spShowNameDialog(uris){
+function _spUpdateSortSub(){
+  var uris=_spCollectUris();
+  var sub=document.getElementById('sp-name-sub');
+  if(sub){
+    var sortEl=document.getElementById('sp-pl-sort');
+    var sortLabel=sortEl?sortEl.options[sortEl.selectedIndex].text:'BPM ↑';
+    sub.textContent=uris.length+' faixas · '+sortLabel;
+  }
+  return uris;
+}
+function _spShowNameDialog(){
   var d=new Date();
   var ds=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
   var defaultName='Exportada no Discos do Amsa ('+ds+')';
   var inp=document.getElementById('sp-pl-name');
   if(inp){inp.value=defaultName;inp.select();}
-  var sub=document.getElementById('sp-name-sub');
-  if(sub)sub.textContent=uris.length+' faixas · ordenadas por BPM';
+  _spUpdateSortSub();
   var nm=document.getElementById('sp-name-modal');
-  if(nm){nm._uris=uris;nm.classList.add('open');}
+  if(nm)nm.classList.add('open');
   setTimeout(function(){if(inp)inp.focus();},120);
 }
 async function _spConfirmCreate(){
@@ -2338,7 +2357,7 @@ async function _spConfirmCreate(){
   var name=(document.getElementById('sp-pl-name')||{}).value||'';
   name=name.trim();
   if(!name)return;
-  var uris=(nm&&nm._uris)||JSON.parse(localStorage.getItem('_sp_pending')||'[]');
+  var uris=_spCollectUris();
   if(!uris.length)return;
   var filterDesc=localStorage.getItem('_sp_pending_desc')||'sem filtros';
   await _spDoCreate(name,uris,filterDesc);
@@ -2404,7 +2423,7 @@ function _spToast(msg,ms){
     _spExchange(code).then(function(d){
       if(d.access_token){
         var pending=JSON.parse(localStorage.getItem('_sp_pending')||'[]');
-        if(pending.length)_spShowNameDialog(pending);
+        if(pending.length)_spShowNameDialog();
         else _spToast('Auth OK — clique + para criar a playlist.');
       }else _spToast('Erro auth Spotify: '+(d.error||'?'));
     });
@@ -4607,11 +4626,19 @@ def generate_html(df):
       <span>Nova playlist Spotify</span>
       <button onclick="document.getElementById('sp-name-modal').classList.remove('open')" title="Fechar">&#10005;</button>
     </div>
-    <div style="padding:.75rem 1rem 1rem">
+    <div style="padding:.75rem 1rem 1rem;display:flex;flex-direction:column;gap:.6rem">
       <input id="sp-pl-name" class="pl-modal-search" type="text"
         style="margin:0;width:100%;box-sizing:border-box"
         placeholder="Nome da playlist...">
-      <div id="sp-name-sub" style="font-size:.72rem;color:var(--text3);margin-top:.45rem;padding-left:.1rem"></div>
+      <select id="sp-pl-sort" class="ctrl-sel" style="margin:0;width:100%"
+        onchange="_spUpdateSortSub()">
+        <option value="bpm-asc">BPM &#9652;</option>
+        <option value="bpm-desc">BPM &#9662;</option>
+        <option value="az">Artista A&#8594;Z</option>
+        <option value="year-asc">Ano &#9652;</option>
+        <option value="year-desc">Ano &#9662;</option>
+      </select>
+      <div id="sp-name-sub" style="font-size:.72rem;color:var(--text3);padding-left:.1rem"></div>
     </div>
     <div class="pl-modal-footer">
       <button onclick="document.getElementById('sp-name-modal').classList.remove('open')">Cancelar</button>
