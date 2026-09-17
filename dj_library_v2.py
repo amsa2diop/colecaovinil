@@ -1637,6 +1637,7 @@ body.is-owner .glb-stats .owner-only{display:inline!important}
   font-size:.73rem;cursor:default}
 .glb-track:last-child{border-bottom:none}
 .glb-track:hover{background:var(--bdr2)}
+.glb-track.pl-match{background:var(--bdr2);outline:1.5px solid var(--acc);outline-offset:-1px;border-radius:4px}
 .glb-trk-pos{width:24px;flex-shrink:0;font-size:.6rem;color:var(--text3);font-weight:600;text-align:right}
 .glb-trk-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0}
 .glb-trk-info{flex:1;min-width:0}
@@ -2200,8 +2201,8 @@ function _togFolder(el,name){
   localStorage.setItem('_plfold_'+name,open?'0':'1');
 }
 function _togPl(cb,name){if(cb.checked)activePlaylists.add(name);else activePlaylists.delete(name);}
-function applyPlFilter(){closePlModal();_updatePlBadge();filterTracks();filterLP();}
-function clearPlFilter(){activePlaylists.clear();_updatePlBadge();filterTracks();filterLP();}
+function applyPlFilter(){closePlModal();_updatePlBadge();filterTracks();filterLP();_highlightGlbTracks();}
+function clearPlFilter(){activePlaylists.clear();_updatePlBadge();filterTracks();filterLP();_highlightGlbTracks();}
 function _updatePlBadge(){
   var n=activePlaylists.size;
   ['pl-badge','pl-badge-lp'].forEach(function(id){
@@ -2300,7 +2301,10 @@ function _spCollectUris(){
   var rows=Array.from(document.querySelectorAll('#grid-faixas .track-row:not(.hidden)'));
   var uriRows=rows.filter(function(r){return(r.dataset.uri||'').startsWith('spotify:track:');});
   uriRows.sort(function(a,b){return(parseFloat(a.dataset.bpm)||0)-(parseFloat(b.dataset.bpm)||0);});
-  return uriRows.map(function(r){return r.dataset.uri;});
+  var seen=new Set();
+  return uriRows.map(function(r){return r.dataset.uri;}).filter(function(u){
+    if(seen.has(u))return false;seen.add(u);return true;
+  });
 }
 async function createSpotifyPlaylist(){
   if(!document.body.classList.contains('is-owner'))return;
@@ -2964,6 +2968,17 @@ function setLPView(v){
 }
 
 // ── GRADE LIGHTBOX ────────────────────────────────────────────────────────────
+function _highlightGlbTracks(){
+  var tracks=document.querySelectorAll('#glb-inner .glb-track');
+  if(!tracks.length)return;
+  var active=activePlaylists.size>0;
+  tracks.forEach(function(t){
+    if(!active){t.classList.remove('pl-match');return;}
+    var pls=(t.dataset.playlists||'').split('|').filter(Boolean);
+    var match=pls.some(function(p){return activePlaylists.has(p);});
+    t.classList.toggle('pl-match',match);
+  });
+}
 function openGridLightbox(rid){
   var pool=document.getElementById('glb-pool');
   var src=pool&&pool.querySelector('[data-rid="'+rid+'"]');
@@ -2982,6 +2997,7 @@ function openGridLightbox(rid){
   document.body.style.overflow='hidden';
   var spWrap=document.getElementById('sp-player-wrap');
   if(spWrap){spWrap.classList.add('sp-hidden');updateSpPlayerPadding();}
+  _highlightGlbTracks();
 }
 function closeGridLightbox(){
   document.getElementById('grid-lightbox').classList.remove('open');
@@ -3217,7 +3233,7 @@ def render_album_grid(group, color_pastel="", country="", format_data=None, copy
     )
 
 
-def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color_pastel="", country="", format_data=None, copy_count=1, similar_pressings=None):
+def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color_pastel="", country="", format_data=None, copy_count=1, similar_pressings=None, uri_to_playlists=None):
     """Renderiza o card escuro do lightbox da view em grade (pre-renderizado, oculto)."""
     _months = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"]
     format_info = format_data or {}
@@ -3379,8 +3395,9 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
                             f'&#9654; Ouvir</button>')
         artist_diff = trk_artist.lower() != (first.get("album_artist","") or "").lower()
         artist_line = f'<div class="glb-trk-artist">{esc(trk_artist)}</div>' if artist_diff else ""
+        _trk_pls = "|".join(sorted((uri_to_playlists or {}).get(trk_sp_uri, []))) if trk_sp_uri else ""
         track_rows.append(
-            f'<div class="glb-track">'
+            f'<div class="glb-track" data-playlists="{html_module.escape(_trk_pls)}">'
             f'<span class="glb-trk-pos">{pos_s}</span>'
             f'<div class="glb-trk-dot"></div>'
             f'<div class="glb-trk-info"><div class="glb-trk-title">{trk_title}</div>{artist_line}</div>'
@@ -4123,6 +4140,7 @@ def generate_html(df):
             format_data       = format_map.get(str(rid), {}),
             copy_count        = copy_counts.get(str(rid), 1),
             similar_pressings = [_pressing_info(r) for r in similar_map.get(str(rid), [])],
+            uri_to_playlists  = _uri_to_playlists,
         )
         for rid, g in _sorted_groups
     )
