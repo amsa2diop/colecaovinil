@@ -1755,10 +1755,11 @@ function switchView(v){
   // Mantém o termo de busca ao trocar de view
   var inputId=v==='lp'?'q-lp':'q-faixas';
   var input=document.getElementById(inputId);
-  if(input.value!==searchQuery){
-    input.value=searchQuery;
+  if(input.value!==searchQuery){input.value=searchQuery;}
+  // Defer heavy filter work so browser can paint the new tab first (Safari fix)
+  requestAnimationFrame(function(){
     if(v==='lp')filterLP();else filterTracks();
-  }
+  });
   syncAllChips();
   setTimeout(updateSpPlayerPadding,100);
 }
@@ -1946,7 +1947,8 @@ function filterLP(){
     var _recVals=(c.dataset.recebido||'').split('|');
     var recOk=recebidoFilter==='all'||(recebidoFilter==='sim'&&_recVals.some(function(v){return v==='Sim';}))||(recebidoFilter==='nao'&&_recVals.some(function(v){return v!=='Sim';}));
     var bpmOk=albumBpmOk(c,activeBpmFilter);
-    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&djOk&&paOk&&dupOk&&recOk&&bpmOk;
+    var plOk=activePlaylists.size===0||(c.dataset.playlists||'').split('|').some(function(p){return p&&activePlaylists.has(p);});
+    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&djOk&&paOk&&dupOk&&recOk&&bpmOk&&plOk;
     c.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-lp').textContent=vis;
@@ -2198,8 +2200,8 @@ function _togFolder(el,name){
   localStorage.setItem('_plfold_'+name,open?'0':'1');
 }
 function _togPl(cb,name){if(cb.checked)activePlaylists.add(name);else activePlaylists.delete(name);}
-function applyPlFilter(){closePlModal();_updatePlBadge();filterTracks();}
-function clearPlFilter(){activePlaylists.clear();_updatePlBadge();filterTracks();}
+function applyPlFilter(){closePlModal();_updatePlBadge();filterTracks();filterLP();}
+function clearPlFilter(){activePlaylists.clear();_updatePlBadge();filterTracks();filterLP();}
 function _updatePlBadge(){
   var n=activePlaylists.size;
   var b=document.getElementById('pl-badge');
@@ -3414,7 +3416,7 @@ def render_album_lightbox_card(group, instances=None, sp_playlist_link="", color
     )
 
 
-def render_album_lp(group, copy_count=1, fields=None, instances=None, country="", color_pastel="", format_data=None, similar_pressings=None):
+def render_album_lp(group, copy_count=1, fields=None, instances=None, country="", color_pastel="", format_data=None, similar_pressings=None, uri_to_playlists=None):
     """Renderiza um card de álbum (LP view)."""
     format_info = format_data or {}
 
@@ -3607,6 +3609,14 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
         f'{fmt_label} {all_orig_search} {all_notas_search}'.lower()
     )
 
+    # Aggregate playlists for all tracks in this album
+    _album_playlists: set = set()
+    for _, _tr in group_dedup.iterrows():
+        _uri_k = str(_tr.get("spotify_uri") or "").strip()
+        if _uri_k and (uri_to_playlists or {}).get(_uri_k):
+            _album_playlists.update((uri_to_playlists or {}).get(_uri_k, []))
+    album_playlists_s = html_module.escape("|".join(sorted(_album_playlists)))
+
     tracks_html = "\n".join(render_track_lp(r) for _, r in group_dedup.iterrows())
     n_bpm = int(group_dedup["bpm"].apply(safe_float).notna().sum())
     n_preview = 0
@@ -3709,6 +3719,7 @@ def render_album_lp(group, copy_count=1, fields=None, instances=None, country=""
   data-similar="{_sim_count}"
   data-date-added="{esc(date_added_raw)}"
   data-release-id="{release_id}"
+  data-playlists="{album_playlists_s}"
   data-instance-id="{instance_id}">
   {cover_blur_html}
   <header class="album-header" onclick="toggleAlbum(this)">
@@ -4048,6 +4059,20 @@ def generate_html(df):
     if playlist_url:
         sp_embed_id = playlist_url.split(":")[-1].split("/")[-1]
 
+    # ── Playlist map (track URI → lista de playlists do Spotify) ────────────
+    import json as _json
+    _pl_map_path = WORK_DIR / "backup_playlist_map.json"
+    _uri_to_playlists: dict = {}
+    _all_playlist_names: list = []
+    _pl_data: dict = {}
+    if _pl_map_path.exists():
+        try:
+            _pl_data = _json.loads(_pl_map_path.read_text(encoding="utf-8"))
+            _uri_to_playlists   = _pl_data.get("uri_to_playlists", {})
+            _all_playlist_names = _pl_data.get("playlist_names", [])
+        except Exception:
+            pass
+
     albums_html = "\n".join(
         render_album_lp(
             g,
@@ -4057,6 +4082,7 @@ def generate_html(df):
             color_pastel      = colors_map.get(str(rid), ""),
             format_data       = format_map.get(str(rid), {}),
             similar_pressings = [_pressing_info(r) for r in similar_map.get(str(rid), [])],
+            uri_to_playlists  = _uri_to_playlists,
         )
         for rid, g in _sorted_groups
     )
@@ -4090,20 +4116,6 @@ def generate_html(df):
         )
         for rid, g in _sorted_groups
     )
-
-    # ── Playlist map (track URI → lista de playlists do Spotify) ────────────
-    import json as _json
-    _pl_map_path = WORK_DIR / "backup_playlist_map.json"
-    _uri_to_playlists: dict = {}
-    _all_playlist_names: list = []
-    _pl_data: dict = {}
-    if _pl_map_path.exists():
-        try:
-            _pl_data = _json.loads(_pl_map_path.read_text(encoding="utf-8"))
-            _uri_to_playlists   = _pl_data.get("uri_to_playlists", {})
-            _all_playlist_names = _pl_data.get("playlist_names", [])
-        except Exception:
-            pass
 
     # ── Track view: sorted by BPM (deduplica cópias) ─────────────────────────
     df_tracks = df.drop_duplicates(subset=["release_id","position"]).copy()
