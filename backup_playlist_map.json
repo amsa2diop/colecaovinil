@@ -1,5 +1,17 @@
 {
   "uri_to_playlists": {
+    "spotify:track:0wn1zutdePYlXV0H8WfQGn": [
+      "help chillfunk",
+      "FATCHIA TOP 2",
+      "FATCHIA TOP",
+      "FATCHIA novo",
+      "Jul/2026",
+      "Chill Funk"
+    ],
+    "spotify:track:0FkUIysh68ZdHTgJkvmogL": [
+      "help chillfunk",
+      "Chill Funk"
+    ],
     "spotify:track:0nI7b7IL7Oh5NhARBeRuIM": [
       "ARUA SUMMIT",
       "MPBonito"
@@ -84,7 +96,6 @@
       "Baile Amefricano",
       "MPBonito",
       "Top122",
-      "Yanam",
       "Yanam"
     ],
     "spotify:track:4eORAD7cw10CUOPyjcD6b4": [
@@ -144,7 +155,6 @@
       "Tropí",
       "Baile Amefricano",
       "Soul Br",
-      "Yanam",
       "Yanam"
     ],
     "spotify:track:1cie8Kh2zfvvOcstv5gly2": [
@@ -386,7 +396,6 @@
       "Churras da GADG",
       "Jun/2022",
       "Baile Amefricano",
-      "Yanam",
       "Yanam"
     ],
     "spotify:track:1KUAQejqLmMNXm4cIxAke6": [
@@ -671,7 +680,6 @@
       "Baile Amefricano",
       "MPBonito",
       "Top122",
-      "Yanam",
       "Yanam",
       "samples amsa"
     ],
@@ -1075,7 +1083,6 @@
       "ARUA SUMMIT",
       "Dia dos Namorados 264 BR",
       "MPBonito",
-      "Yanam",
       "Yanam"
     ],
     "spotify:track:3wwfbaEMZonUZQ9gBN1aXe": [
@@ -2460,13 +2467,6 @@
       "FATCHIA novo",
       "Dez/2019"
     ],
-    "spotify:track:0wn1zutdePYlXV0H8WfQGn": [
-      "FATCHIA TOP 2",
-      "FATCHIA TOP",
-      "FATCHIA novo",
-      "Jul/2026",
-      "Chill Funk"
-    ],
     "spotify:track:2CYL2V0SFBipXlCUTI2sMJ": [
       "FATCHIA TOP 2",
       "MPDNM Vinil (17/06/26)",
@@ -2722,7 +2722,6 @@
       "Aquecimento Soul RnB 264",
       "Total 264",
       "Tropí",
-      "Yanam",
       "Yanam"
     ],
     "spotify:track:3c1vwtaUfS88rR4UuiaMoZ": [
@@ -4753,7 +4752,6 @@
       "Dia dia namorados 264 USA",
       "Aint No Mountain High Amsa",
       "Slow Oldies",
-      "Yanam",
       "Yanam"
     ],
     "spotify:track:0l9RGwc48deJ6j61KXAAvs": [
@@ -6543,7 +6541,6 @@
       "Rock & Indie"
     ],
     "spotify:track:1tqT6DhmsrtQgyCKUwotiw": [
-      "Yanam",
       "Yanam"
     ],
     "spotify:track:2jto2mk883akXynLqkdung": [
@@ -6853,12 +6850,14 @@
     "Viaduto de Madureira -O melhor do Baile Charme - D",
     "Wanted Bossa Nova: From Diggers to Music Lovers – Vários intérpretes",
     "Yanam",
-    "Yanam",
     "amsa in BKLYN",
     "boa trip",
     "br House",
     "chillbaile",
     "f1 boa deep",
+    "help afrob",
+    "help chillfunk",
+    "mocamboGrita",
     "mocamboGrita",
     "mpbeats",
     "para remixar",
