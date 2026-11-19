@@ -4347,7 +4347,7 @@ def generate_html(df):
         '<button class="chip format-chip active" data-val="all"'
         ' onclick="setFormatFilter(\'all\',this)">Tudo</button>'
         '<button class="chip format-chip" data-val="7"'
-        ' onclick="setFormatFilter(\'7\',this)">Compacto 7&quot;</button>'
+        ' onclick="setFormatFilter(\'7\',this)">7&quot;</button>'
         '<button class="chip format-chip" data-val="10"'
         ' onclick="setFormatFilter(\'10\',this)">10&quot;</button>'
         '<button class="chip format-chip" data-val="12"'
