@@ -1811,6 +1811,7 @@ var origemFilter=new Set();
 var nacionalFilter='all';
 var decadeFilter=new Set();
 var compilFilter='all';
+var formatFilter='all';
 var djFilter='all';
 var paFilter='all';
 var dupFilter='all';
@@ -1844,6 +1845,9 @@ function syncAllChips(){
   });
   document.querySelectorAll('.compil-chip').forEach(function(c){
     c.classList.toggle('active',c.dataset.val===compilFilter);
+  });
+  document.querySelectorAll('.format-chip').forEach(function(c){
+    c.classList.toggle('active',c.dataset.val===formatFilter);
   });
   document.querySelectorAll('.bpm-chip').forEach(function(c){
     if(c.dataset.val==='all'){c.classList.toggle('active',activeBpmFilter.size===0);c.classList.remove('multi-active');}
@@ -1931,6 +1935,19 @@ function setCompilFilter(val,el){
   document.querySelectorAll('.compil-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('active')});
   filterLP();filterTracks();
 }
+function setFormatFilter(val,el){
+  formatFilter=val;
+  document.querySelectorAll('.format-chip').forEach(function(c){c.classList.remove('active')});
+  document.querySelectorAll('.format-chip[data-val="'+val+'"]').forEach(function(c){c.classList.add('active')});
+  filterLP();filterTracks();
+}
+function _formatOk(fmt){
+  if(formatFilter==='all')return true;
+  if(formatFilter==='7')return fmt==='7"';
+  if(formatFilter==='10')return fmt==='10"';
+  if(formatFilter==='12')return fmt==='12"'||fmt==='LP';
+  return true;
+}
 function setDjFilter(val,el){
   djFilter=val;
   document.querySelectorAll('.dj-chip').forEach(function(c){c.classList.remove('active')});
@@ -1984,6 +2001,7 @@ function filterLP(){
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(c.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&c.dataset.compilation==='1')||(compilFilter==='nocomp'&&c.dataset.compilation!=='1');
+    var fmtOk=_formatOk(c.dataset.format||'');
     var _djVals=(c.dataset.dj||'').split('|');
     var djOk=djFilter==='all'||(djFilter==='yes'&&_djVals.some(function(v){return v==='Sim'||v==='Parcial';}));
     var _paVals=(c.dataset.pa||'').split('|');
@@ -1993,7 +2011,7 @@ function filterLP(){
     var recOk=recebidoFilter==='all'||(recebidoFilter==='sim'&&_recVals.some(function(v){return v==='Sim';}))||(recebidoFilter==='nao'&&_recVals.some(function(v){return v!=='Sim';}));
     var bpmOk=albumBpmOk(c,activeBpmFilter);
     var plOk=activePlaylists.size===0||(c.dataset.playlists||'').split('|').some(function(p){return p&&activePlaylists.has(p);});
-    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&djOk&&paOk&&dupOk&&recOk&&bpmOk&&plOk;
+    var ok=qOk&&origOk&&nacOk&&decOk&&compilOk&&fmtOk&&djOk&&paOk&&dupOk&&recOk&&bpmOk&&plOk;
     c.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-lp').textContent=vis;
@@ -2062,6 +2080,7 @@ function filterTracks(){
     var nacOk=nacionalFilter==='all'||(nacionalFilter==='nacional'&&isBrazil)||(nacionalFilter==='internacional'&&!isBrazil);
     var decOk=decadeFilter.size===0||decadeFilter.has(r.dataset.decade);
     var compilOk=compilFilter==='all'||(compilFilter==='comp'&&r.dataset.compilation==='1')||(compilFilter==='nocomp'&&r.dataset.compilation!=='1');
+    var fmtOk=_formatOk(r.dataset.format||'');
     var origOk=origemFilter.size===0||origemFilter.has((r.dataset.origem||'').toLowerCase());
     var djOk=djFilter==='all'||(djFilter==='yes'&&['Sim','Parcial'].indexOf(r.dataset.dj)!==-1);
     var paOk=paFilter==='all'||(paFilter==='yes'&&['Sim','Em breve'].indexOf(r.dataset.pa)!==-1);
@@ -2069,7 +2088,7 @@ function filterTracks(){
     var inctype=r.dataset.inctype||'';
     var incOk=!incFilterActive||(inctype==='nosp'||inctype==='nobpm'||inctype==='both');
     var plOk=activePlaylists.size===0||(r.dataset.playlists||'').split('|').some(function(p){return p&&activePlaylists.has(p);});
-    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&origOk&&djOk&&paOk&&recOk&&incOk&&plOk;
+    var ok=qOk&&bpmOk&&nacOk&&decOk&&compilOk&&fmtOk&&origOk&&djOk&&paOk&&recOk&&incOk&&plOk;
     r.classList.toggle('hidden',!ok);if(ok)vis++;
   });
   document.getElementById('cnt-faixas').textContent=vis;
@@ -2334,6 +2353,7 @@ function _spDescribeFilters(){
     parts.push('Década: '+Array.from(decadeFilter).join(', '));
   if(typeof compilFilter!=='undefined'&&compilFilter==='comp')parts.push('Compilações');
   if(typeof compilFilter!=='undefined'&&compilFilter==='nocomp')parts.push('Sem compilações');
+  if(typeof formatFilter!=='undefined'&&formatFilter!=='all')parts.push('Formato: '+formatFilter+'"');
   if(typeof origemFilter!=='undefined'&&origemFilter.size>0)
     parts.push('Origem: '+Array.from(origemFilter).join(', '));
   if(typeof djFilter!=='undefined'&&djFilter==='yes')parts.push('Para discotecar');
@@ -4323,6 +4343,17 @@ def generate_html(df):
         ' onclick="setCompilFilter(\'nocomp\',this)">Simples</button>'
     )
 
+    format_inner = (
+        '<button class="chip format-chip active" data-val="all"'
+        ' onclick="setFormatFilter(\'all\',this)">Tudo</button>'
+        '<button class="chip format-chip" data-val="7"'
+        ' onclick="setFormatFilter(\'7\',this)">Compacto 7&quot;</button>'
+        '<button class="chip format-chip" data-val="10"'
+        ' onclick="setFormatFilter(\'10\',this)">10&quot;</button>'
+        '<button class="chip format-chip" data-val="12"'
+        ' onclick="setFormatFilter(\'12\',this)">12&quot; / LP</button>'
+    )
+
     # Origem values (all copies, all instances)
     origem_vals = sorted(set(
         (inst.get("Origem") or "").strip()
@@ -4401,6 +4432,7 @@ def generate_html(df):
         f'<div class="filter-group"><span class="filter-group-label">D&#233;cada</span>{decade_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Origem</span>{nac_inner}</div>'
         f'<div class="filter-group"><span class="filter-group-label">Tipo</span>{compil_inner}</div>'
+        f'<div class="filter-group"><span class="filter-group-label">Formato</span>{format_inner}</div>'
         f'{origem_group}'
         f'{dj_group}'
         f'{pa_group}'

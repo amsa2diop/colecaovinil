@@ -37,6 +37,14 @@ import dj_library_v2 as lib
 
 sp, df = lib.main()
 
+# Formato (7"/10"/12"/LP) e selo — incremental; roda após main() para cobrir discos recém-adicionados
+result = subprocess.run(
+    [sys.executable, str(WORK_DIR / "fetch_discogs_format.py")],
+    check=False
+)
+if result.returncode != 0:
+    print("⚠ fetch_discogs_format.py falhou — continuando com dados anteriores.")
+
 
 # ── 3. Reconstruir mapa de playlists Spotify ──────────────────────────────────
 print("\n" + "=" * 60)
